@@ -1,0 +1,1 @@
+alter table exam drop column if exists security_codes;

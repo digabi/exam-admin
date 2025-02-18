@@ -1,0 +1,16 @@
+#!/usr/bin/env node
+require('source-map-support').install()
+const logger = require('../dist/logger').logger
+const config = require('../dist/config/config').default
+const app = require('../dist/app').default
+
+const http = require('http')
+const https = require('https')
+
+// Enable Keep-Alive by default for better performance.
+http.globalAgent.keepAlive = true
+https.globalAgent.keepAlive = true
+
+const server = app.listen(config.port, config.interface, function() {
+  logger.info('Express server listening on ' + server.address().address + ':' + server.address().port)
+})

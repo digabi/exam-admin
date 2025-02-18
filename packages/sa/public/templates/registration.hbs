@@ -1,0 +1,17 @@
+<div class="left-section">
+  <img src="../img/teacher_with_laptop.png" width="240" height="240">
+</div>
+
+<form id="start-registration" class="inputform" novalidate>
+  <h1 data-i18n="registration.welcome"></h1>
+
+  <p data-i18n="registration.registration_prompt"></p>
+  <p data-i18n="registration.forgot_password_prompt"></p>
+  <label>
+    <h2 class="field-description" data-i18n="registration.email">{{t "registration.email"}}</h2>
+    <input type="email" class="text-input" name="email" maxlength="254"/>
+  </label>
+  <div class="buttons">
+    <input type="submit" class="submit-button sa-button-medium" data-i18n="[value]registration.submit_button"/> <span id="sending-feedback"></span>
+  </div>
+</form>

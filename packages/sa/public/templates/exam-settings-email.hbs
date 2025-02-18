@@ -1,0 +1,36 @@
+<h2 data-i18n="lapa.exam_language">{{ t "lapa.exam_language" }}</h2>
+
+<div class="form-group default-radio">
+    <label><input type="radio" name="default_language" value="fi-FI"><span class="radio-label" data-i18n="lapa.exam_languages.fi-FI">{{ t "lapa.exam_languages.fi-FI"}}</span></label>
+    <label><input type="radio" name="default_language" value="sv-FI"><span class="radio-label" data-i18n="lapa.exam_languages.sv-FI">{{ t "lapa.exam_languages.sv-FI"}}</span></label>
+</div>
+
+<h2 data-i18n="sa.settings.update_username.change_email_address">{{ t "sa.settings.update_username.change_email_address"
+}}</h2>
+
+<div class="form-group">
+  <label for="new-username" data-i18n="sa.settings.update_username.new_email_address">
+    {{t "sa.settings.update_username.new_email_address" }}
+  </label>
+  <input type="email" id="new-username" class="text-input input-md" name="username" autocomplete="off" maxlength="254" />
+  <div class="validation-error" data-validation-error-for="username"></div>
+</div>
+
+<div class="form-group">
+  <label for="password" data-i18n="sa.password">
+    {{t "sa.password" }}
+  </label>
+  <input type="password" id="password" class="input-md" name="password" autocomplete="current-password">
+  <div class="validation-error" data-validation-error-for="password"></div>
+</div>
+
+{{#unless done}}
+  <p data-i18n="sa.settings.update_username.status.ready">{{ t "sa.settings.update_username.status.ready" }}</p>
+{{else}}
+  <p data-i18n="sa.settings.update_username.status.done">{{ t "sa.settings.update_username.status.done" }}</p>
+{{/unless}}
+
+<button class="button button--big" id="submit-button" type="submit" data-i18n="sa.settings.update_username.change_email_address"
+        {{#if done}}disabled{{/if}}>
+  {{ t "sa.settings.update_username.change_email_address" }}
+</button>

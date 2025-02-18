@@ -1,0 +1,22 @@
+<div class="answers-uploaded-notification clear-when-switching-tab">
+  {{#if uploadedExams.length}}
+    <div class="js-answers-uploaded-succesfully" data-i18n="sa.answers_uploaded">{{t "sa.answers_uploaded"}}</div>
+    {{#each uploadedExams}}
+      <div class="exam-title">{{title}}
+      {{#if isDuplicate}}
+        <span class="error-notice" data-i18n="sa.answers_uploaded_already">{{t "sa.answers_uploaded_already"}}</span>
+      {{/if}}
+      </div>
+    {{/each}}
+  {{/if}}
+
+  {{#if deletedTitles.length}}
+    <div class="js-answers-uploaded-to-deleted" data-i18n="sa.answers_uploaded_to_deleted">{{t "sa.answers_uploaded_to_deleted"}}</div>
+    {{#each deletedTitles}}
+      <div class="exam-title">{{this}}</div>
+    {{/each}}
+    <br/>
+    <div class="js-answers-uploaded-to-deleted" data-i18n="[html]sa.answers_uploaded_to_deleted_instructions">{{t "sa.answers_uploaded_to_deleted_instructions"}}</div>
+  {{/if}}
+  <div class="answers-visibility-info" data-i18n="sa.answers_visibility_info">{{t "sa.answers_visibility_info"}}</div>
+</div>

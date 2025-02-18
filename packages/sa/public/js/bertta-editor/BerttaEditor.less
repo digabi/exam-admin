@@ -1,0 +1,219 @@
+html {
+  background: #e0f4fe;
+  height: 100%;
+}
+body {
+  margin: 0;
+  font:
+    normal normal 16px/24px 'Noto Sans',
+    sans-serif;
+  color: #333333;
+}
+a {
+  color: #006ed2;
+  cursor: pointer;
+  text-decoration: underline;
+  &:hover {
+    color: #0050c8;
+  }
+  &.disabled {
+    color: #999999;
+    pointer-events: none;
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  position: relative;
+  font-size: 16px;
+  padding: 0 1rem;
+  box-sizing: border-box;
+  height: 50px;
+}
+.returnToEvents {
+  font-size: 1.5rem;
+  text-decoration: none;
+  z-index: 3;
+}
+.basicContainer {
+  overflow: auto;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 1rem 2rem 0;
+}
+
+.berttaEditor {
+  position: absolute;
+  display: flex;
+  top: 0;
+  width: 100%;
+  bottom: 0;
+  .e-exam {
+    max-width: none;
+  }
+}
+.editorContainer {
+  position: relative;
+  width: 50%;
+  box-sizing: border-box;
+}
+.editorTabBar,
+.previewTabBar {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  height: 40px;
+  white-space: nowrap;
+  z-index: 1;
+  box-shadow: 0 8px 8px -5px #0002;
+}
+.previewContainer {
+  width: 50%;
+  position: relative;
+  border-left: 2px solid #e0f4fe;
+  box-sizing: border-box;
+  .text-answer,
+  a {
+    //pointer-events: none;
+  }
+  .e-exam .responsive-media-container {
+    width: auto;
+    padding: 0;
+    border: none;
+    &__inner {
+      padding-bottom: 0 !important;
+      width: auto;
+      overflow: visible;
+      * {
+        position: static;
+      }
+    }
+  }
+}
+.column {
+  position: absolute;
+  top: 40px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.preview {
+  overflow: auto;
+  margin: 0;
+  border: 0;
+}
+.editor {
+  background: white;
+  .hidden {
+    display: none;
+  }
+}
+
+.content {
+  position: absolute;
+  top: 50px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  .editorTab,
+  .previewTab {
+    max-width: 11rem;
+    width: 19%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 40px;
+    cursor: pointer;
+    border: none;
+    border-radius: 0;
+    font-size: 14px;
+    line-height: 24px;
+    color: #333333;
+    padding: 0.4rem 0.6rem;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0) 9.31%),
+      linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0) 32.63%),
+      linear-gradient(0deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15)), #ffffff;
+
+    &.selected {
+      background: white;
+    }
+  }
+}
+
+.combinedTabBar {
+  display: none;
+  white-space: nowrap;
+  width: 100%;
+  .editorTab {
+    max-width: 14%;
+  }
+  height: 40px;
+  z-index: 2;
+  box-shadow: 0 8px 8px -5px #0002;
+}
+
+.hidden {
+  display: none;
+}
+[data-last-saved] {
+  i {
+    margin-right: 0.2rem;
+  }
+  position: fixed;
+  top: 0;
+  right: 0;
+  font-size: 14px;
+  color: white;
+  z-index: 3;
+  background: #2eb92e;
+  padding: 0 8px;
+  border-radius: 0 0 0 6px;
+}
+[data-last-saved=''] {
+  display: none;
+}
+
+mark {
+  background: none;
+  text-decoration: underline;
+}
+.audio-player {
+  position: fixed;
+  z-index: 10;
+  bottom: 0;
+  right: 2rem;
+}
+@media only screen and (max-width: 1024px) {
+  body {
+    .inactive {
+      display: none;
+    }
+    .combinedTabBar {
+      display: block;
+    }
+    .previewContainer,
+    .editorContainer {
+      position: absolute;
+      width: 100%;
+      bottom: 0;
+      top: 40px;
+    }
+    .editorContainer {
+      z-index: 1;
+    }
+
+    .editorTabBar,
+    .previewTabBar {
+      display: none;
+    }
+    .column {
+      top: 0;
+    }
+  }
+}

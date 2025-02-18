@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html translate="no">
+<head>
+  <meta charset="UTF-8">
+  <title data-i18n="sa.app_name"></title>
+  <link rel="stylesheet" type="text/css" href="/dist/user-data.css">
+  <meta name="google" content="notranslate" />
+</head>
+<body class="reg-confirmation">
+  <div id="pagebanner"></div>
+
+  <div class="content">
+    <div id="load-indicator">
+      <p data-i18n="reg_confirmation.loading"></p>
+      <div id="load-spinner"></div>
+    </div>
+    <form id="user-data" class="inputform" method="post" action="/redirectSink">
+      <h1 data-i18n="reg_confirmation.title"></h1>
+      <p id="email" data-i18n="reg_confirmation.confirmation_prompt"></p>
+      <input type="hidden" name="username"/>
+      <input type="hidden" name="redirectUri" value="/"/>
+      <label><span class="field-description mandatory-field" data-i18n="reg_confirmation.password"></span>
+        <input id="password" type="password" name="password" maxlength="59"/>
+        <span id="password-error" class="error-notice"></span>
+      </label>
+      <label><span class="field-description mandatory-field" data-i18n="reg_confirmation.password_again"></span>
+        <input id="password2" type="password" name="password2" maxlength="59"/>
+        <span id="password2-error" class="error-notice"></span>
+      </label>
+
+      <p>
+        <label>
+          <span class="field-description" data-i18n="reg_confirmation.firstname"></span>
+          <input id="firstname" type="text" name="firstname" maxlength="100"/>
+          <span id="firstname-error" class="error-notice"></span>
+        </label>
+        <label>
+          <span class="field-description" data-i18n="reg_confirmation.lastname"></span>
+          <input id="lastname" type="text" name="lastname" maxlength="100"/>
+          <span id="lastname-error" class="error-notice"></span>
+        </label>
+      </p>
+
+      <p>
+        <label>
+          <input id="terms-acceptance" type="checkbox" name="terms-acceptance"><span class="mandatory-field" data-i18n="[html]reg_confirmation.terms_acceptance"></span>
+          <span id="terms-acceptance-error" class="error-notice"></span>
+        </label>
+      </p>
+      <p>
+      <input type="submit" class="submit-button sa-button-medium" data-i18n="[value]reg_confirmation.register"/>
+      <span data-i18n="reg_confirmation.confirmation_error" id="confirmation-error" class="error-notice"></span>
+      </p>
+    </form>
+
+    <div id="footer" class="footer content"></div>
+  </div>
+
+<script src="/mathjax/MathJax.js?delayStartupUntil=configured"></script>
+<script src="/dist/user-data-bundle.js"></script>
+</body>
+</html>

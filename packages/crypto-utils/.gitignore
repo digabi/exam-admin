@@ -1,0 +1,5 @@
+lib/
+node_modules/
+mocha-report.xml
+.idea
+eslint3.xml

@@ -1,0 +1,122 @@
+{
+  "title": "Test2 - Vastaustyyppien demokoe",
+  "instruction": "Kokeen ohje on <b>tässä</b>\nJa se voi olla monirivinen.",
+  "sections": [{
+    "questions": [
+      {
+        "maxScore": 6,
+        "text": "Ensimmäiseksi <b>tekstikysymys</b>, jonka tehtävänanto voi olla monirivinen.\nVastaa kirjoittamalla 150-200 sanaa.",
+        "displayNumber": "1",
+        "id": 0,
+        "type": "text",
+        "level": 1,
+          "screenshotExpected": true
+      },
+      {
+        "maxScore": 2,
+        "text": "Toiseksi <b>monivalinta</b>.\nVastaa alla oleviin kysymyksiin kuunneltuasi nauhan.",
+        "displayNumber": "2",
+        "id": 1,
+        "type": "choicegroup",
+        "level": 1,
+        "choices": [
+          {
+            "id": 2,
+            "text": "According to <b>Gregg McCrary</b>, what is typical of liars?",
+            "displayNumber": "2.1",
+            "type": "choice",
+            "breakAfter": true,
+            "options": [
+              {
+                "id": 3,
+                "text": "They strictly control their manner of <b>speaking</b>",
+                "correct": false
+              },
+              {
+                "id": 4,
+                "text": "Their manner of speaking radically changes",
+                "correct": true
+              },
+              {
+                "id": 5,
+                "text": "Their manner of speaking seems unaffected",
+                "correct": false
+              }
+            ]
+          },
+          {
+            "id": 6,
+            "text": "Why does Tommy Hilfiger miss being chairman?",
+            "displayNumber": "2.2",
+            "type": "choice",
+            "options": [
+              {
+                "id": 7,
+                "text": "He wants to say how everything goes",
+                "correct": false
+              },
+              {
+                "id": 8,
+                "text": "He likes to sit in board meetings",
+                "correct": false
+              },
+              {
+                "id": 9,
+                "text": "He would like his office back",
+                "correct": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "maxScore": 1,
+        "text": "Vastaa alla oleviin kysymyksiin kuunneltuasi nauha uudelleen.",
+        "displayNumber": "3",
+        "id": 10,
+        "type": "choicegroup",
+        "level": 1,
+        "choices": [
+          {
+            "id": 11,
+            "text": "Oliko koe vaikea?",
+            "displayNumber": "3.1",
+            "type": "choice",
+            "options": [
+              {
+                "id": 12,
+                "text": "Kyllä",
+                "correct": false
+              },
+              {
+                "id": 13,
+                "text": "Ei",
+                "correct": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "label",
+        "displayNumber": "4",
+        "text": "Selitä lyhyesti seuraavat sanaparit ja anna valaiseva esimerkki niiden sisällöstä tai käytöstä filosofiassa.",
+        "level": 1
+      },
+      { "id": 14, "displayNumber": "a", "type": "subtext", "text": "argumentaatio ja retoriikka", "level": 2, "maxScore": 2},
+      { "id": 15, "displayNumber": "b", "type": "subtext", "text": "kuvaileva ja normatiivinen", "level": 2, "maxScore": 2},
+      { "id": 16, "displayNumber": "c", "type": "subtext", "text": "kausaalinen ja teleologinen", "level": 2, "maxScore": 2},
+      {
+        "type": "label",
+        "displayNumber": "",
+        "text": "Part 5.<div>Tässä osassa kuulet viisi uutista. Kuulet kunkin uutisen vain kerran. Kuultuasi uutisen vastaa kysymykseen lyhyesti suomeksi. (30 p.)</div>",
+        "level": 1
+      },
+      { "id": 17, "displayNumber": "26", "type": "subtext", "text": "Miten kala pääsi jokeen, ja miksi sitä kalastetaan?", "level": 2, "maxScore": 6, "breakAfter": true},
+      { "id": 18, "displayNumber": "27", "type": "subtext", "text": "Miten ensimmäinen ja toinen kierros toteutettiin vaimon valinnassa?", "level": 2, "maxScore": 6, "breakAfter": true},
+      { "id": 19, "displayNumber": "28", "type": "subtext", "text": "Millä menetelmällä koirien haukotustutkimus tehtiin, ja millaisia tulokset olivat?", "level": 2, "maxScore": 6, "breakAfter": true},
+      { "id": 20, "displayNumber": "29", "type": "subtext", "text": "Miten mehiläiset tappavat ampiaisia, ja mitä saatiin selville tutkimusessa?", "level": 2, "maxScore": 6, "breakAfter": true},
+      { "id": 21, "displayNumber": "30", "type": "subtext", "text": "Miksi lippurivistöt kiellettiin? (2 asiaa)", "level": 2, "maxScore": 6}
+    ]
+  }]
+  }

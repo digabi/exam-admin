@@ -1,0 +1,15 @@
+{
+  "name": "digabi-exam-admin",
+  "description": "Digabi Exam Admin",
+  "private": true,
+  "author": "Matriculation Examination Board, Finland",
+  "license": "EUPL-1.2",
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "lerna": "^8.1.9"
+  },
+  "version": "1.0.0"
+}

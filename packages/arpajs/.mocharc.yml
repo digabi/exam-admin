@@ -1,0 +1,5 @@
+require:
+  - 'ts-node/register'
+  - 'test/config.js'
+timeout: 5000
+exit: true

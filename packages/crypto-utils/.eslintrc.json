@@ -1,0 +1,7 @@
+{
+  "extends": "@digabi/eslint-config",
+  "parserOptions": {
+    "project": ["./tsconfig.json"]
+  }
+}
+

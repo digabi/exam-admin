@@ -1,0 +1,10 @@
+{
+  "name": "@digabi/exam-types",
+  "version": "2.0.1",
+  "description": "TypeScript definitions for Exam",
+  "main": "",
+  "types": "index.d.ts",
+  "repository": "https://github.com/digabi/exam-types",
+  "author": "YTL",
+  "private": false
+}

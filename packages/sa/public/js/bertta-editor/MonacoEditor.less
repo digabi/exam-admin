@@ -1,0 +1,45 @@
+.monacoEditorContainer {
+  // Unbreaking leaking styles from custom exam styles
+  div.tree div {
+    padding: initial;
+    border: none;
+    margin: initial;
+  }
+
+  .monacoEditor {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 30px;
+  }
+
+  .editorFooter {
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 30px;
+    box-shadow: 0 0 10px 0 #0002;
+
+    a {
+      margin: 0 1rem;
+      font-size: 12px;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .keyboardHelp {
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #006ed2;
+      font-size: 18px;
+    }
+  }
+}
+

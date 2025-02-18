@@ -1,0 +1,80 @@
+export const sv = {
+  rich_text_editor_locale: 'SV',
+  class_name: 'sv',
+  tab: {
+    STYLED: 'Redigera',
+    RAW: 'Kod',
+    ATTACHMENTS: 'Bilagor',
+    QUESTIONPICKER: 'Hämta uppgift',
+    EXAMPASSWORD: 'Dekrypteringskod',
+    MATERIAL: 'Material',
+    EXAM: 'Förhandsgranska'
+  },
+  error: {
+    connection_error: 'Kontaktfel. Försök på nytt.',
+    parse_error: 'Förändringarna sparas inte förrän du rättar felet eller laddar sidan på nytt',
+    general_error: 'Fel',
+    section_remove_error: 'Delen kunde inte avlägsnas',
+    question_import_error: 'Provet är förstort',
+    too_large: 'Koe on liian iso'
+  },
+  add_attachments: 'Dra och släpp filerna här eller klicka för att välja dem.',
+  remove: 'Radera',
+  rich_text: 'textsvar',
+  dragndrop: 'kombineringsuppgift',
+  single_line: 'kortsvar',
+  choice: 'flervalsuppgift',
+  dropdown: 'rullgardinsmeny',
+  attachment: 'bilaga',
+  add_question: 'lägg till uppgift',
+  add_sub_question: 'lägg till deluppgift / flervalsuppgift',
+  add_attachment: 'Lägg till material på materialfliken',
+  add_option: 'lägg till alternativ',
+  add_dnd_answer_group: 'Lägg till item och tillhörande svar',
+  add_dnd_extra_answer: 'Lägg till fel svar',
+  dnd_extra_answers: 'Ytterligare felaktiga svar',
+  max_answers: 'maximalt antal svar',
+  restricted: 'Begränsat',
+  times: 'lyssningsgånger',
+  max: 'till högst',
+  characters: 'tecken',
+  cas_forbidden: 'lås räknarprogram',
+  conversion_failed: 'Det går inte att förhandsvisa provet',
+  no_exam_selected: 'Inget val',
+  add_section: 'lägg till del',
+  reload: 'Hämta sidan på nytt',
+  add_text: 'text',
+  text_placeholder: 'ERSÄTT DENNA TEXT',
+  option_placeholder: 'ALTERNATIV',
+  move_up: 'Flytta upp',
+  move_down: 'Flytta ned',
+  open_section_properties: 'Delens inställningar',
+  saved: 'Sparad',
+  section_contains_questions: 'Du bör avlägsna alla uppgifter i delen förrän du kan avlägsna delen',
+  no_sections_found: 'Delen kan inte hittas',
+  bad_question: 'Uppgiften som importeras stöds inte',
+  search: {
+    own: 'Egna prov',
+    public: 'Studentprov',
+    exam: 'Prov',
+    period: 'Examenstillfälle',
+    examType: {
+      title: 'Provtyp',
+      normal: 'Det vanliga provet',
+      visually_impaired: 'Specialarrangemangsprov för synskadade',
+      hearing_impaired: 'Prov med begränsat ljudmaterial'
+    },
+    language: 'Språk',
+    languages: {
+      'fi-FI': 'finska',
+      'sv-FI': 'svenska'
+    },
+    text: 'Sök i proven',
+    noResults: 'Inga sökresultat'
+  },
+
+  attachment_retryable: (fileName: string) => `Det gick inte att spara bilagan ${fileName}. Pröva på nytt om en stund.`,
+  attachment_limit_exceeded: (fileName: string) =>
+    `Provet har för många bilagor. Det gick inte att lägga till bilagan ${fileName}.`,
+  no_attachments: 'inga bilagor'
+}

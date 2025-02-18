@@ -1,0 +1,11 @@
+<form id="exam-import-upload-panel" name="exam-import" method="POST" action="">
+  <div id="exam-import-button-wrapper">
+    <button class="upload-button medium-sa-button" data-i18n="sa.import_exam">{{t "sa.import_exam"}}</button>
+    <div class="upload-takes-long-container">
+      <span class="upload-spinner"></span>
+      <span class="notification-text" data-i18n="sa.import_takes_time">{{t "sa.import_takes_time"}}</span>
+    </div>
+    <div id="exam-import-error" class="upload-error error-notice"></div>
+  </div>
+  <input class="upload-input" type="file" name="examZip" accept=".zip"/>
+</form>

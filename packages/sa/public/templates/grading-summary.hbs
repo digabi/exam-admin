@@ -1,0 +1,20 @@
+<thead>
+<tr class="scoreTableHeaders">
+  <th data-i18n="arpa.student">{{ t "arpa.student" }}</th>
+  <th class="sumHeader">Σ</th>
+  <th data-i18n="arpa.grade">{{ t "arpa.grade" }}</th>
+  <th class="email" data-i18n="arpa.email">{{ t "arpa.email" }}</th>
+</tr>
+</thead>
+<tbody>
+{{#each students}}
+  <tr class="student">
+    <td class="studentName">
+      <a class="answerPaperLink" href="/answers/{{token}}?source=returnExams" target="_blank">{{lastName}}, {{firstNames}} <i class="fa fa-share-square-o"></i></a>
+    </td>
+    <td class="totalScore">{{totalScore}}</td>
+    <td><input type="text" class="gradingText" data-student-uuid="{{ studentUuid }}" data-answer-paper-id="{{ answerPaperId }}" maxlength="100" value="{{ gradingText }}" tabindex="{{inc @index}}"></input></td>
+    <td class="email">{{email}}</td>
+  </tr>
+{{/each}}
+</tbody>

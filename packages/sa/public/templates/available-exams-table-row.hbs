@@ -1,0 +1,61 @@
+<tr class="{{#if locked}}locked{{/if}} {{#unless valid}}invalid{{/unless}} title-row" data-exam-uuid="{{examUuid}}">
+  <td class="exam-date">
+    {{#if isXml}}<span class="bertta"></span>
+    <div class="exam-date-wrapper">{{/if}}{{creationDateStr}}</div>
+  </td>
+  <td>
+    {{#if hasAttachments}}<div class="attachment-wrapper"><i class="fa fa-paperclip attachment-icon"></i></div>{{/if}}
+    {{#if isXml}}<a href="/school/preview/{{examUuid}}" class="preview" target="_blank">{{/if}}
+        <span class="name{{#if isXml}} link{{/if}}">{{title}}</span><i class="fa fa-share-square-o"></i>
+    {{#if isXml}}</a>{{/if}}
+  </td>
+  <td>
+    {{#if isXml}}
+      <form class="exam-download-form" method="GET" action="/exam-api/exams/{{examUuid}}/exam-meb">
+        <button class="download-exam-button sa-button-table" type="button" data-i18n="sa.download_exam" {{#unless valid}}disabled{{/unless}}>{{t "sa.download_exam"}}</button>
+      </form>
+    {{else}}
+      <span data-i18n="sa.old_format_label">{{t "sa.old_format_label"}}</span>
+    {{/if}}
+  </td>
+  <td>
+    <form class="exam-export-form" method="GET" action="/exam-api/exams/{{examUuid}}/export-exam">
+      <button class="export-exam-button sa-button-table" data-i18n="sa.export_exam" {{#unless valid}}disabled{{/unless}}>{{t "sa.export_exam"}}</button>
+    </form>
+  </td>
+  <td>
+    <button class="js-add-xml-exam-event-copy sa-button-table {{#unless isXml}}bertta-button{{/unless}}" data-exam-uuid="{{ examUuid }}" data-i18n="sa.copy_exam">{{t "sa.copy_exam"}}</button>
+  </td>
+</tr>
+<tr>
+  <td></td>
+  <td>
+        <span class="edit-exam">
+          {{#if editableXml}}
+                  <a href="/school/bertta/{{examUuid}}" data-i18n="sa.edit_exam" class="edit-link">{{t "sa.edit_exam"}}</a>
+          {{/if}}
+          {{#unless editable}}
+            <span data-i18n="sa.edit_exam" class="edit-link disabled">{{t "sa.edit_exam"}}</span>
+            {{#if isXml}}
+              <span class="disabled-modify-exam-button-tooltip" data-i18n="lapa.xml_exam_not_editable">{{t "lapa.xml_exam_not_editable"}}</span>
+            {{/if}}
+            {{#unless isXml}}
+              <span class="disabled-modify-exam-button-tooltip" data-i18n="sa.edit_exam_disabled_tooltip">{{t "sa.edit_exam_disabled_tooltip"}}</span>
+            {{/unless}}
+          {{/unless}}
+          <a class="js-remove-exam-button remove-exam-button" data-exam-uuid="{{examUuid}}" data-exam-title="{{title}}" data-i18n="sa.remove_exam">{{t "sa.remove_exam"}}</a>
+        </span>
+    {{#unless valid}}<span class="exam-error-text" data-i18n="sa.exam_incomplete">{{t "sa.exam_incomplete" }}</span>{{/unless}}
+
+  </td>
+  <td colspan="3">
+        <span class="password">
+          {{#if password}}
+            {{#if isXml}}
+            <button class="action-link reveal-code-button" type="button" data-i18n="sa.show_code">{{t "sa.show_code"}}</button>
+          <span class="exam-code">{{password}}</span>
+            {{/if}}
+          {{/if}}
+        </span>
+  </td>
+</tr>

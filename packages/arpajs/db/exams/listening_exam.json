@@ -1,0 +1,18 @@
+{
+  "title": "Kuuntelukoe",
+  "instruction": "Kuuntele ja vastaa oikein.",
+  "sections": [
+    {
+      "questions": [
+        {
+          "id": 0,
+          "displayNumber": "1",
+          "type": "text",
+          "text": "Kuuluuko?",
+          "level": 1,
+          "maxScore": 6
+        }
+      ]
+    }
+  ]
+}

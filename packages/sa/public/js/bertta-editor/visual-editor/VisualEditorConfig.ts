@@ -1,0 +1,79 @@
+export const editableElementNames = [
+  'e:exam-title',
+  'e:exam-instruction',
+  'e:section-title',
+  'e:section-instruction',
+  'e:question-instruction',
+  'e:question',
+  'e:question-title',
+  'e:dnd-answer-title',
+  'e:dnd-answer-option',
+  'e:hints',
+  'e:formula',
+  'e:attachment',
+  'e:attachment-title',
+  'e:image-title',
+  'e:audio-title',
+  'e:author',
+  'e:author',
+  'e:title',
+  'e:publisher',
+  'e:publication',
+  'e:howpublished',
+  'e:url',
+  'e:publication-date',
+  'e:reference-date',
+  'e:translator',
+  'e:modified-by',
+  'e:note',
+  'option-wrapper'
+]
+
+export const nonEditableElementNames = [
+  'e:image',
+  'e:text-answer',
+  'e:scored-text-answer',
+  'e:choice-answer',
+  'e:dropdown-answer',
+  'e:dnd-answer-container',
+  'e:dnd-answer',
+  'e:external-material',
+  'e:video',
+  'e:audio',
+  'e:file',
+  'footer'
+]
+
+export const removableElements = [
+  'e:section',
+  'e:question',
+  'e:text-answer',
+  'e:scored-text-answer',
+  'e:choice-answer',
+  'e:choice-answer-option',
+  'e:dropdown-answer',
+  'e:dnd-answer-container',
+  'e:dnd-answer',
+  'e:dnd-answer-option',
+  'e:dropdown-answer-option',
+  'e:attachment',
+  'e:image',
+  'e:video',
+  'e:audio',
+  'e:file'
+]
+
+export const forbiddenElementsForAnswers = [
+  'e:choice-answer-option',
+  'e:dropdown-answer-option',
+  'e:section-title',
+  'e:section-instruction',
+  'e:question-title',
+  'e:question-instruction',
+  'e:exam-instruction',
+  'e:exam-title',
+  'e:attachment',
+  'option-wrapper',
+  'max-score',
+  'max-times'
+]

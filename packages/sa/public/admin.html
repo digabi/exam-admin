@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html translate="no">
+<head>
+  <meta charset="utf-8">
+  <title>Admin</title>
+  <link rel="stylesheet" type="text/css" href="/dist/index.css">
+  <style>
+    label {
+      display: inline-block;
+      margin-bottom: 5px;
+    }
+    label span {
+      display: inline-block;
+      width: 13em;
+    }
+    form:invalid input[type="submit"]{
+      background: #aaa;
+    }
+    input:invalid {
+      color: #af0000;
+    }
+    input[type="text"],
+    input[type="email"] {
+      width: 400px;
+      height: 40px;
+      margin-right: 10px;
+    }
+    input[type="number"] {
+      width: 60px;
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    input[type="date"] {
+      height: 40px;
+      margin-right: 10px;
+    }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background: url(/dist/ajax-loader.svg);
+      background-size: contain;
+    }
+
+  </style>
+  <script src="/dist/admin-bundle.js"></script>
+  <meta name="google" content="notranslate" />
+</head>
+<body style="margin: 2em;">
+<p><a href="/"><strong>← Palaa</strong></a></p>
+
+<h2>Impersonointi</h2>
+
+<form name="impersonate-form" id="impersonate-form">
+  <label>
+    <span>Sähköposti</span> <input type="email" name="impersonate" required/>
+  </label>
+  <input type="submit" value="impersonoidu" class="button--medium"/>
+  <output name="output"></output>
+</form>
+
+<h2>Kenen opettajan lähettämä koesuoritus</h2>
+
+<form name="token-form" id="token-form">
+  <label>
+    <span>Token</span> <input type="text" name="token" required/>
+  </label>
+  <input type="submit" value="hae" class="button--medium"/>
+  <output name="output"></output>
+</form>
+
+<h2>Käyttäjätunnuksen vaihtaminen</h2>
+
+<form name="change-username-form" id="change-username-form">
+  <label>
+    <span>Vanha</span> <input type="email" name="from" required/>
+  </label><br/>
+  <label>
+    <span>Uusi</span> <input type="email" name="to" required/>
+  </label>
+  <input type="submit" value="vaihda" class="button--medium"/>
+  <output name="output"></output>
+</form>
+
+<h2>Kokeiden siirto vanhalta tunnukselta uudelle</h2>
+
+<form name="move-exams-form" id="move-exams-form">
+  <label>
+    <span>Vanha</span> <input type="email" name="from" required/>
+  </label><br/>
+  <label>
+    <span>Uusi</span> <input type="email" name="to" required/>
+  </label>
+  <input type="submit" value="siirrä" class="button--medium"/>
+  <output name="output"></output>
+</form>
+
+<h2>Yksittäiseltä käyttäjältä poistettujen kokeiden lopullinen poistaminen </h2>
+
+<p>Käyttäjältä poistetaan lopullisesti kaikki poistetut kokeet.</p>
+
+<form name="prune-exams-for-user" id="prune-exams-for-user">
+  <label>
+    <span>Käyttäjätunnus</span> <input type="email" name="username" required/>
+  </label><br />
+
+  <label>
+    <span>Vanhin säilytettävä</span> <input type="date" name="dateuntil"/>
+  </label><span>Mikäli päivämäärä on määritelty, poistetaan lisäksi <b>kaikki</b> kyseistä päivämäärää vanhemmat kokeet</span><br/>
+
+  <label><span></span></label><input type="submit" value="hävitä lopullisesti" class="button--medium"/>
+  <output name="output"></output>
+</form>
+
+<h2>Tilastoja</h2>
+
+<ul>
+  <li><a href="/admin-api/ktp-versions-by-week">Viikottaiset tuodut vastauspaketit tikkuversioittain</a></li>
+  <li><a href="/admin-api/ktp-types-by-week">Virtuaalipalvelinten osuus viikottain tuoduista vastauspaketeista</a></li>
+</ul>
+</body>
+</html>

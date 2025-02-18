@@ -1,0 +1,39 @@
+ {{#each exams}}
+     <tr {{#if heldExamDeletionDate}}class="deleted-row"{{/if}}>
+         <td>{{uploadDateStr}}</td>
+         <td>{{title}}</td>
+         <td>{{answerPapers}}</td>
+         <td>{{answers}}</td>
+         <td>
+            <span class="grading-progress">
+                {{#if gradingCompleted}}
+                    <span class="grading-completed">{{gradingProgress}}%</span>
+                {{else}}
+                    <span class="progress-bg">
+                        <span class="progress-fg" style="width: {{gradingProgress}}%;"></span>
+                    </span>
+                    <span class="progress-text">{{gradingProgress}}%</span>
+                {{/if}}
+            </span>
+         </td>
+         {{#if heldExamDeletionDate}}
+             <td/>
+             <td/>
+             <td>
+                 <button class="sa-button-table js-undelete-held-exam-button" data-held-exam-uuid="{{uuid}}" data-i18n="sa.undelete">{{t "sa.undelete"}}</button>
+             </td>
+         {{else}}
+             <td>
+                <a href="/school/grading/{{uuid}}{{#if ../schoolUuid}}/school/{{../../schoolUuid}}{{/if}}" data-i18n="sa.held_grade_exam">{{t "sa.held_grade_exam"}}</a>
+             </td>
+             <td>
+                <a href="/school/review/{{uuid}}" data-i18n="sa.held_return">{{t "sa.held_return"}}</a>
+             </td>
+             <td>
+                <span class="remove-held-exam">
+                    <a class="js-remove-held-exam-button" data-exam-uuid="{{uuid}}" data-i18n="sa.held_remove_exam">{{t "sa.held_remove_exam"}}</a>
+                </span>
+             </td>
+         {{/if}}
+     </tr>
+{{/each}}

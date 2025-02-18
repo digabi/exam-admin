@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="10px" height="10px" viewBox="0 0 10 10" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 47.1 (45422) - http://www.bohemiancoding.com/sketch -->
+    <title>Info</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Automaattiarvosteltavat-pisteet-pistetaulukossa" transform="translate(-947.000000, -358.000000)">
+            <g id="AA" transform="translate(922.000000, 355.000000)">
+                <g id="Info" transform="translate(25.000000, 3.000000)">
+                    <rect id="Rectangle-28-Copy-5" fill="#359BB7" x="0" y="0" width="10" height="10" rx="5"></rect>
+                    <path d="M5,3.35 C4.78235185,3.35 4.60294188,3.28676534 4.46176471,3.16029412 C4.32058753,3.0338229 4.25,2.87058924 4.25,2.67058824 C4.25,2.47058724 4.32058753,2.30882415 4.46176471,2.18529412 C4.60294188,2.06176409 4.78235185,2 5,2 C5.22353053,2 5.40441107,2.06176409 5.54264706,2.18529412 C5.68088304,2.30882415 5.75,2.47058724 5.75,2.67058824 C5.75,2.87058924 5.68088304,3.0338229 5.54264706,3.16029412 C5.40441107,3.28676534 5.22353053,3.35 5,3.35 Z M4.35588235,3.99411765 L5.65294118,3.99411765 L5.65294118,8.37058824 L4.35588235,8.37058824 L4.35588235,3.99411765 Z" id="i" fill="#FFFFFF"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

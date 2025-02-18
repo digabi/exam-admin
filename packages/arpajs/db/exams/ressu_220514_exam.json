@@ -1,0 +1,76 @@
+{
+  "title": "Filosofian johdantokurssin tentti 22.5.2014",
+  "instruction": "Vastaa kahteen kysymykseen: yhteen osion I lyhyeen selitystehtävään ja yhteen osion II analyysi- ja argumentaatiotehtävään. Onnea tenttiin!",
+  "sections": [
+    {
+      "questions": [
+        { "id": 2, "displayNumber": "1a", "type": "text", "text": "<h3>Osio I</h3><p>Lyhyet selitystehtävät (kysymykset 1 - 3). Valitse viidestä kysymyksestä yksi ja vastaa siihen. Max. 6 p.</p><p>Kuvaa lyhyesti kolme seuraavista neljästä filosofian keskeisestä osa-alueesta ja anna kaksi esimerkkiä niiden piiriin kuuluvista filosofisista ongelmista</p>metafysiikka", "level": 2, "maxScore": 2},
+        { "id": 3, "displayNumber": "1b", "type": "text", "text": "tietoteoria", "level": 2, "maxScore": 2},
+        { "id": 4, "displayNumber": "1c", "type": "text", "text": "etiikka", "level": 2, "maxScore": 2},
+        { "id": 5, "displayNumber": "1d", "type": "text", "text": "yhteiskuntafilosofia", "level": 2, "maxScore": 2},
+        {
+          "id": 6,
+          "displayNumber": "2",
+          "type": "text",
+          "text": "Selitä lyhyesti kolme seuraavista kuudesta parista ja anna valaiseva esimerkki niiden sisällöstä tai käytöstä filosofiassa.",
+          "level": 1,
+          "maxScore" : 0
+        },
+        { "id": 7, "displayNumber": "2a", "type": "text", "text": "argumentaatio ja retoriikka", "level": 2, "maxScore": 2},
+        { "id": 8, "displayNumber": "2b", "type": "text", "text": "kuvaileva ja normatiivinen", "level": 2, "maxScore": 2},
+        { "id": 9, "displayNumber": "2c", "type": "text", "text": "kausaalinen ja teleologinen", "level": 2, "maxScore": 2},
+        { "id": 10, "displayNumber": "2d", "type": "text", "text": "käsitteellinen ja kokemuksellinen", "level": 2, "maxScore": 2},
+        { "id": 11, "displayNumber": "2e", "type": "text", "text": "liberalismi ja kommunitarismi", "level": 2, "maxScore": 2},
+        { "id": 12, "displayNumber": "2f", "type": "text", "text": "materialismi ja idealismi", "level": 2, "maxScore": 2},
+        {
+          "id": 13,
+          "displayNumber": "3",
+          "type": "text",
+          "text": "Aristofaneen herkullisessa komediassa \"Pilvet\" esiintyy keskeisessä roolissa Sokrates. Alla on (hivenen lyhennetty) katkelma, jossa yksi poikansa Feidippideksen vuoksi pahasti velkaantunut Ateenan kansalainen Strepsiades tuskailee velkojensa maksupäivän (kuunvaihteen) lähestymistä. Pinteestä päästäkseen hän on pannut poikansa saamaan Sokrateelta oppia. <br/><br/> Minkälaisen kuvan Aristofanes antaa Sokrateesta? Vastaako Aristofaneen antama kuva Platonin vuoropuheluissa esiintyvää Sokratesta? Perustele vastauksesi ja pohdi lyhyesti Sokrateen ajattelun ja elämän yhteyttä.<blockquote>Strepsiades: Kahdeskymmeneskuudes, kahdeskymmenesseitsemäs, kahdeskymmeneskahdeksas, kahdeskymmenesyhdeksäs - enää neljä päivää ennen kuin koittaa se päivä, jota pelkään ja inhoan yli kaiken, kuukauden viimeinen päivä, vanhan ja uuden kuun päivä! Kaikki velkojani ovat jo vannoneet valansa, maksaneet maistraatille ja ovat valmiina käymään kimppuuni. Minä pyydän heiltä vain pikku palvelusta: \"Olkaa kilttejä ja jättäkää velka perimättä tällä kertaa\", \"Antakaa vähän lisäaikaa\", \"Entäpä jos unohtaisimme koko jutun?\" ja muuta samanmoista...Mutta nämä hyväkkäät sanovat yhteen ääneen, että heillä on toinen käsitys velkojen maksamisesta, nimittelevät minua huijariksi ja konnaksi ja uhkaavat raastuvalla. <br/> [Muuttaa mieltään] No, tulkoot vain. Jos Feidippides on saanut oikeaa oppia, he eivät voi minua vahingoittaa. Kohta se nähdään. <br/>[Koputtaa Sokrateen koulun ovelle] Poika! Minä täällä! Poika! <br/>[Työntyessään ovea vastaan Sokrates avaa sen ja Strepsiades lentää rähmälleen]. <br/><br/> Sokrates [auttaa Strepsiadesin pystyyn]: Hauska nähdä sinua Strepsiades. <br/><br/> Strepsiades: Sama täällä. [Kaivaa esiin kuluneen tunikan] Mahdatko hyväksyä tätä? Se on vain vaatimaton osoitus arvostuksestani. Mutta poikaani mennäkseni - onko hän oppinut sen Argumentin, josta äskettäin oli puhetta? <br/><br/> Sokrates: Kyllä, hän on sen tosiaan oppinut. <br/><br/> Strepsiades: Pyhä petos, miten suurenmoista! <br/><br/> Sokrates: Aivan, nyt olet voittava minkä hyvänsä oikeusjutun. <br/><br/> Strepsiades: Vaikka todistajat vakuuttaisivat olleensa itse silminnäkijöinä paikalla kun lainasin rahat? <br/><br/> Sokrates: Vaikka heitä olisi tuhatmäärin...</blockquote>",
+          "level": 1,
+          "maxScore": 6
+        },
+        {
+          "id": 14,
+          "displayNumber": "4",
+          "type": "text",
+          "text": "<hr><h3>Osio II</h3><p>Analyysi- ja argumentointitehtävät (kysymykset 4 - 8). Valitse kolmesta kysymyksestä yksi ja vastaa siihen. Max. 6 p., paitsi jokerit 9p.</p><p>Vertaa Descartesin ja Humen käsityksiä toisiinsa ja arvioi heidän järkeilyjensä ansioita ja heikkouksia.</p><blockquote>Tästä kaikesta on pääteltävä, että kaikki ne oliot, joiden käsitetään selvästi ja tarkasti olevan eri substansseja, kuten henki ja ruumis, todella ovatkin toisistaan eroavia substansseja...voimme käsittää kaikki aineelliset kappaleet vain jakautuviksi, kun taas ihmisen henki eli sielu voidaan käsittää ainoastaan jakautumattomaksi: emmehän näet voi ajatella sielun puolikasta niin kuin aineellisen kappaleen, olkoon tämä kuinka pieni hyvänsä. Havaitaan siis että sielu ja aineellinen kappale eivät ainoastaan ole luonnostaan erilaisia, vaan ovat tavallaan toistensa vastakohtiakin.<br/><i>Rene Descartes</i></blockquote><blockquote>Aina kun kaksi oliota ovat niin yhteenliittyneitä että kaikkiin muutoksiin jotka havaitsemme ensimmäisessä, liittyvät toisessa tapahtuvat vastaavat muutokset, niin meidän tulisi päätellä analogioita koskevien päättelyn sääntöjen mukaan että jos ensimmäinen olio kokee niin suuria muutoksia että se kokonaan hajoaa, niin myös jälkimmäinen olio lakkaa olemasta. Niinpä uneen jolla on vain vähän vaikutusta ruumiiseen kuuluu jonkinasteinen sielullinen sekavuus, ellei peräti sielun väliaikainen menetys. <br/> <br/> Ruumiin ja mielen heikkous vastaavat lapsuudessa toisiaan&#59; ruumis ja mieli kukoistavat aikuisuudessa, ne joutuvat vastaavalla tavalla epäjärjestykseen sairaudessa ja yhdessä ne asteittain rappeutuvat vanhuudessa. Seuraava askelkin näyttää väistämättömältä&#59; kuoleman myötä ne molemmat lakkaavat olemasta. Viimeiset mieltä koskettavat merkit lopun lähestymisestä ovat sekavuus, heikkous, tunnottomuus ja typeryys. Kun tätä muutosta ylläpitävät syyt yltyvät, niin mieli sammuu täydellisesti niiden seurauksena. <br/> <br/> Luonnossa vallitsevien vastaavuuksien perusteella toteamme, että  mikään elämänmuoto ei voi jatkaa olemassaoloaan kun se siirretään elämänoloihin jotka poikkeavat jyrkästi alkuperäisistä. Puut menehtyvät vedessä, kalat ilmassa, eläimet maan povessa. Jopa niin pieni muutos kuin ilmastonvaihdos on usein kohtalokas. Mitä perusteita meillä siis on uskoa, että ruumiin hajotessa ja sen kaikkien ajattelun ja aistimisen elinten tuhoutuessa, tämä sielua koskettava valtava muutos voisi tapahtua sielua itseään tuhoamatta?<br/><i>David Hume</i></blockquote>",
+          "level": 1,
+          "maxScore": 6
+        },
+        {
+          "id": 15,
+          "displayNumber": "5",
+          "type": "text",
+          "text": "Seuraavassa esiintyy kaksi (kuvitteellista) henkilöä, jotka puolustavat kilpailevia näkemyksiä niin sanottuun vapaan tahdon ongelmaan. Sinun tehtäväsi on kirjoittaa kommentti, joka arvioi kriittisesti näitä näkemyksiä ja lisää ymmärrystämme itse ongelmasta (em. kilpailevien näkemysten tarjoamaan valaistukseen verrattuna). Kirjoita myös mielestäsi paras (lyhyt) vastaus, jonka  Alice ja Bob voisivat antaa kommenttiisi!<blockquote><b>Aliisa</b>: ”Kaikki tapahtumat seuraavat lainomaisella välttämättömyydellä aiemmista tapahtumista. Tämä on yhteensopimatonta ns. vapaan tahdon olemassaolon kanssa. Koska kaikki tapahtumat todella seuraavat lainomaisella välttämättömyydellä aiemmista tapahtumista,  vapaa tahto on siis pelkkä harhakuvitelma. Ihmisen kaikki päätökset ja toiveet seuraavat välttämättömyydellä aiemmista tapahtumista ja siksi hän ei voi toimia vapaasti.”</blockquote><blockquote><b>Bob</b>: Aliisa, sinun mukaasi kaikki tapahtumat seuraavat lainomaisella välttämättömyydellä aiemmista tapahtumista. Tällainen näkemys on todellakin yhteensopimaton vapaan tahdon olemassaolon kanssa. Mutta koska ihminen voi todella toimia vapaasti ja olla vastuullinen teoistaan, näkemyksesi ei voi pitää paikkansa. Eikä ihmisen vapaa tahto ole vain kykyä toimia valintojensa mukaan, vaan myös aitoa määräysvaltaa näihin valintoihin nähden.</blockquote>",
+          "level": 1,
+          "maxScore": 6
+        },
+        {
+          "id": 16,
+          "displayNumber": "6",
+          "type": "text",
+          "text": "Seuraavassa on kaksi klassista argumenttia, joista yhdessä puolletaan Jumalan olemassaoloa ja toisessa kritisoidaan tällaista uskomusta. Arvioi näiden kahden argumentin sitovuutta eli niissä käytettyjen premissien totuutta ja niissä esiintyvien päättelyiden pätevyyttä. <br/> <br/><em> Teleologinen argumentti Jumalan olemassaolon puolesta</em> <br/><br/> 1) Maailmassa kokonaisuudessaan voidaan havaita järjestystä ja tarkoituksenmukaisuutta. (P) <br/> 2) Maailman ilmiöt ovat tulosta joko satunnaisista tapahtumista tai ennakkosuunnittelusta. (P) <br/> 3) Järjestyneet ja tarkoituksenmukaiset ilmiöt eivät voi olla tulosta satunnaisista tapahtumista. (P) <br/> 4) Järjestyneet ja tarkoituksenmukaiset ilmiöt ovat tulosta ennakkosuunnittelusta. (2,3) <br/> 5) Maailmassa kokonaisuudessaan havaittava järjestys on tulosta ennakkosuunnittelusta. (1,4) <br/> 6) Jos maailmassa kokonaisuudessaan havaittava järjestys on tulosta ennakkosuunnittelusta, niin Jumala on olemassa. (P) <br/> 7) Jumala on olemassa. (JP&#59; 5,6) <br/> <br/>  <em>Pahan olemassaoloon perustuva argumentti (teistisen) jumalan olemassaoloa vastaan </em><br/><br/>Teisti on henkilö,  joka uskoo, että on olemassa Jumala, joka on  (a) kaikkitietävä, (b) kaikkivoipa ja (c) kaikkihyvä ja että maailmassa on pahaa.  Tällöin voimme esittää teistin uskomusten mukaisen jumalan olemassaoloa vastaan seuraavan argumentin: <br/><br/> 1) Jos jumala on kaikkitietävä, kaikkivoipa ja kaikkihyvä, niin hänen luomansa maailman täytyy olla täydellisen hyvä eli siinä ei voi esiintyä pahaa. (P)<br/>2) Maailmassa esiintyy pahaa. (P)<br/>3) Joko on niin, että (a) jumala ei ole kaikkitietävä tai (b) jumala ei ole kaikkivoipa tai (c) jumala ei ole kaikkihyvä. (1,2)<br/>4) Jos jumala on olemassa, niin jumala on (a) kaikkitietävä, (b) kaikkivoipa ja (c) kaikkihyvä (P) <br/>5) jumalaa ei ole olemassa. (4,5)",
+          "level": 1,
+          "maxScore": 6
+        },
+        {
+          "id": 17,
+          "displayNumber": "7",
+          "type": "text",
+          "text": "Jokeritehtävä, max 9p.<br/> <br/> Monet filosofit ja tieteenharjoittajat käyttävät metafysiikkaan (ontologiaan) liittyvien kysymysten arviointiin kahta periaatetta: ”Occamin partaveistä” ja ”päättelyä parhaaseen selitykseen”. Kirjoita näiden periaatteiden innoittamana essee aiheesta ”Oma maailmankuvani metafyysisen kritiikin valossa”.<blockquote><b>Occamin partaveitsen</b> mukaan me voimme poistaa oletustemme joukosta ne oliot (tekijät), joiden olemassaolo on tarpeetonta havaitsemiemme ilmiöiden kuvaamiseksi, selittämiseksi ja ennustamiseksi tyhjentävästi (”tyhjentävästi” = ”täysin oikein, tarkasti jne”). Niinpä esim. hammaspeikkoa ei tarvita kuvaamaan, selittämään ja ennustamaan hampaidemme tilaa ja usko hammaspeikkoon voidaan poistaa järkevien uskomustemme joukosta. </blockquote><blockquote><b>Päättely parhaaseen selitykseen</b> sanoo, että meillä on lupa ellei jopa velvollisuus pitää todellisina niitä olioita (tekijöitä), joiden olemassaolo on välttämätöntä havaitsemiemme ilmiöiden kuvaamiseksi, selittämiseksi ja ennustamiseksi tyhjentävästi. Niinpä esim. atomit, Neptunus-planeetta ja geenit ovat kaikki tekijöitä, joiden olemassaoloa tutkijat ovat pitäneet välttämättöminä tekemiemme havaintojen kuvaamiseksi, selittämiseksi ja ennustamiseksi tyhjentävästi.</blockquote>",
+          "level": 1,
+          "maxScore": 9
+        },
+        {
+          "id": 18,
+          "displayNumber": "8",
+          "type": "text",
+          "text": "Jokeritehtävä, max 9p.<br/> <br/>Kirjoita filosofinen essee aiheesta ”Mitä on olla ihminen?” siten että pohdit myös filosofian harjoittamisen mahdollista roolia ja merkitystä ihmiselämässä. ",
+          "level": 1,
+          "maxScore": 9
+        }
+      ]
+    }
+  ]
+}

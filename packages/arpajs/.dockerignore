@@ -1,0 +1,14 @@
+dist
+Dockerfile
+docker-compose.yml
+node_modules
+
+*.log
+*.pid
+
+.cache
+.git
+.github
+.idea
+.npm
+.nyc_output

@@ -1,0 +1,64 @@
+{
+  "name": "@digabi/grading-ui",
+  "repository": "https://github.com/digabi/grading-ui",
+  "author": "Matriculation Examination Board, Finland",
+  "version": "0.6.0",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "less",
+    "img"
+  ],
+  "scripts": {
+    "prepublishOnly": "npm run compile",
+    "compile": "tsc --project src",
+    "compile:watch": "npm run compile && tsc --project src -w --preserveWatchOutput",
+    "lint": "eslint ."
+  },
+  "peerDependencies": {
+    "i18next": "^23.4.9",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-i18next": "^13.2.2",
+    "react-router-dom": "^6.8.0",
+    "@digabi/exam-engine-core": ">=23.2.2"
+  },
+  "dependencies": {
+    "@digabi/typescript-config": "^1.0.0",
+    "@fortawesome/fontawesome-free": "^6.6.0",
+    "@types/lodash": "^4.14.149",
+    "@types/node": "^22.0.0",
+    "axios": "^1.1.3",
+    "classnames": "^2.3.2",
+    "date-fns": "^4.1.0",
+    "lodash": "^4.17.19",
+    "normalize.css": "^8.0.1",
+    "react-spinners": "^0.14.1",
+    "react-split": "^2.0.14",
+    "source-sans": "^3.46.0",
+    "typescript": "^5.3.3",
+    "uri-tag": "<2.1.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@digabi/eslint-config": "^3.0.0",
+    "@types/react": "^18",
+    "@types/react-dom": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.1",
+    "@typescript-eslint/parser": "^8.0.1",
+    "eslint": "^8.22.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-promise": "^7.0.0",
+    "eslint-plugin-react": "^7.33.0",
+    "i18n-unused": "^0.17.0",
+    "prettier": "^3.0.0"
+  },
+  "browserslist": [
+    "IE >= 11",
+    "Firefox ESR",
+    "Chrome >= 33"
+  ]
+}

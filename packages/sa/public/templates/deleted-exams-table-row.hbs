@@ -1,0 +1,12 @@
+<tr class="{{#if locked}}locked{{/if}} {{#unless valid}}invalid{{/unless}} deleted-row" data-exam-uuid="{{examUuid}}">
+  <td><div class="exam-date-wrapper">{{creationDateStr}}</div></td>
+  <td>
+    {{#if hasAttachments}}<div class="attachment-wrapper"><i class="fa fa-paperclip attachment-icon"></i></div>{{/if}}
+      <span class="name">{{title}}</span>
+  </td>
+  <td></td>
+  <td>
+      <button class="js-undelete-exam-button sa-button-table" data-exam-uuid="{{examUuid}}" type="button" data-i18n="sa.undelete">{{t "sa.undelete"}}</button>
+  </td>
+</tr>
+

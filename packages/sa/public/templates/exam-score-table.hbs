@@ -1,0 +1,43 @@
+<thead>
+<tr class="scoreTableHeaders">
+  <th data-i18n="arpa.student">{{ t "arpa.student" }}</th>
+  <th></th>
+  <th colspan="{{questionCount}}" data-i18n="arpa.scores">{{ t "arpa.scores" }}</th>
+  <th class="sumHeader">Σ</th>
+</tr>
+<tr class="questionNumberRow">
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  {{#each maxScores}}
+    <td>{{displayNumber}}<div class="maxScore">{{maxScore}} <span data-i18n="arpa.points_suffix">{{ t "arpa.points_suffix" }}</span></div></td>
+  {{/each}}
+</tr>
+</thead>
+<tbody>
+{{#each students}}
+  <tr id="{{studentUuid}}" class="student">
+    <td class="studentName">
+      <a class="answerPaperLink" href="/answers/{{token}}" target="_blank">{{lastName}}, {{firstNames}} <i class="fa fa-share-square-o"></i></a>
+    </td>
+    <td class="studentBirthDate">{{studentBirthDate}}</td>
+    {{#each answers}}
+      <td {{#if id}}id="cell-{{id}}" data-answer-id="{{id}}"{{/if}} class="answerScore">
+        {{#if id}}
+          <input class="scorePoints" maxlength="2" data-answer-id="{{id}}" data-previous-valid-value="{{scoreValue}}"
+                 type="text" value="{{scoreValue}}" required {{#if choicegroup}}readonly{{/if}} {{#if multichoicegap}}readonly{{/if}} {{#if shouldBeHiddenInGradingView}}disabled{{/if}}/>
+        {{else}}
+          <input class="scorePoints" type="text" disabled/>
+        {{/if}}
+      </td>
+    {{/each}}
+    <td class="totalScore">&nbsp;</td>
+  </tr>
+{{/each}}
+<tr>
+  <td class="meanRowHeader" data-i18n="arpa.scored_average">{{ t "arpa.scored_average" }}</td>
+  <td></td>
+  {{#each maxScores}}
+    <td class="meanScore"></td>
+  {{/each}}
+</tr>
+</tbody>

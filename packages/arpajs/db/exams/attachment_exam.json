@@ -1,0 +1,26 @@
+{
+  "title": "Koe liitteillä",
+  "instruction": "Vastaa kahteen kysymykseen: yhteen osion I lyhyeen selitystehtävään ja yhteen osion II analyysi- ja argumentaatiotehtävään. Onnea tenttiin!",
+  "sections": [
+    {
+      "questions": [
+        {
+          "id": 0,
+          "displayNumber": "1",
+          "type": "text",
+          "text": "Why?",
+          "level": 1,
+          "maxScore": 6
+        },
+        {
+          "id": 1,
+          "displayNumber": "2",
+          "type": "text",
+          "text": "Explain?",
+          "level": 1,
+          "maxScore": 6
+        }
+      ]
+    }
+  ]
+}

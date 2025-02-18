@@ -1,0 +1,22 @@
+{{#unless clients}}
+  <tr>
+    <td colspan="3">
+      {{ t "sa.settings.no_authorized_apps" }}
+    </td>
+  </tr>
+{{/unless}}
+
+{{#each clients}}
+  <tr>
+    <td>
+      {{this.name}}
+    </td>
+    <td>
+      {{> oauth_scopes_list this.scopes }}
+    </td>
+    <td>
+      <button data-client-id="{{ this.id }}" class="js-remove-authorization remove-oauth-authorization-button"
+              data-i18n="sa.settings.remove_authorization">{{ t "sa.settings.remove_authorization"}}</button>
+    </td>
+  </tr>
+{{/each}}

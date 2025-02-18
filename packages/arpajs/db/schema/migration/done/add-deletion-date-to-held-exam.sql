@@ -1,0 +1,1 @@
+alter table held_exam ADD held_exam_deletion_date timestamp with time zone

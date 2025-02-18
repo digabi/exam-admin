@@ -1,0 +1,124 @@
+.questionPickerContainer {
+  .searchOptions {
+    position: sticky;
+    top: -1rem;
+    padding: 1rem;
+    background-color: white;
+    box-shadow: 0 0 10px 5px #0002;
+
+    .publicExamPicker {
+      padding: 0.5rem;
+    }
+
+    .search {
+      width: calc(100% - 1rem);
+      padding: 0.5rem;
+      margin: 1rem 0 1rem 0;
+      border: 1px solid #282828;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+      top: 0;
+    }
+  }
+
+  .question-picker-load-wait {
+    width: 40px;
+    height: 40px;
+    background: url(../ajax-loader.svg) 50% 50% no-repeat;
+    background-size: contain;
+    margin: 1rem auto 1rem;
+  }
+
+  .row() {
+    color: #505050;
+    cursor: pointer;
+    i {
+      padding-right: 0.5rem;
+      width: 16px;
+      text-align: center;
+    }
+  }
+  .examRow {
+    .row();
+    width: auto;
+    padding: 0.5rem 0.75rem;
+    &.selected {
+      background-color: #f2f2f2;
+    }
+    .eye {
+      margin-left: 1rem;
+    }
+  }
+  .examRowHeader {
+    display: flex;
+    justify-content: space-between;
+  }
+  .examRowHeaderMargin {
+    white-space: nowrap;
+  }
+  .examRowTitle {
+    font-size: 20px;
+  }
+  .created {
+    color: #aaa;
+    font-style: italic;
+    padding-right: 1rem;
+  }
+
+  .toggleQuestions {
+    color: #008b8b;
+  }
+  .questionRow {
+    .row();
+    display: flex;
+    width: calc(100% - 1rem);
+    padding-left: 1rem;
+    font-weight: 100;
+    margin-top: 0.5rem;
+    &.matches {
+      font-weight: 500;
+      color: black;
+    }
+    i {
+      font-size: 1.5rem;
+      visibility: hidden;
+      color: #0050c8;
+      .insert-wait {
+        display: inline-block;
+        background-image: url(../ajax-loader.svg);
+        background-repeat: no-repeat;
+        background-size: 15px;
+        width: 15px;
+        height: 15px;
+      }
+    }
+    &.inserted {
+      color: #979797;
+      i {
+        visibility: visible;
+        color: #aaa;
+        cursor: initial;
+      }
+    }
+    .rowTitle {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      width: calc(100% - 1.5rem);
+      display: inline-block;
+    }
+    .first-child {
+      margin-top: 1rem;
+    }
+    &:hover {
+      background: #e4e4e4;
+      border-radius: 100px;
+      i {
+        visibility: visible;
+      }
+    }
+    &.inserting i {
+      visibility: visible;
+    }
+  }
+}

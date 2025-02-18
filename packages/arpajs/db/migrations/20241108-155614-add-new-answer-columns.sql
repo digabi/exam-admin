@@ -1,0 +1,1 @@
+ALTER TABLE answer ADD COLUMN pregrading_finished_at TIMESTAMPTZ;

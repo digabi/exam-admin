@@ -1,0 +1,40 @@
+<h1 data-i18n="sa.exams_tab" class="exam-list-title">{{t "sa.exams_tab"}}</h1>
+{{#> instructions_wrapper}}
+{{/instructions_wrapper}}
+<div class="exam-buttons-wrapper">
+    <div>
+        <div>
+            <button id="js-add-xml-exam-event" class="big-sa-button bertta-button" data-i18n="sa.create_exam_mex">{{t
+                    "sa.create_exam_mex"}}</button>
+            {{#> bertta_instructions_wrapper }}
+            {{/bertta_instructions_wrapper}}
+        </div>
+    </div>
+    <div id="exam-import-container"></div>
+</div>
+<h3><span data-i18n="sa.exams" class="exam-table-title">{{t "sa.exams"}}</span> (<span class="js-exam-total"></span>)</h3>
+
+{{#if tooManyExams}}
+<div class="error-box error-box--block" data-i18n="[html]sa.too_many_exams_warning">
+  {{t "sa.too_many_exams_warning"}}
+</div>
+{{/if}}
+<input type="checkbox" id="show-deleted-exam" class="show-deleted-input"/> <label for="show-deleted-exam" class="show-deleted-label" data-i18n="sa.show_deleted">{{t "sa.show_deleted"}}</label>
+<table id="available-exams">
+  <thead>
+  <th data-i18n="sa.date">{{t "sa.date"}}</th>
+  <th data-i18n="sa.held_exam_name">{{t "sa.held_exam_name"}}</th>
+  <th data-i18n="sa.giving_exam">{{t "sa.giving_exam"}}</th>
+  <th data-i18n="[html]sa.reusing_exam">{{{t "sa.reusing_exam"}}}</th>
+  <th></th>
+  </thead>
+  <tbody>
+  {{#each exams}}
+      {{#if deletionDate}}
+    {{> ../templates/deleted-exams-table-row }}
+      {{else}}
+    {{> ../templates/available-exams-table-row }}
+      {{/if}}
+  {{/each}}
+  </tbody>
+</table>

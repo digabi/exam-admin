@@ -1,0 +1,662 @@
+@import 'base';
+@arpa-invalid-choice-background: #ffc8c8;
+@arpa-score-input-field-background: #fff;
+
+.arpa {
+  .answer-length {
+    font-size: 16px;
+    color: #6d6d6d;
+    margin-bottom: 15px;
+  }
+  #pagebanner {
+    transition-property: margin-top;
+    transition-duration: 0.2s;
+    transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+  }
+  .content {
+    .centered-content();
+    margin-top: 20px;
+    margin-bottom: 0;
+    position: relative;
+    .returnToGrid {
+      display: none;
+    }
+
+    #gradingErrors {
+      display: none;
+      padding: 10px;
+      background: #fdd;
+      position: fixed;
+      top: 15px;
+      left: 0;
+      width: 70%;
+      margin-left: 15%;
+    }
+    .exam-name {
+      margin: 15px 0;
+    }
+    #pageStatus {
+      display: none;
+      margin-top: 15px;
+      margin-bottom: 15px;
+    }
+
+    #actionBar {
+      .actionButtons {
+        position: absolute;
+        right: 0;
+        top: 0;
+        a {
+          .action-link();
+          margin-left: 10px;
+        }
+        i {
+          .fa-icon();
+        }
+      }
+      .linkDivider {
+        color: @text-color;
+        margin: 0 10px;
+      }
+    }
+
+    #scoreTable {
+      margin-top: 20px;
+      padding: 4px;
+      counter-reset: students-counter;
+
+      .scoreTableHeaders th {
+        .header3();
+        text-align: left;
+      }
+      .meanRowHeader {
+        .header4();
+        text-align: left;
+        height: 30px;
+      }
+      .meanScore {
+        .header4();
+        color: @score-table-text-color;
+        padding: 2px;
+        text-align: center;
+      }
+      .sumHeader {
+        padding-left: 6px;
+      }
+      .questionNumberRow {
+        height: 52px;
+        td {
+          text-align: center;
+        }
+        .maxScore {
+          .sa-small-font();
+          color: @score-table-text-color;
+        }
+      }
+      tr.student {
+        td {
+          padding: 2px;
+        }
+        td.studentName {
+          max-width: 33%;
+          text-align: left;
+          counter-increment: students-counter;
+          white-space: nowrap;
+          &:before {
+            content: counter(students-counter) '. ';
+            padding-right: 8px;
+            text-align: right;
+            width: 24px;
+            display: inline-block;
+          }
+        }
+        td.studentBirthDate {
+          color: #6d6d6d;
+          font-style: italic;
+          padding-right: 10px;
+          white-space: nowrap;
+        }
+        td.answerScore {
+          .scorePoints {
+            width: 28px;
+            background: @arpa-score-input-field-background;
+            border: 2px solid @score-table-disabled-color;
+            padding: 3px;
+            font-size: 16px;
+            text-align: center;
+            &:invalid {
+              border: 2px solid @base-green-button;
+              box-shadow: none;
+            }
+            &:disabled {
+              background: @SaBackground;
+              border: none;
+            }
+            &:not(:disabled):hover {
+              border: 2px solid @highlight-color;
+              cursor: pointer;
+            }
+            &:read-only {
+              background: @score-table-disabled-color;
+            }
+            &.highlight {
+              border: 2px solid @highlight-color;
+              background: @background-highlight-color;
+              box-shadow: none;
+              &:focus {
+                outline: none;
+                box-shadow: 0 0 5px 0 @base-brand-blue-shadow-transparent;
+              }
+            }
+          }
+        }
+        td.totalScore {
+          padding-left: 6px;
+          color: @score-table-text-color;
+        }
+      }
+      tr.student.selected {
+        .studentName {
+          color: @highlight-color;
+        }
+      }
+    }
+  }
+  #answers {
+    display: none;
+    .student {
+      margin-bottom: 30px;
+      border-top: 1px solid #cccccc;
+
+      .summary {
+        position: relative;
+        margin: 0 30px 25px 0;
+        line-height: 24px;
+        .totalScoreText {
+          .header2();
+          position: absolute;
+          top: 0;
+          right: 0;
+          .finalGrade {
+            font-size: @text-size;
+          }
+          .finalGradePoints {
+            text-align: right;
+            font-weight: 300;
+            font-size: @text-size;
+          }
+        }
+      }
+      .answer {
+        padding: 26px;
+        position: relative;
+
+        &.hasComment {
+          .comment {
+            display: block;
+          }
+          .addCommentToAnswer {
+            display: none;
+          }
+        }
+        &.selected {
+          background: @background-highlight-color;
+          color: @text-color-on-highlight;
+        }
+
+        h3 {
+          margin: 0;
+        }
+        h4 {
+          margin: 0;
+        }
+        .score {
+          position: absolute;
+          right: 30px;
+          top: 30px;
+          .header3();
+          .value {
+            display: inline-block;
+            min-width: 12px;
+            text-align: right;
+          }
+        }
+        .answerText,
+        .answerRichText {
+          margin-top: 15px;
+          margin-bottom: 10px;
+          position: relative;
+          font-size: 15px;
+          font-weight: 400;
+          padding: 5px;
+        }
+        .answerText {
+          white-space: pre-wrap;
+        }
+        .answerRichText {
+          white-space: normal;
+          img {
+            max-width: 100%;
+            max-height: 1000px;
+          }
+          img[src='/math.svg?latex='],
+          img[src=''] {
+            display: none;
+          }
+          img[src^='/math.svg'] {
+            vertical-align: middle;
+            margin: 4px;
+            padding: 3px 10px;
+            border: 1px solid transparent;
+          }
+          img[src^='/screenshot'] {
+            margin: 4px;
+          }
+        }
+
+        .answerMultiChoice {
+          h4 {
+            font-size: 18px;
+            font-weight: 300;
+          }
+          .question {
+            margin-top: 15px;
+
+            .index {
+              display: inline-block;
+              margin-right: 1px;
+            }
+            input {
+              margin-right: 3px;
+            }
+            .choice {
+              margin-left: 15px;
+              border-left: 5px solid transparent;
+              padding-left: 8px;
+            }
+            .correctChoice {
+              border-left-color: #5acd46;
+              font-weight: 400;
+            }
+          }
+        }
+        .answerMultiChoiceGap {
+          .gapAnswer {
+            font-weight: 400;
+            span {
+              padding: 0 4px;
+            }
+          }
+          .gapAnswerCorrect {
+            background-color: @background-highlight-color;
+          }
+          .gapAnswerGiven {
+            background-color: @arpa-invalid-choice-background;
+            font-style: italic;
+          }
+          .gapAnswerGiven:empty:after {
+            content: '\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0';
+          }
+        }
+        &.selected {
+          .gapAnswerCorrect {
+            background-color: #fff;
+          }
+        }
+        .addCommentToAnswer {
+          .button-as-link();
+          margin: 0;
+          padding: 0;
+        }
+        .comment {
+          display: none;
+          vertical-align: top;
+          position: relative;
+          .scoreComment {
+            margin-top: 15px;
+            height: 100px;
+            width: 100%;
+            padding: 13px 20px;
+            line-height: 1.5;
+          }
+          .removeComment {
+            .button-as-link();
+            position: absolute;
+            right: 0;
+            top: -4px;
+            font-size: 16px;
+            i {
+              .fa-icon();
+            }
+          }
+          .printComment {
+            display: none;
+            white-space: pre-wrap;
+          }
+          .savedIndicator {
+            position: absolute;
+            font-size: 10px;
+            right: 0;
+            display: none;
+          }
+        }
+        .comment-for-reading {
+          margin-top: 20px;
+          margin-left: 18px;
+        }
+        .comment.saved .savedIndicator {
+          display: block;
+        }
+      }
+    }
+  }
+}
+
+.arpa.grading {
+  @score-block-height-when-grading: 240px;
+
+  #pagebanner {
+    margin-top: -63px;
+  }
+  #fixed-pos-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    width: 100%;
+    height: @score-block-height-when-grading;
+    background: @SaBackground;
+  }
+  #scoreTable {
+    margin-top: 5px;
+  }
+  .exam-name  {
+    display: none;
+  }
+
+  .content {
+    .returnToEvents {
+      display: none;
+    }
+    .returnToGrid {
+      display: inline-block;
+      position: relative;
+    }
+    #scoreScroller {
+      height: 180px;
+      overflow: auto;
+    }
+  }
+  #answers {
+    display: block;
+    margin-top: @score-block-height-when-grading;
+
+    &:before,
+    &:after {
+      content: '';
+      display: block;
+      position: fixed;
+      height: 10px;
+      max-width: inherit;
+      width: 100%;
+      z-index: 10;
+    }
+    &:before {
+      background: radial-gradient(farthest-side at 50% 0%, rgba(0, 0, 0, 0.05), transparent);
+      top: @score-block-height-when-grading;
+    }
+    &:after {
+      background: radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.05), transparent);
+      bottom: 0;
+    }
+
+    .student:first-child {
+      border-top: 0;
+      padding-top: 1px;
+    }
+    .student:last-child {
+      margin-bottom: calc(100vh - @score-block-height-when-grading - 160);
+    }
+  }
+}
+
+.arpa.gradingSummary {
+  .content {
+    #gradingInfo {
+      margin-top: 30px;
+      margin-bottom: 35px;
+      button {
+        width: auto;
+        margin-bottom: 0;
+      }
+      .printLinkWrapper {
+        margin-top: 8px;
+        #printAnswerPapersWithoutEmailLink {
+          margin-right: 10px;
+          i {
+            .fa-icon();
+            padding-right: 6px;
+          }
+        }
+      }
+      .emails-sent {
+        font-style: italic;
+      }
+    }
+    #scoreTable {
+      .scoreTableHeaders {
+        th.sumHeader {
+          text-align: center;
+          padding: 0;
+        }
+        th.email {
+          padding: 0 20px;
+        }
+      }
+      tbody tr:nth-child(odd) {
+        background: @background-alternative-color;
+      }
+
+      tr.student {
+        td.totalScore {
+          padding: 0 20px;
+        }
+        td.email {
+          padding: 0 20px;
+        }
+        .answerPaperLink i {
+          .fa-icon();
+        }
+      }
+    }
+  }
+}
+
+.arpa.studentDetails {
+  .content {
+    #actionBar {
+      .actionButtons {
+        position: relative;
+        text-align: right;
+      }
+    }
+  }
+
+  #answers {
+    .enlarge-image-link {
+      cursor: auto;
+    }
+
+    a.enlarge {
+      display: none;
+    }
+  }
+}
+
+/*** PRINT CSS ***/
+@media print {
+  body {
+    padding: 0;
+    font-size: 10pt !important;
+    color: #000 !important;
+  }
+  a,
+  button {
+    display: none !important;
+  }
+  h3 {
+    font-size: 12pt;
+  }
+  #scoreTable {
+    display: none !important;
+  }
+  #fixed-pos-wrapper {
+    i.fa {
+      display: none;
+    }
+  }
+  .arpa.gradingSummary {
+    #scoreTable {
+      display: block !important;
+      page-break-after: auto;
+      thead th:nth-child(4) {
+        display: none;
+      }
+      tbody {
+        td:nth-child(4) {
+          display: none;
+        }
+        tr:nth-child(odd) {
+          background-color: @background-alternative-color !important;
+          -webkit-print-color-adjust: exact;
+        }
+      }
+      .answerPaperLink {
+        display: inline !important;
+        text-decoration: initial;
+        color: #000;
+      }
+      .totalScore {
+        color: #000 !important;
+      }
+      input {
+        border: 0;
+        font-size: 10pt;
+        font-weight: 300 !important;
+        background: transparent;
+      }
+    }
+  }
+  .arpa.grading-print {
+    #fixed-pos-wrapper {
+      display: none !important;
+    }
+    .content {
+      background: none !important;
+      margin: 0 auto;
+      max-width: inherit;
+      box-shadow: none !important;
+    }
+    #answers {
+      display: block !important;
+      margin-top: 0 !important;
+      &:before {
+        display: none;
+      }
+      .student {
+        page-break-after: always;
+        border: 0;
+        .answer .score {
+          font-size: 12pt;
+        }
+      }
+      .comment * {
+        display: none !important;
+      }
+      .comment h4,
+      .printComment {
+        display: block !important;
+      }
+      .comment-for-reading * {
+        display: block !important;
+      }
+    }
+  }
+  .arpa.studentDetails {
+    #answers {
+      .student {
+        page-break-after: auto;
+      }
+    }
+  }
+  .arpa.gradingSummary.answerPapersPrint {
+    #scoreTable {
+      display: none !important;
+    }
+    #answers {
+      display: block !important;
+    }
+  }
+  #gradingInfo {
+    display: none;
+  }
+  #pagebanner {
+    display: none;
+  }
+  #actionBar {
+    display: none;
+  }
+  #pageStatus {
+    display: none !important;
+  }
+  .goBack {
+    display: none;
+  }
+  .footer {
+    display: none;
+  }
+}
+
+@import '@digabi/answer-annotation/dist/answer-annotation';
+
+.add-annotation-popup button {
+  .sa-button-big();
+}
+.students-own-answerpage-header {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  align-content: center;
+
+  h1 {
+    margin: 0;
+  }
+}
+.e-exam {
+  // Fuuuuuuuuuuuuuuuuuuuuuuuuuuuck
+  .answer {
+    // Override leaky styles from .answer-annotations
+    .answerText {
+      width: auto;
+      padding-bottom: initial;
+      position: relative;
+
+      img {
+        max-width: 100%;
+        padding: 3px 10px;
+        margin: 4px;
+        vertical-align: middle;
+        border: 1px solid transparent;
+      }
+    }
+    .answerRichText {
+      white-space: normal;
+    }
+
+    // We don't want to display them here.
+    .fa-comment {
+      display: none;
+    }
+  }
+}

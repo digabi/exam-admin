@@ -1,0 +1,58 @@
+@import './variables-grading';
+
+.error-panel() {
+  font-weight: 400;
+  font-size: 18px;
+  color: @sa-error-text-color;
+  background: @sa-error-background-color;
+  box-shadow: 0 2px 3px #ddd;
+}
+
+.floating-error-panel() {
+  .error-panel();
+  line-height: 37px;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  min-height: 60px;
+  z-index: 1000;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+#floating-error {
+  .floating-error-panel();
+  .error-symbol {
+    color: #9b0000;
+    font-size: 32px;
+    position: absolute;
+    top: 20px;
+  }
+  .message {
+    padding-top: 60px;
+    padding-bottom: 20px;
+    margin: 0 auto;
+    max-width: 640px;
+    color: @text-color;
+  }
+  button {
+    width: unset;
+    padding-left: 40px;
+    padding-right: 40px;
+    margin-bottom: 40px;
+  }
+  p {
+    margin: 0;
+  }
+}
+
+#disabled-background {
+  z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.3);
+  height: 100%;
+  width: 100%;
+}

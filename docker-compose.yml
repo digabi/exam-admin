@@ -1,0 +1,38 @@
+services:
+  db:
+    build:
+      dockerfile: Dockerfile.db
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    hostname: db
+    volumes:
+      - db:/var/lib/postgresql/data
+    ports:
+      - 65432:5432
+
+  minio:
+    image: docker.io/bitnami/minio
+    environment:
+      - MINIO_DEFAULT_BUCKETS=attachments:public,logs:public
+    ports:
+      - 9000:9000
+      - 9001:9001
+
+  app:
+    build:
+      dockerfile: Dockerfile
+    env_file:
+      - ./app.template.env
+      - path: ./.env
+        required: false
+    volumes:
+      - app_cache:/app/.cache
+    depends_on:
+      - db
+    command: ./start.sh
+    ports:
+      - 9999:3000
+
+volumes:
+  db:
+  app_cache:

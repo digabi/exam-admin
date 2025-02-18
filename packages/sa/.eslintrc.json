@@ -1,0 +1,9 @@
+{
+  "extends": "@digabi/eslint-config",
+  "rules": {
+    "comma-dangle": ["error", "never"]
+  },
+  "parserOptions": {
+    "project": ["./public/js/tsconfig.json", "./tsconfig.json"]
+  }
+}

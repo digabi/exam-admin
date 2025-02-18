@@ -1,0 +1,15 @@
+*.iml
+.idea
+.nyc_output
+node_modules
+report.xml
+test/temp
+npm-debug.log
+*.log
+*~
+*.swp
+dist/
+dist-amd/
+dist-cjs/
+.npmrc
+eslint3.xml

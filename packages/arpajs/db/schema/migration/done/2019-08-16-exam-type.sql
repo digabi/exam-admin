@@ -1,0 +1,1 @@
+alter table held_exam add column held_exam_type text not null default 'json';

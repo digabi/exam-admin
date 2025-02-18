@@ -1,0 +1,1193 @@
+@import '~rich-text-editor/dist/rich-text-editor.css';
+
+.visualEditorContainer.rich-text-editor {
+  outline: none;
+  z-index: unset;
+}
+e\:exam {
+  @question-color: #8eb4d7;
+  @question-color-hover: #49749b;
+  @inner-question-color: #b08ed7;
+  @inner-question-color-hover: #7c50af;
+  @question-border: 5px solid @question-color;
+  @inner-question-border: 5px solid @inner-question-color;
+  @light-cyan: #e0f4fe;
+  @exam-border-color: #307f99;
+  @exam-border-color-hover: #1e637a;
+  @field-border-color: #c9c9c9;
+  counter-reset: question section attachment;
+  *:focus {
+    outline: 1px dashed #333;
+  }
+  .basic-element() {
+    padding: 8px;
+    margin: 5px 0;
+    position: relative;
+    float: none !important;
+    word-wrap: break-word;
+    vertical-align: middle;
+  }
+  .localized-content(@fi, @sv) {
+    content: @fi;
+    .sv & {
+      content: @sv;
+    }
+  }
+  e\:accepted-answer,
+  e\:attachment,
+  e\:attachment-link,
+  e\:attachment-links,
+  e\:audio,
+  e\:audio-group,
+  e\:author,
+  e\:choice-answer,
+  e\:choice-answer-option,
+  e\:dropdown-answer,
+  e\:dnd-answer-container,
+  e\:dnd-answer,
+  e\:dropdown-answer-option,
+  e\:exam-footer,
+  e\:exam-version,
+  e\:exam-versions,
+  e\:external-material,
+  e\:formula,
+  e\:hint,
+  e\:hints,
+  e\:howpublished,
+  e\:image-overlay,
+  e\:image-title,
+  e\:modified-by,
+  e\:note,
+  e\:publication,
+  e\:publication-date,
+  e\:publisher,
+  e\:question,
+  e\:reference,
+  e\:reference-date,
+  e\:scored-text-answer,
+  e\:section,
+  e\:table-of-contents,
+  e\:title,
+  e\:translator,
+  e\:url,
+  e\:video {
+    .basic-element();
+    video {
+      width: 100%;
+    }
+
+    &:before {
+      position: absolute;
+      top: -1rem;
+      left: 0;
+      padding: 1px 4px;
+      font: 400 12px/1 monospace;
+      color: #333;
+      white-space: nowrap;
+    }
+  }
+
+  .content-editable:hover *:before {
+    cursor: pointer;
+  }
+
+  .content-editable:hover *:before {
+    cursor: pointer;
+  }
+
+  e\:exam-title {
+    .question-field();
+    margin: 30px 0;
+    font-size: 2.5rem;
+    font-weight: 300;
+    line-height: 3.5rem;
+    padding-left: 0.5rem;
+    &:empty:before {
+      .localized-content('Kokeen otsikko', 'Provets titel');
+      color: grey;
+    }
+  }
+
+  e\:exam-instruction {
+    display: block;
+    box-shadow: 0 0 0 1px #88d0d0 inset;
+    border-radius: 0.25rem;
+    margin-bottom: 2rem;
+    background: #f0faff;
+    padding: 2rem;
+    &:empty:before {
+      .localized-content('Kokeen ohje', 'Anvisningar för provet');
+      color: grey;
+    }
+  }
+
+  e\:table-of-contents {
+    margin: 2rem 0;
+
+    &:before {
+      .localized-content('Sisällysluettelo', 'Innehållsförteckning');
+      background: #666;
+      color: white;
+      display: block;
+      min-width: 20rem;
+      padding: 0.2rem 1rem;
+      border-radius: 4px;
+    }
+  }
+
+  e\:section {
+    .cas() {
+      width: 20px;
+      text-align: center;
+      .cas-forbidden {
+        width: 9px;
+        margin-left: 1px;
+      }
+    }
+    display: block;
+    border: none;
+    background: white;
+    counter-increment: section;
+    padding: 3rem 1rem 0;
+    margin: 0 -2rem;
+    border-top: 1rem solid @light-cyan;
+    border-bottom: 1rem solid @light-cyan;
+    .cas-properties {
+      position: absolute;
+      top: -1px;
+      right: 20px;
+      width: 16px;
+      display: none;
+      button {
+        border: none;
+        background: none;
+        font-size: 18px;
+        margin-left: -10px;
+        margin-top: -2px;
+        &:target {
+          background-color: red;
+        }
+      }
+      &.opened {
+        display: flex;
+        .cas-properties-opened {
+          display: block;
+        }
+      }
+      .max-answers-selection {
+        margin-right: 2rem;
+      }
+    }
+    [data-type='section-properties'] {
+      cursor: pointer;
+    }
+    .cas-properties-opened {
+      font-size: 14px;
+      display: none;
+      position: absolute;
+      top: 4px;
+      right: 3rem;
+      white-space: nowrap;
+    }
+    .cas-forbid {
+      .cas();
+      color: lightgray;
+    }
+    .cas-allow {
+      .cas();
+      color: green;
+    }
+    &:first-of-type {
+      border-top: 2rem solid @light-cyan;
+    }
+    &:last-of-type {
+      border-bottom: 2rem solid @light-cyan;
+    }
+    &:hover {
+      .cas-properties {
+        display: block;
+      }
+    }
+    &:hover:after {
+      .remove-style();
+    }
+  }
+
+  e\:section-title {
+    .basic-element();
+    .question-field();
+    margin: 0 0 0.5rem;
+    font-size: 1.875rem;
+    font-weight: 400;
+    border: 1px solid @field-border-color;
+    line-height: 2.5rem;
+    &:before {
+      content: counter(section) ': ';
+    }
+    &:empty {
+      &:before {
+        color: grey;
+        .localized-content(counter(section) ': Osan otsikko', 'Delens rubrik');
+      }
+    }
+  }
+  .dash-hover(@color) {
+    border-top: 1px solid transparent;
+    border-right: 1px solid transparent;
+    border-bottom: 1px solid transparent;
+
+    &:hover {
+      border-top: 1px dashed @color;
+      border-right: 1px dashed @color;
+      border-bottom: 1px dashed @color;
+    }
+  }
+  .top-level-questions .toolbar-new-question {
+    display: none;
+  }
+  .sub-question > .sticky-items .togglable {
+    display: none;
+  }
+  e\:question {
+    position: relative;
+    border-left: @question-border;
+    display: block;
+    padding: 1rem;
+    margin-top: 1rem;
+    border-radius: 4px;
+    counter-increment: question;
+    counter-reset: innerquestion attachment;
+    .dash-hover(@question-color);
+
+    &:hover:after {
+      .remove-style();
+    }
+    .toolbar-new-question {
+      border-left: @inner-question-border !important;
+      .basic-action {
+        background: @inner-question-color !important;
+      }
+      .labeled-basic-action {
+        color: @inner-question-color;
+      }
+    }
+    .sticky-items {
+      position: sticky;
+      bottom: 0;
+      background: white;
+      padding: 4px;
+      box-shadow: 0 -10px 10px -5px #fff;
+    }
+
+    e\:question {
+      counter-increment: innerquestion;
+      counter-reset: unset;
+      border-left: @inner-question-border;
+      .dash-hover(@inner-question-color);
+      .answer-button,
+      .basic-action {
+        background: @inner-question-color;
+        &:hover {
+          background: @inner-question-color-hover;
+        }
+      }
+
+      .sticky-items {
+        position: sticky;
+        bottom: 0;
+        background: white;
+        z-index: 4;
+        margin-top: 8px;
+      }
+      e\:question-title {
+        font-size: inherit;
+        font-weight: inherit;
+        &:before {
+          font-weight: 600;
+          content: counter(question) '.' counter(innerquestion) ' ';
+        }
+        &:empty {
+          padding-left: 30px;
+          text-indent: -22px;
+          &:before {
+            color: grey;
+            .localized-content(counter(question) '.' counter(innerquestion) ' Otsikko', counter(question) '.' counter(innerquestion) ' Rubrik');
+          }
+        }
+      }
+    }
+    e\:attachment .sticky-items {
+      z-index: 5;
+      margin-top: 8px;
+    }
+  }
+  .question-field() {
+    border: 1px solid @field-border-color;
+    display: block;
+    margin: 30px 0;
+    background: white;
+  }
+
+  e\:question-title {
+    .basic-element();
+    .question-field();
+    font-size: 1.3125rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+
+    &:before {
+      content: counter(question) '. ';
+    }
+    &:empty {
+      padding-left: 30px;
+      text-indent: -22px;
+
+      &:before {
+        color: grey;
+        .localized-content(counter(question) '. Tehtävän otsikko', counter(question) '. Uppgiftens rubrik');
+      }
+    }
+  }
+
+  // this prevents adding new questions under dnd-answer-container
+  e\:question:not(:has(e\:question)) {
+    &:has(e\:dnd-answer-container) {
+      button[data-type='button-dragndrop'],
+      button[data-type='button-rich-text'],
+      button[data-type='button-single-line'],
+      button[data-type='button-dropdown'],
+      button[data-type='button-choice'],
+      div.toolbar-new-question {
+        display: none;
+      }
+    }
+  }
+
+  e\:question-instruction {
+    .question-field();
+    margin: 0 0 1rem 0;
+    padding: 8px;
+    min-height: 4rem;
+    &:empty:before {
+      .localized-content('Tehtävänanto (tekstiä, kaavoja, kuvia, ym.)', 'Uppgift (text, formler, bilder etc.)');
+      color: grey;
+    }
+  }
+
+  e\:section-instruction {
+    .question-field();
+    margin: 0 0 1rem 0;
+    padding: 8px;
+    &:empty:before {
+      .localized-content('Osan kuvaus', 'Beskrivning av delen');
+      color: grey;
+    }
+  }
+
+  e\:audio-group {
+    border: none;
+    display: block;
+    padding: 40px 20px;
+    margin: 40px 0;
+
+    &:before,
+    &:after {
+      display: block;
+      content: '✲✲✲';
+      color: @exam-border-color;
+      font:
+        1.3125rem 'Noto Sans',
+        sans-serif;
+      position: absolute;
+      bottom: 0;
+    }
+  }
+
+  .text-input-style() {
+    .basic-element();
+    background: white;
+    border: 1px solid transparent;
+    border-bottom-style: none;
+    border-radius: 0.25rem;
+    box-shadow: inset 0 0 0 1.5px #aaa;
+    min-height: 2rem;
+    max-width: 100%;
+    min-width: 8rem;
+  }
+
+  .score-style() {
+    font-size: 0.8rem;
+    border-radius: 1.5rem;
+    box-shadow: inset 0 0 0.25px 1px rgba(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0 0.525rem 0.125rem;
+    white-space: nowrap;
+    border: none;
+    &:invalid {
+      background: #f9e9e9;
+    }
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    -moz-appearance: textfield;
+  }
+
+  .icon-button-style() {
+    top: 1px;
+    left: calc(100% - 2px);
+    margin-left: -1rem;
+    height: auto;
+    width: auto;
+    color: white;
+    border-radius: 100px;
+    display: block;
+    line-height: 1;
+    padding: 0 4px;
+    text-align: center;
+    position: absolute;
+    cursor: pointer;
+  }
+  .remove-style() {
+    content: '×';
+    background: #be0000;
+    .icon-button-style();
+    width: 17px;
+    height: 17px;
+    padding: 0;
+  }
+
+  .shuffle-style() {
+    .icon-button-style();
+    top: 4px;
+    left: 19px;
+    width: 17px;
+    padding: 0;
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: 1rem;
+    content: '\f074';
+  }
+
+  .hover-border() {
+    border: 1px solid transparent;
+    &:hover {
+      border: 1px dashed @question-color;
+    }
+  }
+
+  e\:text-answer,
+  e\:scored-text-answer {
+    .text-input-style();
+    padding: 0px;
+    display: inline-block;
+    background: #eee;
+    margin-right: 4.5rem;
+    .max-length-container {
+      font:
+        12px 'Noto Mono',
+        serif;
+      position: absolute;
+      margin-top: 5px;
+      top: 100%;
+      .max-length {
+        display: none;
+        .max-length-input {
+          width: 4rem;
+        }
+      }
+    }
+
+    &:hover:before {
+      .remove-style();
+      z-index: 1;
+    }
+
+    &[max-length] {
+      .max-length-container {
+        .max-length {
+          display: inline;
+        }
+      }
+    }
+
+    &[type='rich-text'] {
+      min-height: 5rem;
+      display: block;
+      margin-right: 5rem;
+      margin-bottom: 2.5rem;
+    }
+    max-score {
+      position: absolute;
+      right: -4.5rem;
+      top: 0;
+    }
+  }
+  option-wrapper {
+    display: block;
+    min-width: 0.5rem;
+    min-height: 1rem;
+  }
+  max-score {
+    white-space: nowrap;
+    input {
+      .score-style();
+      margin-left: 0.5rem;
+      width: 2.7rem;
+      font-weight: 600;
+      vertical-align: baseline;
+      text-align: right;
+      padding-right: 1.3rem;
+    }
+    &:after {
+      position: relative;
+      left: -1.2rem;
+      content: 'p.';
+      font-size: 0.8rem;
+      font-weight: 600;
+      pointer-events: none;
+    }
+  }
+
+  e\:hint {
+    font-size: 12px;
+    font-style: italic;
+  }
+
+  e\:accepted-answer {
+    background: lightgreen;
+    display: inline-block;
+    margin: 0;
+    padding: 0 5px;
+    font-size: 12px;
+
+    &:after {
+      font-size: 12px;
+      content: ' ' attr(score) ' p.';
+    }
+  }
+  e\:dropdown-answer {
+    display: inline-block;
+    min-width: 8em;
+    vertical-align: top;
+    border: 1px solid @exam-border-color;
+    border-radius: 4px;
+    padding: 1.7rem 0 0 0;
+    margin: 0 0 1rem;
+    background: #fff;
+
+    .labeled-basic-action {
+      i {
+        padding: 4px 0px 8px 8px;
+      }
+    }
+
+    &:before {
+      display: block;
+      width: 100%;
+      content: '▼';
+      color: @exam-border-color;
+      font-size: 1rem;
+      top: 3px;
+      text-align: right;
+      left: 0;
+      height: 1.5rem;
+      box-sizing: border-box;
+    }
+
+    &:hover:before {
+      .shuffle-style();
+      color: green;
+    }
+
+    &:hover:after {
+      .remove-style();
+    }
+  }
+
+  e\:dropdown-answer[ordering='fixed'] {
+    &:hover:before {
+      .shuffle-style();
+      color: lightgray;
+    }
+  }
+
+  e\:dropdown-answer-option:first-child {
+    padding-top: 0.3rem;
+    border-top: 1px solid @exam-border-color;
+  }
+
+  e\:dropdown-answer-option {
+    display: flex;
+    margin: 0;
+    padding: 0 1.5rem 0 0.5rem;
+
+    .hover-border();
+
+    &:hover:after {
+      .remove-style();
+    }
+  }
+
+  e\:choice-answer {
+    display: table;
+    padding-top: 1.5rem;
+    margin-bottom: 1rem;
+
+    &[direction='horizontal'] e\:choice-answer-option {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      &:before {
+        margin-bottom: 0.5rem;
+      }
+    }
+    .hover-border();
+
+    &:hover:before {
+      .shuffle-style();
+      color: green;
+    }
+
+    &:hover:after {
+      .remove-style();
+    }
+  }
+
+  e\:choice-answer[ordering='fixed'] {
+    &:hover:before {
+      .shuffle-style();
+      color: lightgray;
+    }
+  }
+
+  e\:choice-answer-option {
+    display: flex;
+    margin: 0 1rem 0 0;
+    padding: 0.3rem 1.5rem 0.3rem 0.7rem;
+
+    .hover-border();
+
+    &:hover:after {
+      .remove-style();
+    }
+
+    &:before {
+      color: #8f8f9d;
+      content: '◯ ';
+      font-size: 1.5rem;
+      margin-left: -1rem;
+      position: static;
+      background: transparent;
+    }
+  }
+
+  e\:dnd-answer-container {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    margin-top: 2rem;
+    gap: 1rem 0.5rem;
+    border: 1px solid @field-border-color;
+    border-radius: 4px;
+    background: #fff;
+    .hover-border();
+
+    &:hover:after {
+      .remove-style();
+    }
+
+    &:before {
+      color: grey;
+    }
+
+    b {
+      margin-bottom: 0.5rem;
+    }
+
+    // extra options
+    & > e\:dnd-answer-option {
+      margin-left: 0.5rem;
+      flex: none;
+      min-width: 100px;
+
+      &:before {
+        .localized-content('Väärä vastaus', 'Fel svar');
+      }
+    }
+
+    & > button,
+    & > b {
+      flex: 0 0 100%;
+      margin-left: 0.5rem;
+      gap: 0.5rem;
+      align-items: flex-start;
+      text-align: left;
+    }
+  }
+
+  .label-style-not-empty {
+    top: -22px;
+    position: absolute;
+    left: 0;
+    font-size: 12px;
+    color: #aaa;
+  }
+
+  e\:dnd-answer {
+    padding: 0.2rem;
+    margin: 0;
+    border: 1px solid transparent;
+    display: flex;
+    flex: 0 0 100%;
+    align-items: stretch;
+    justify-content: space-between;
+    .hover-border();
+
+    &:hover:after {
+      .remove-style();
+    }
+
+    &:hover {
+      e\:dnd-answer-title,
+      e\:dnd-answer-option {
+        border-color: rgb(126, 154, 170);
+      }
+    }
+  }
+
+  e\:dnd-answer-title {
+    display: block;
+    padding: 0.2rem;
+    border-radius: 4px;
+    border: 1px solid #c9c9c9;
+    padding: 8px;
+    .hover-border();
+    flex: 1;
+    position: relative;
+    margin-right: 49px;
+    background: #ecf7fe;
+    border: 1px solid #e0ecf4;
+    min-height: 2.5rem;
+
+    &:after {
+      content: '';
+      height: 2px;
+      background-color: #cfdde8;
+      position: absolute;
+      left: 100%;
+      top: calc(50% - 3px);
+      width: 50px;
+    }
+
+    &:before {
+      .localized-content('Osio', 'Item');
+      .label-style-not-empty();
+      color: #aaa;
+    }
+
+    & + e\:dnd-answer-option {
+      &:hover:after {
+        display: none;
+      }
+    }
+  }
+
+  e\:dnd-answer-option {
+    display: block;
+    padding: 0.4rem;
+    border-radius: 4px;
+    margin: 0;
+    position: relative;
+    .hover-border();
+    background: #ecf7fe;
+    border: 1px solid #e0ecf4;
+    flex: 1;
+    position: relative;
+    min-height: 2.5rem;
+
+    &:hover:after {
+      .remove-style();
+    }
+
+    &:before {
+      .localized-content('Oikea vastaus', 'Rätt svar');
+      .label-style-not-empty();
+    }
+  }
+
+  e\:external-material {
+    display: block;
+    margin: 0 0 1rem;
+    padding: 0 0 4px;
+
+    button.basic-action {
+      background: @exam-border-color;
+    }
+    button.labeled-basic-action {
+      color: @exam-border-color;
+    }
+
+    e\:attachment {
+      border-color: @exam-border-color;
+      counter-increment: attachment;
+      &:hover:after {
+        .remove-style();
+      }
+      .dash-hover(@exam-border-color);
+      e\:attachment-title {
+        .basic-element();
+        .question-field();
+        font-size: 1.3125rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem;
+        &:before {
+          content: counter(attachment, upper-alpha) ' ';
+        }
+        &:empty:before {
+          color: grey;
+          .localized-content(counter(attachment, upper-alpha) ' Aineiston otsikko', counter(attachment, upper-alpha) ' Rubrik för materialet');
+        }
+      }
+      .answer-button {
+        background: @exam-border-color;
+        &:hover {
+          background: @exam-border-color-hover;
+        }
+      }
+    }
+  }
+
+  e\:question e\:external-material e\:attachment e\:attachment-title {
+    &:before {
+      content: counter(question) '.' counter(attachment, upper-alpha) ' ';
+    }
+    &:empty:before {
+      color: grey;
+      .localized-content(counter(question) '.' counter(attachment, upper-alpha) ' Aineiston otsikko', counter(question) '.' counter(attachment, upper-alpha) ' Bilagans titel');
+    }
+  }
+
+  e\:attachment {
+    display: block;
+    border-left: 5px solid @exam-border-color;
+    border-radius: 4px;
+    padding: 5px 20px;
+
+    &:before {
+      border-radius: 0 4px 4px 0;
+      background-color: @question-color;
+      color: white;
+      top: 0;
+      left: 0;
+    }
+  }
+
+  e\:attachment-links {
+    display: block;
+    .question-field();
+    border: none;
+    border-left: 1px solid #333;
+
+    &:before {
+      .localized-content('Liitelinkit', 'Länkar till bilagorna');
+      left: -1px;
+      background-color: #505050;
+      padding: 2px 4px;
+      color: #fff;
+      border-radius: 4px 4px 4px 0;
+    }
+  }
+
+  e\:attachment-link {
+    display: block;
+    &:before {
+      content: attr(ref);
+      color: #207b90;
+      top: 0;
+    }
+  }
+
+  e\:image {
+    background-color: white;
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+    line-height: 0;
+    border: 1px solid lightgray;
+    padding: 0.2rem;
+
+    &:hover:after {
+      .remove-style();
+    }
+  }
+
+  e\:image-title {
+    position: absolute;
+    bottom: -1.5rem;
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: nowrap;
+    left: 0;
+    color: #585858;
+  }
+
+  e\:video {
+    background-color: lightgray;
+    width: 20rem;
+    vertical-align: middle;
+    display: table;
+
+    &:hover:after {
+      .remove-style();
+    }
+    &:before {
+      content: attr(src);
+      top: 0;
+    }
+  }
+
+  e\:formula {
+    font-family: monospace;
+    font-size: 0.8rem;
+    background: rgba(0, 0, 0, 0.1);
+    &[mode='display'] {
+      display: block;
+      text-align: center;
+    }
+  }
+
+  e\:audio[times] {
+    .audio-times {
+      .times-editor {
+        .max-times {
+          display: inline;
+        }
+      }
+    }
+  }
+
+  e\:audio {
+    border: 1px solid @exam-border-color;
+    border-radius: 8px;
+    display: inline-block;
+    background: white;
+    padding: 0 0.5rem 0.2rem 0.5rem;
+    max-width: 100%;
+    .audio-times {
+      font:
+        12px 'Noto Mono',
+        serif;
+      display: block;
+      padding: 0.5rem 0;
+      .filename {
+        max-width: 100%;
+        white-space: nowrap;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+      }
+      .times-editor {
+        display: block;
+        .max-times {
+          display: none;
+          .max-times-input {
+            width: 3rem;
+          }
+        }
+      }
+    }
+    &:hover:after {
+      .remove-style();
+    }
+  }
+  e\:file {
+    .basic-element();
+
+    &:before {
+      color: @exam-border-color;
+      content: attr(src);
+      display: inline-block;
+    }
+    &:hover:after {
+      .remove-style();
+    }
+  }
+
+  e\:localization {
+    &[exam-type='visually-impaired'],
+    &[exam-type='hearing-impaired'] {
+      display: none;
+    }
+  }
+
+  .sv-FI & e\:localization[lang='fi-FI'] {
+    display: none;
+  }
+
+  .fi-FI & e\:localization[lang='sv-FI'] {
+    display: none;
+  }
+
+  e\:exam-versions {
+    display: none;
+  }
+
+  e\:reference {
+    color: #585858;
+    font-size: 12px;
+    display: block;
+
+    &:before {
+      font-family: 'Noto Sans', sans-serif;
+      display: inline;
+      position: static;
+      .localized-content('Lähde: ', 'Källa: ');
+    }
+
+    * {
+      display: inline;
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  e\:url {
+    color: blue;
+  }
+  & > footer.toolbar {
+    padding: 1rem 0;
+  }
+  .toolbar-new-answer {
+    width: 100%;
+    margin: 0 0 1rem;
+    padding: 0;
+
+    .toolbar-question {
+      background: #006ed2;
+    }
+  }
+  .answer-button {
+    cursor: pointer;
+    background: @question-color;
+    border-radius: 4px 4px 4px 0;
+    font-family: 'Noto Mono', serif;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 12px;
+    line-height: 20px;
+    padding: 0 5px;
+    margin: 0;
+    border: none;
+    color: #ffffff;
+    .fa {
+      font-size: 14px;
+    }
+    &:hover {
+      background: @question-color-hover;
+    }
+  }
+  .margin-right {
+    margin-right: 1rem;
+  }
+
+  .basic-action {
+    background: @question-color;
+    color: white;
+    border-radius: 100px;
+    border: none;
+    font-size: 0.75rem;
+    line-height: 1;
+    width: 1.4rem;
+    height: 1.4rem;
+    text-align: center;
+    cursor: pointer;
+  }
+  .labeled-basic-action {
+    font-family: 'Noto Mono', serif;
+    font-size: 12px;
+    color: #555;
+    border: none;
+    cursor: pointer;
+    background: none;
+    font-weight: 300;
+    padding: 0;
+    i {
+      font-size: 1.2rem;
+      vertical-align: middle;
+    }
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  .toolbar-new-question .labeled-basic-action {
+    color: @question-color;
+  }
+  .move {
+    position: absolute;
+    left: 0;
+    margin-left: -13px;
+  }
+  .move-up {
+    top: -2px;
+  }
+  .move-down {
+    bottom: -2px;
+  }
+  .toolbar-new-question {
+    border-left: @question-border;
+    padding: 0 0.5rem;
+    margin: 1rem 0;
+  }
+  .attachment-list {
+    background: white;
+    padding: 0 10px;
+    box-shadow: 0 0 8px 5px #0002;
+    border-radius: 4px;
+
+    button {
+      font-size: 12px;
+      margin: 10px 2px;
+      background: white;
+      box-shadow: 1px 1px 8px 0 rgba(0, 0, 0, 0.2);
+      border: none;
+      border-radius: 4px;
+      color: #333;
+      min-width: 13rem;
+      cursor: pointer;
+      &:hover {
+        background: #eee;
+      }
+    }
+  }
+  e\:exam-footer,
+  e\:references {
+    display: block;
+    margin-top: 4rem;
+    padding: 3rem 1rem 0;
+    margin: 0 -2rem;
+    border-top: 1rem solid @light-cyan;
+    border-bottom: 1rem solid @light-cyan;
+  }
+  e\:references {
+    .basic-element();
+    margin: 0 -2rem;
+    min-height: 6rem;
+    font-size: 1.875rem;
+    font-weight: 400;
+    line-height: 2.5rem;
+    white-space: normal;
+
+    &:after {
+      display: block;
+      .localized-content('Lähteet', 'Källor');
+    }
+  }
+
+  .toolbar-rich-text {
+  }
+  e\:image img {
+    max-width: 10rem !important;
+  }
+}

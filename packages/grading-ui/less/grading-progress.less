@@ -1,0 +1,127 @@
+@import './variables-grading-exams';
+
+.grading-progress {
+  justify-content: flex-start;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  line-height: 14px;
+
+  & + & {
+    margin-top: 3px;
+  }
+
+  &.with-dates {
+    margin-bottom: 14px;
+  }
+
+  &.small {
+    .progress-text {
+      opacity: 0.75;
+      font-size: 14px;
+    }
+
+    .progress-bg {
+      height: 8px;
+    }
+
+    .progress-fg {
+      background: @bar-graded;
+    }
+  }
+
+  &.completed {
+    .progress-fg {
+      background: #2bd68d;
+    }
+
+    .intermediate-mark {
+      border-left: none;
+    }
+  }
+
+  .progress-text {
+    width: 50px;
+    text-align: right;
+    padding-right: 8px;
+    white-space: nowrap;
+  }
+
+  @bar-border-radius: 7px;
+
+  .progress-bg {
+    width: 120px;
+    height: 14px;
+    background-color: hsla(218, 0%, 41%, 0.1);
+    display: -webkit-flex;
+    display: flex;
+    position: relative;
+    box-sizing: content-box;
+    border-radius: @bar-border-radius;
+  }
+
+  .progress-fg-container {
+    width: 100%;
+    border-radius: @bar-border-radius;
+    overflow: hidden;
+    display: flex;
+  }
+
+  .progress-fg {
+    max-width: 120px;
+    height: 100%;
+    display: inline-block;
+    border-radius: @bar-border-radius 0 0 @bar-border-radius;
+    background: @bar-finished;
+
+    &.has-progress {
+      min-width: 1px;
+    }
+  }
+
+  .intermediate-mark {
+    position: absolute;
+    height: 100%;
+    border-left: 2px dotted @bar-finished;
+    border-right: 2px dotted #efefef;
+
+    &.hidden-mark {
+      border: none;
+    }
+
+    .date {
+      font-size: 13px;
+      top: 100%;
+      position: absolute;
+      width: 40px;
+      margin-left: -20px;
+      margin-top: 3px;
+      text-align: center;
+      color: #666;
+
+      &.red {
+        color: #f00;
+        font-weight: 700;
+      }
+
+      &.green {
+        color: #00b15c;
+        font-weight: 700;
+      }
+
+      .reached {
+        color: #00b15c;
+        font-weight: 900;
+        margin-left: 2px;
+      }
+    }
+  }
+
+  .completed .progress-bg {
+    background: #efeded;
+
+    .progress-fg {
+      background: #749ada;
+    }
+  }
+}

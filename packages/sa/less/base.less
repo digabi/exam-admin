@@ -1,0 +1,754 @@
+@import (css) url('normalize.css/normalize.css');
+@import (css) url('source-sans/source-sans-3.css');
+@import url('@fortawesome/fontawesome-free/css/all.css');
+@import (css) 'spin.js/spin.css';
+@import 'variables';
+
+.button {
+  .sa-button();
+}
+
+.button--medium {
+  .sa-button-medium();
+}
+
+.button--big {
+  .sa-button-big();
+}
+
+.form {
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.form-inline {
+  // TODO
+}
+
+.validation-error {
+  font-size: 14px;
+  color: @sa-error-text-color;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.input-md {
+  width: 250px;
+}
+
+.input-full {
+  display: block;
+  width: 100%;
+}
+
+.notification-bar {
+  .notification();
+  display: flex;
+  opacity: 0;
+  max-height: 0;
+  transition: opacity 0.5s, max-height 0.5s;
+  overflow: hidden;
+
+  &--visible {
+    transition-delay: 1s;
+    opacity: 1;
+    max-height: 2.5rem;
+  }
+
+  &--error {
+    color: @sa-error-text-color;
+    background: @sa-error-background-color;
+  }
+}
+
+.notification-text {
+  flex: 1;
+}
+
+.notification-close,
+.notification-close:hover,
+.notification-close:visited {
+  color: inherit;
+  text-decoration: none;
+  float: right;
+  font-size: 2em;
+}
+
+.sa-dropdown-border() {
+  border: @base-input-border-width solid @base-dropdown-border-color;
+}
+
+.sa-small-font() {
+  font-size: 14px;
+}
+
+/************************
+    Component Mixins
+*************************/
+
+.header1() {
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 32px;
+  color: @big-heading-text-color;
+}
+.header2() {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: @body-line-height;
+}
+.header3() {
+  font-weight: 600;
+  font-size: 18px;
+  line-height: @body-line-height;
+}
+.header4() {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.button-font() {
+  font-family: @text-font;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: @body-line-height;
+}
+
+.sa-button-base {
+  .button-font();
+  text-align: center;
+  background: @clickable-color;
+  color: white;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 3px;
+  cursor: pointer;
+  &:hover {
+    background-color: @clickable-hover-color;
+  }
+}
+
+.sa-button {
+  .sa-button-base();
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);
+
+  &:hover {
+    background: @clickable-hover-color;
+    color: white;
+  }
+  &:active {
+    box-shadow: none;
+  }
+}
+
+.sa-button-big {
+  .sa-button();
+  width: 220px;
+  height: 40px;
+  line-height: 40px;
+  margin-bottom: 30px;
+  margin-right: 10px;
+}
+
+.sa-button-medium {
+  .sa-button-big();
+  width: 170px;
+}
+
+.sa-button-small {
+  .sa-button-base();
+  font-size: 14px;
+  height: 30px;
+  line-height: 26px;
+  border-radius: 3px;
+}
+
+.big-sa-button {
+  .sa-button-big();
+  display: inline-block;
+  text-decoration: none;
+}
+
+.medium-sa-button {
+  .sa-button-medium();
+}
+
+.sa-secondary-button {
+  background: @base-secondary-button-background;
+  color: @base-secondary-button-text;
+  border: 1px #c8c8c8 solid;
+  box-shadow: 0 0 3px #ddd;
+  &[disabled],
+  &.disabled {
+    border-color: #dfdfdf;
+    color: #dfdfdf;
+    background-color: @base-secondary-button-background;
+    box-shadow: none;
+    &:hover {
+      border-color: #dfdfdf;
+      color: #dfdfdf;
+      background-color: @base-secondary-button-background;
+      box-shadow: none;
+    }
+  }
+  &:hover {
+    background-color: #f8f8f8;
+    color: #333333;
+  }
+}
+
+.sa-button-table {
+  .button-font();
+  .sa-secondary-button();
+  font-size: 14px;
+  line-height: 23px;
+  text-align: center;
+  border-radius: 2px;
+  margin: 0;
+  padding: 0 10px;
+  width: auto;
+  height: auto;
+  white-space: nowrap;
+}
+
+.disabled-button {
+  background: @clickable-disabled-color;
+  cursor: default;
+  color: white;
+  box-shadow: none;
+}
+
+.link-as-button {
+  text-decoration: none;
+  margin-right: 0;
+  margin-bottom: 0;
+  cursor: pointer;
+  &.disabled {
+    cursor: default;
+  }
+}
+.link-as-sa-button-big {
+  .link-as-button();
+  .sa-button-big();
+}
+
+.link-as-sa-button {
+  .link-as-button();
+  .sa-button();
+  padding-bottom: 1px;
+}
+
+.link-as-sa-button-table {
+  .link-as-button();
+  .sa-button-table();
+  padding-top: 2px;
+  padding-bottom: 3px;
+}
+
+.utf-char-before(@content, @left: 0) {
+  &:before {
+    display: inline-block;
+    position: absolute;
+    left: @left;
+    font-size: 32px;
+    line-height: 32px;
+    text-decoration: none;
+    content: @content;
+    font-weight: 400;
+  }
+}
+
+.arrow-left-before() {
+  .utf-char-before('\2190', -25px);
+  &:before {
+    top: -1px;
+  }
+}
+
+.action-link() {
+  font-family: @text-font;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 32px;
+  text-decoration: underline;
+  color: @clickable-color;
+  i {
+    padding-right: 6px;
+  }
+  &:hover {
+    color: @clickable-hover-color;
+  }
+}
+
+.fa-icon() {
+  font-size: 16px;
+  padding-left: 3px;
+  opacity: 0.9;
+}
+i.fa-times-circle {
+  position: relative;
+  top: 0;
+  padding-right: 1px;
+}
+
+.button-as-link {
+  .action-link();
+  width: initial;
+  height: initial;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  outline: none;
+}
+
+.centered-content() {
+  max-width: @layout-width;
+  padding: 0;
+}
+
+.glow() {
+  box-shadow: 0 0 5px @base-brand-blue-shadow-transparent !important;
+  outline: none;
+}
+
+.highlight-border() {
+  .glow();
+  border-color: @base-brand-blue-border-transparent !important;
+}
+
+.highlight-borders-when-focused() {
+  &:focus,
+  &:required:focus {
+    .highlight-border();
+  }
+}
+
+.error-panel {
+  font-weight: 400;
+  font-size: 16px;
+  color: @sa-error-text-color;
+  background: @sa-error-background-color;
+  box-shadow: 0 -1px 10px #333;
+}
+
+.error-box {
+  font-weight: 400;
+  color: @sa-error-text-color;
+  background: #ffeded;
+  &--block {
+    padding: .5em 1em;
+    margin: 1em 0;
+  }
+}
+
+.floating-error-panel() {
+  .error-panel();
+  display: none;
+  line-height: 37px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 60px;
+  z-index: 150;
+  div.localized-error {
+    padding-top: 45px;
+  }
+}
+
+.error-triangle-icon-before() {
+  position: relative;
+  .utf-char-before('\26A0', 0px);
+  &:before {
+    font-size: 24px;
+    line-height: 35px;
+  }
+}
+
+.language-radio-buttons() {
+  label {
+    cursor: pointer;
+    position: relative;
+    padding-left: 25px;
+    margin-left: 15px;
+  }
+  label input[type='radio'] {
+    display: none;
+  }
+}
+
+.sprite-width(@sprite) {
+  width: extract(@sprite, 3);
+}
+.sprite-height(@sprite) {
+  height: extract(@sprite, 4);
+}
+.sprite-position(@sprite) {
+  @sprite-offset-x: extract(@sprite, 1);
+  @sprite-offset-y: extract(@sprite, 2);
+  background-position: @sprite-offset-x @sprite-offset-y;
+}
+
+.sprite(@sprite) {
+  .sprite-position(@sprite);
+  background-repeat: no-repeat;
+  overflow: hidden;
+  display: block;
+  .sprite-width(@sprite);
+  .sprite-height(@sprite);
+}
+
+.somesprites {
+  background-image: url('../public/img/some_sprites.png');
+}
+
+.footer-img-sprite(@sprite, @url) {
+  &[href='@{url}'] {
+    &:before {
+      .somesprites();
+      .sprite(@sprite);
+      content: ' ';
+      vertical-align: middle;
+      display: inline-block;
+    }
+    > span {
+      padding-left: 12px;
+    }
+  }
+}
+
+.text-input {
+  background: white;
+  border: @base-input-border-width solid @base-input-border-color;
+  padding: 3px;
+  font-family: @text-font;
+  font-size: @input-text-size;
+  font-weight: @input-text-weight;
+  color: @text-color;
+  .highlight-borders-when-focused();
+}
+
+.popup-glow() {
+  box-shadow: 0 0 7px 0 rgba(74, 144, 226, 0.5);
+}
+.popup() {
+  .popup-glow();
+  position: absolute;
+  padding: 3px;
+  background: @popup-background;
+  color: @text-color;
+  border-radius: 5px;
+}
+
+.notification() {
+  border: #c8d4db 1px solid;
+  border-radius: 3px;
+  background-color: #f7fdff;
+  padding: 7px 30px 6px;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+/******************************
+   Default Style definitions
+*******************************/
+
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+
+body {
+  background: @SaBackground;
+  font-family: @text-font;
+  font-size: @text-size;
+  line-height: @body-line-height;
+  color: @text-color;
+  margin: 0;
+}
+
+h1 {
+  .header1();
+  margin: 50px 0 30px;
+}
+h2 {
+  .header2();
+  margin: 30px 0 20px;
+}
+h3 {
+  .header3();
+  margin: 20px 0;
+}
+h4 {
+  .header4();
+  margin: 20px 0;
+}
+
+p {
+  margin: 20px 0;
+}
+
+input[type='text'], input[type='password'],
+textarea {
+  .text-input();
+}
+
+textarea {
+  display: block;
+  resize: vertical;
+}
+
+input:disabled,
+textarea:disabled {
+  border-color: #d6d6d6;
+  background-color: #f9f9f9;
+}
+
+a {
+  color: @clickable-color;
+  cursor: pointer;
+  text-decoration: underline;
+  &:hover {
+    color: @clickable-hover-color;
+  }
+  &.disabled {
+    color: @clickable-disabled-color;
+    pointer-events: none;
+  }
+}
+
+/******************************
+   Common SA styles
+*******************************/
+
+.content {
+  .centered-content();
+}
+
+.disabled {
+  color: @clickable-disabled-color;
+  * {
+    color: @clickable-disabled-color;
+  }
+}
+
+.goBack {
+  .arrow-left-before();
+  position: relative;
+  color: @clickable-color;
+  display: inline-block;
+  a {
+    .action-link();
+  }
+  a.disabled {
+    color: @clickable-disabled-color;
+    pointer-events: none;
+  }
+}
+
+.disabled button,
+button:disabled,
+.disabled button:hover,
+button:disabled:hover {
+  .disabled-button();
+}
+
+#floating-error {
+  .floating-error-panel();
+  .message {
+    .error-triangle-icon-before();
+    padding: 10px 30px;
+    margin: 0 auto;
+    max-width: @layout-width;
+  }
+}
+
+#floating-error-react {
+  #floating-error();
+  display: block !important;
+}
+
+.inputform {
+  input[type='password'],
+  input[type='text'] {
+    width: 250px;
+  }
+  input[type='checkbox'] {
+    margin: 0 10px 0 0;
+    vertical-align: middle;
+  }
+  input[type='checkbox'] ~ span {
+    vertical-align: middle;
+  }
+  fieldset {
+    border: none;
+    padding: 0;
+  }
+
+  label {
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .field-description {
+    width: 180px;
+    display: inline-block;
+    &.list-label {
+      line-height: 30px;
+    }
+  }
+
+  .mandatory-field {
+    font-weight: 600;
+  }
+}
+.small-code {
+  font-size: 15px;
+}
+.no-wrap {
+  white-space: nowrap;
+}
+
+
+.utf-char-before(@content, @left: 0) {
+  &:before {
+    font-weight: 300;
+  }
+}
+
+.centered-content() {
+  margin: 40px auto 80px;
+}
+
+body {
+  font-weight: 300;
+}
+
+.footer {
+  // Sprite coordinates
+  @twitter: -5px, -5px, 35px, 35px;
+  @digabi-hover: -5px, -50px, 35px, 35px;
+  @facebook-hover: -5px, -95px, 35px, 35px;
+  @facebook: -5px, -140px, 35px, 35px;
+  @github-hover: -5px, -185px, 35px, 35px;
+  @github: -5px, -230px, 35px, 35px;
+  @twitter-hover: -5px, -275px, 35px, 35px;
+  @digabi: -5px, -320px, 35px, 35px;
+  @uutiskirje-hover: -5px, -365px, 35px, 35px;
+  @uutiskirje: -5px, -410px, 35px, 35px;
+  @vimeo-hover: -5px, -455px, 35px, 35px;
+  @vimeo: -5px, -500px, 35px, 35px;
+  @ytl-hover: -5px, -545px, 35px, 35px;
+  @ytl: -5px, -590px, 35px, 35px;
+  @updates: -5px -680px 35px 35px;
+  @updates-hover: -5px -635px 35px 35px;
+  @terms: -5px -410px 35px 35px;
+  @terms-hover: -5px -365px 35px 35px;
+
+  color: @base-brand-blue;
+  font-size: 16px;
+  font-weight: 400;
+  padding: 60px 0;
+
+  img {
+    margin-right: 12px;
+  }
+  p {
+    margin-bottom: 1px;
+    margin-top: 0;
+    line-height: 22px;
+  }
+  a:hover {
+    text-decoration: none;
+  }
+  h5 {
+    margin-top: 0;
+    color: @base-color-almost-black;
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 12.5px;
+  }
+  a {
+    text-decoration: none;
+  }
+
+  a.with-logo {
+    .footer-img-sprite(@ytl, 'https://ylioppilastutkinto.fi/');
+    .footer-img-sprite(@digabi, 'https://digabi.fi/');
+    .footer-img-sprite(@uutiskirje, 'https://digabi.fi/digabi/uutiskirje/');
+    .footer-img-sprite(@vimeo, 'http://vimeo.com/user19863470');
+    .footer-img-sprite(@github, 'https://github.com/digabi');
+    .footer-img-sprite(@facebook, 'https://www.facebook.com/ylioppilastutkinto');
+    .footer-img-sprite(@twitter, 'https://twitter.com/YTLSEN');
+    .footer-img-sprite(@updates, 'https://www.abitti.fi/fi/paivitykset/');
+    .footer-img-sprite(@terms, '/kayttoehdot/');
+    & + a {
+      margin-left: 6px;
+    }
+  }
+  a.with-logo:hover {
+    .footer-img-sprite(@ytl-hover, 'https://ylioppilastutkinto.fi/');
+    .footer-img-sprite(@digabi-hover, 'https://digabi.fi/');
+    .footer-img-sprite(@uutiskirje-hover, 'https://digabi.fi/digabi/uutiskirje/');
+    .footer-img-sprite(@vimeo-hover, 'http://vimeo.com/user19863470');
+    .footer-img-sprite(@github-hover, 'https://github.com/digabi');
+    .footer-img-sprite(@facebook-hover, 'https://www.facebook.com/ylioppilastutkinto');
+    .footer-img-sprite(@twitter-hover, 'https://twitter.com/YTLSEN');
+    .footer-img-sprite(@updates-hover, 'https://www.abitti.fi/fi/paivitykset/');
+    .footer-img-sprite(@terms-hover, 'https://www.abitti.fi/fi/kayttoehdot/');
+  }
+
+  .footer-column {
+    vertical-align: top;
+    width: 31%;
+    min-width: 240px;
+    height: 140px;
+    display: inline-block;
+    &:not(:first-child) {
+      border-left: 1px solid @base-brand-blue;
+      padding-left: 40px;
+    }
+    &:first-child > div {
+      float: right;
+      padding-right: 40px;
+    }
+    h5 {
+      text-transform: uppercase;
+    }
+    &.wide-column {
+      width: 37%;
+      min-width: 290px;
+      p {
+        margin-bottom: 6px;
+      }
+    }
+  }
+}
+
+#exam-export .exam-table-title {
+  margin-bottom: 5px;
+}
+
+.bertta-base {
+  display: inline-block;
+  background-image: url(../public/img/bertta-icon.svg);
+  background-repeat: no-repeat;
+  width: 20px;
+  height: 20px;
+}
+.default-radio {
+  input[type="radio"] {
+    margin-right: 0.25rem;
+  }
+}

@@ -1,0 +1,123 @@
+@import './variables';
+
+@SaBackground: #fafafa;
+@text-size: 18px;
+@text-color: #263d43;
+@examTableCellVerticalPadding: 1rem;
+@text-font: 'Source Sans 3', sans-serif;
+@body-line-height: 25px;
+@base-secondary-button-background: #fefefe;
+@base-secondary-button-text: #6d6d6d;
+@bar-graded: hsl(218, 58%, 76%);
+@bar-finished: hsl(218 28% 39% / 1);
+
+@base-brand-blue: #004dd0;
+@base-banner-background-blue: #fafafa;
+@base-link-font-blue-hover: #032e78;
+@base-blue-button: @base-brand-blue;
+@base-blue-button-hover: @base-link-font-blue-hover;
+@base-disabled-button: #c8c8c8;
+@base-disabled-text: #6d6d6d;
+@base-color-almost-black: #555555;
+@base-page-banner-text-color: @base-color-almost-black;
+@input-text-weight: 400;
+
+@clickable-color: @base-blue-button;
+@clickable-hover-color: @base-blue-button-hover;
+
+.notification() {
+  border: #c8d4db 1px solid;
+  border-radius: 3px;
+  background-color: #f7fdff;
+  padding: 7px 30px 6px;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.button-font() {
+  font-family: @text-font;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: @body-line-height;
+}
+
+.sa-button-base() {
+  .button-font();
+  text-align: center;
+  background: @clickable-color;
+  color: white;
+  padding: 0.25rem 1rem;
+  border: 0;
+  border-radius: 3px;
+  cursor: pointer;
+  &:hover {
+    background-color: @clickable-hover-color;
+  }
+}
+
+.sa-button() {
+  .sa-button-base();
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);
+
+  &:hover {
+    background: @clickable-hover-color;
+    color: white;
+  }
+  &:active {
+    box-shadow: none;
+  }
+}
+
+.sa-button-auto() {
+  .sa-button();
+  width: auto;
+  margin-right: 10px;
+}
+
+.sa-button-big() {
+  .sa-button-auto();
+}
+
+.sa-secondary-button() {
+  background: @base-secondary-button-background;
+  color: @base-secondary-button-text;
+  border: 1px #c8c8c8 solid;
+  box-shadow: 0 0 3px #ddd;
+  &[disabled],
+  &.disabled {
+    border-color: #dfdfdf;
+    color: #dfdfdf;
+    background-color: @base-secondary-button-background;
+    box-shadow: none;
+    &:hover {
+      border-color: #dfdfdf;
+      color: #dfdfdf;
+      background-color: @base-secondary-button-background;
+      box-shadow: none;
+    }
+  }
+  &:hover {
+    background-color: #f8f8f8;
+    color: #333333;
+  }
+}
+
+.sa-button-table() {
+  .button-font();
+  .sa-button();
+  font-size: 14px;
+  line-height: 23px;
+  text-align: center;
+  border-radius: 2px;
+  margin: 0;
+  padding: 1px 20px;
+  width: auto;
+  height: auto;
+  white-space: nowrap;
+}
+
+.header3() {
+  font-weight: 600;
+  font-size: 18px;
+  line-height: @body-line-height;
+}

@@ -1,0 +1,23 @@
+#!/usr/bin/env node
+// eslint-disable-next-line no-console
+process.on('exit', code => console.info(`Exiting with code ${code}`))
+require('source-map-support').install()
+const { logger } = require('../dist/logger')
+const config = require('../dist/config/configParser.js').default
+
+const http = require('http')
+const https = require('https')
+
+// Enable Keep-Alive by default for better performance.
+http.globalAgent.keepAlive = true
+https.globalAgent.keepAlive = true
+
+function startServer() {
+  const app = require('../dist/arpa.js').default
+  const server = app.listen(config.port, config.interface, () => {
+    logger.info(`Express server listening on ${server.address().address}:${server.address().port}`)
+  })
+  server.keepAliveTimeout = 250000
+}
+
+startServer()

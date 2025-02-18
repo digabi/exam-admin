@@ -1,0 +1,6 @@
+{
+  "extends": "@digabi/typescript-config/public/tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2018"
+  }
+}

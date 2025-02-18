@@ -1,0 +1,57 @@
+.error-banner {
+  font: normal .85rem Noto mono,monospace;
+  color: black;
+  background: linear-gradient(180deg, rgba(190, 0, 0, 0.1) -15%, rgba(190, 0, 0, 0) 85%), #FFFFFF;
+  box-shadow: 0 -1px 2rem #333;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 150;
+  summary {
+    margin: 0 1rem;
+    &::marker {
+      color: #0050c8;
+      font-size: 16px;
+    }
+    i {
+      margin-left: 1rem;
+    }
+    .title {
+      color: #006ed2;
+      font-weight: 600;
+      font-family:  "Noto sans", monospace;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+  }
+  &-details {
+    white-space: pre-wrap;
+    display: flex;
+    align-content: space-between;
+    flex-direction: column;
+    .close-error {
+      position: absolute;
+      top: .5rem;
+      right: 1rem;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 2rem;
+      color: #006ed2;
+    }
+  }
+  .message {
+    padding: 1rem 2rem 0.5rem;
+  }
+  .reload-page {
+    white-space: nowrap;
+    display: inline-block;
+    padding: 0 2rem 0.5rem;
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  display: flex;
+}

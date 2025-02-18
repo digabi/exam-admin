@@ -1,0 +1,3 @@
+<button class="sa-button-big" id="sendGradingByEmailButton" data-i18n="arpa.send_emails">{{t "arpa.send_emails"}}</button>
+<span>{{studentsWithEmail}}/{{studentsInTotal}} <span data-i18n="arpa.email_addresses">{{t "arpa.email_addresses"}}</span></span>{{#if answerEmailsSent}}<span class="emails-sent"> - <span data-i18n="arpa.emails_sent">{{t "arpa.emails_sent"}}</span> {{answerEmailsSent}}</span>{{/if}}
+<div class="printLinkWrapper"><a id="printAnswerPapersWithoutEmailLink"><i class="fa fa-print"></i><span data-i18n="arpa.print_rest">{{t "arpa.print_rest"}}</span></a> {{studentsWithoutEmail}}/{{studentsInTotal}} <span  data-i18n="arpa.students_without_email">{{t "arpa.students_without_email"}}</span></div>

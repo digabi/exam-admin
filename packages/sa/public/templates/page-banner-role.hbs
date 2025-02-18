@@ -1,0 +1,7 @@
+<div class="select-list">
+    <select id="role-selection">
+      {{#each this}}
+      <option value="{{schoolId}}" {{#if currentRole}} selected="selected" {{/if}}>{{schoolName}}</option>
+      {{/each}}
+    </select>
+</div>
