@@ -23,7 +23,7 @@ export default function passportSetup() {
 
   passport.deserializeUser(async (userId, done) => {
     const userName = await userDb.getUserNameByUserId(userId)
-    done(!userName && new Error(`Could not find user: ${userId}`), { userName, userId })
+    done(!userName && new Error('Could not find user'), { userName, userId })
   })
 }
 

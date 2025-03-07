@@ -12,7 +12,6 @@ import studentsRouter from './routes/student'
 import composingRouter from './routes/composing'
 import adminRouter from './routes/admin'
 import helmet from 'helmet'
-import { importYoExams } from './exam/public-exam-importer'
 
 const app = express()
 
@@ -38,11 +37,17 @@ app.use('/grading/student', studentsRouter)
 app.use('/composing', composingRouter)
 app.use('/admin', adminRouter)
 
-app.post('/import-public-exams', (_, res) => {
-  void importYoExams()
-    .then(() => res.sendStatus(200))
-    .catch(() => res.sendStatus(400))
-})
+if (config.matriculationExamsBucket) {
+  import('./exam/public-exam-importer')
+    .then(({ importYoExams }) =>
+      app.post('/import-public-exams', (_, res) => {
+        importYoExams()
+          .then(() => res.sendStatus(200))
+          .catch(() => res.sendStatus(400))
+      })
+    )
+    .catch(error => logger.error('Failed to import public-exam-importer', { error }))
+}
 
 const devEnv = !config.runningInCloud
 if (devEnv && config.testRestRouter) {

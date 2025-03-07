@@ -38,7 +38,7 @@ const configuration = {
   attachmentsLimitInBytes: 100 * 1024 * 1024,
   passphraseWordList: ['purku', 'koodeja', 'tänne', 'lisää'],
   answerLinkMail,
-  matriculationExamsBucket: 'abitti-exam-attachments-test',
+  matriculationExamsBucket: '',
   s3ConfigForAttachments: s3Config,
   s3ConfigForLogs: s3Config,
   secrets: {

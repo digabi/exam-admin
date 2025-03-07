@@ -2,7 +2,7 @@
   "name": "@digabi/grading-ui",
   "repository": "https://github.com/digabi/grading-ui",
   "author": "Matriculation Examination Board, Finland",
-  "version": "0.6.0",
+  "version": "0.8.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [

@@ -14,6 +14,7 @@ RUN npm install --force
 # The compile step needs these things to exist.
 # Change as necessary for your own deployment.
 RUN touch packages/arpajs/server/s3_encrypt.pub
+RUN touch packages/arpajs/server/exam/public-exam-importer.ts
 RUN touch packages/sa/public/img/logo.svg
 RUN touch packages/sa/public/img/bertta-icon.svg
 

@@ -24,7 +24,7 @@
     "@babel/polyfill": "^7.0.0",
     "@digabi/answer-annotation": "^8.0.7",
     "@digabi/exam-engine-core": "^23.6.1",
-    "@digabi/grading-ui": "^0.6.0",
+    "@digabi/grading-ui": "^0.8.0",
     "@digabi/js-utils": "^27.0.3",
     "@digabi/typescript-config": "^1.0.0",
     "@fortawesome/fontawesome-free": "^6.4.0",
