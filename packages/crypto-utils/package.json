@@ -5,9 +5,8 @@
   "main": "lib/crypto-utils.js",
   "scripts": {
     "build": "tsc",
-    "test": "npm run lint; mocha --require ts-node/register test/**/*.ts",
+    "test": "mocha",
     "lint": "eslint .",
-    "ci:test": "eslint -f checkstyle . > eslint3.xml || true; JUNIT_REPORT_PATH=mocha-report.xml mocha --require ts-node/register --reporter mocha-jenkins-reporter test/**/*.ts",
     "prepare": "npm run build"
   },
   "repository": {
@@ -40,7 +39,7 @@
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-promise": "^7.0.0",
     "mocha": "^10.8.2",
-    "mocha-jenkins-reporter": "^0.4.1",
+    "mocha-ctrf-json-reporter": "^0.0.9",
     "prettier": "^3.0.3",
     "ts-node": "^10.9.1",
     "typescript": "5.2.2"

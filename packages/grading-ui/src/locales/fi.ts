@@ -18,14 +18,14 @@ const fi = {
     },
     held_exams: 'Pidetyt kokeet',
     info_text:
-      'Lautakunta suosittelee, että 50 % vastausten alustavasta arvostelusta merkitään valmiiksi ensimmäiseen määräpäivään mennessä.',
+      'Lukion on merkittävä valmiiksi vähintään 30 % vastausten alustavasta arvostelusta ensimmäiseen määräpäivään mennessä.',
     students: 'Kokelaita',
     held_exam_name: 'Koe',
     held_answers: 'Arvosteltavia vastauksia',
     pre_grading: 'Alustavasti arvosteltuja vastauksia',
     pre_grading_answers_graded: 'Vastauksia arvosteltu',
     pre_grading_answers_finished: 'Arvosteluja merkitty valmiiksi',
-    recommended_deadline: 'Suositeltu määräpäivä',
+    recommended_deadline: 'Seuraava määräpäivä',
     still_to_be_finished: 'Merkittävä valmiiksi vielä',
     gradings: 'arvostelua',
     today: 'Tänään',
@@ -39,6 +39,8 @@ const fi = {
       exam_meb: 'Ladattu tiedosto sisältää koetehtäviä. Valitse koesuoritukset sisältävä tiedosto.',
       incorrect_exam: 'Koetta, johon vastaukset liittyvät, ei löydy. Lataus epäonnistui.',
       exam_structure_not_imported: 'Koesuorituksia tähän kokeeseen ei voi vielä tuoda, yritä myöhemmin uudestaan.',
+      incorrect_answer_package:
+        'Yrität siirtää tutkintopalveluun koesuorituksia, jotka eivät kuulu tämän tutkintokerran kokeeseen. Varmista, että koesuorituspaketti on oikea.',
       invalid_file: 'Ladattu tiedosto ei sisällä koesuorituksia, lataus epäonnistui.',
       no_answer_papers: 'Ladattu tiedosto ei sisällä koesuorituksia.',
       answer_upload_failed: 'Koesuoritusten lataaminen epäonnistui. Yritä hetken kuluttua uudelleen.',
@@ -76,7 +78,9 @@ const fi = {
       mark_finished_n: 'Merkitse valmiiksi {{count}} arvostelua',
       just_marked_finished_n: '{{count}} arvostelua merkittiin valmiiksi!',
       cancel: 'Peruuta',
-      close: 'Sulje'
+      close: 'Sulje',
+      only_visible_to_teacher:
+        'Tämän tehtävätyypin muistiinpanot käsitellään arvostelijan muistiinpanoina, eivätkä ne näy kokelaalle.'
     },
     answer_search: {
       search_answers: 'Hae vastauksia...',

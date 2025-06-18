@@ -1,20 +1,19 @@
 'use strict'
 
 import { Router } from 'express'
-import { expressUtils, baseUrlFromRequestHeaders } from '@digabi/js-utils'
-const router = expressUtils.promisifyRouter(Router())
+import { baseUrlFromRequestHeaders, validation } from '@digabi/js-utils'
+const router = Router()
 import * as auth from '../../auth/auth'
 import { ensureAuthenticated } from '../../auth/auth-session'
 import pgrm from '../../db/arpajs-database'
 import * as email from '../../email'
 import { using } from 'bluebird'
-import { validEmail } from '../../validation'
 import { removeAuthorizedClientFromUser } from '../../auth/oauth'
 import { queryAuthorizedClients } from '../../auth/oauth-model'
 import SQL from 'sql-template-strings'
 import config from '../../config/configParser'
 
-router.getAsync('/exam-language', async (req, res) => {
+router.get('/exam-language', async (req, res) => {
   if (!req.user) {
     return res.sendStatus(401)
   }
@@ -28,7 +27,7 @@ router.getAsync('/exam-language', async (req, res) => {
   res.send(result)
 })
 
-router.postAsync('/exam-language/:examLanguage', async (req, res) => {
+router.post('/exam-language/:examLanguage', async (req, res) => {
   if (!req.user) {
     return res.sendStatus(401)
   }
@@ -42,11 +41,11 @@ router.postAsync('/exam-language/:examLanguage', async (req, res) => {
   res.status(200).end()
 })
 
-router.postAsync('/update-email', ensureAuthenticated, async (req, res) => {
+router.post('/update-email', ensureAuthenticated, async (req, res) => {
   const { password, newUsername } = req.body
   const { userId, userName } = req.user
 
-  if (!validEmail(newUsername)) {
+  if (!validation.isValidEmail(newUsername)) {
     return res.status(400).send({ validationErrors: { username: 'invalid_username' } })
   }
 
@@ -67,7 +66,18 @@ router.postAsync('/update-email', ensureAuthenticated, async (req, res) => {
   })
 })
 
-router.getAsync('/update-email', async (req, res) => {
+/**
+ * update-email GET route is called when user receives email to confirm update
+ * email. If there is no HEAD route specified then both HEAD and GET trigger
+ * the router.get() route and try to execute the database changes. This can
+ * cause a race condition when updating the db. That is why we have a dummy HEAD
+ * route
+ */
+router.head('/update-email', (req, res) => {
+  res.sendStatus(200)
+})
+
+router.get('/update-email', async (req, res) => {
   const { token } = req.query
 
   const user = await auth.authenticateByToken(token)
@@ -88,11 +98,11 @@ const sendUpdateEmail = (req, to, token) => {
   return email.send(mail)
 }
 
-router.getAsync('/authorized-apps', ensureAuthenticated, async (req, res) => {
+router.get('/authorized-apps', ensureAuthenticated, async (req, res) => {
   res.send(await queryAuthorizedClients(req.user.userId))
 })
 
-router.deleteAsync('/authorized-apps/:clientId', ensureAuthenticated, async (req, res) => {
+router.delete('/authorized-apps/:clientId', ensureAuthenticated, async (req, res) => {
   await removeAuthorizedClientFromUser(req.params.clientId, req.user.userId)
   res.status(204)
   res.end()

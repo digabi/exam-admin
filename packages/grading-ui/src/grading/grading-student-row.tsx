@@ -4,7 +4,7 @@ import { ExamCopyLink } from './exam-copy-link'
 import { AutogradedScores } from './autograded-scores'
 import { TotalScore } from './total-score'
 import React from 'react'
-import { GradingExamAndScores, GradingStudent, SetStudentEdited } from './types'
+import { GradingAnswerType, GradingExamAndScores, GradingStudent, SetStudentEdited } from './types'
 import { useParams } from 'react-router-dom'
 import { GridScoreCell } from './grid-score-cell'
 import { useTranslation } from 'react-i18next'
@@ -15,10 +15,18 @@ const bigTotalDifferenceThreshold = 18
 type GradingStudentRowProps = {
   examAndScores: GradingExamAndScores
   student: GradingStudent
+  studentIndex: number
   studentEdited?: string
   setStudentEdited: SetStudentEdited
 }
-export function GradingStudentRow({ student, examAndScores, studentEdited, setStudentEdited }: GradingStudentRowProps) {
+
+export function GradingStudentRow({
+  student,
+  studentIndex,
+  examAndScores,
+  studentEdited,
+  setStudentEdited
+}: GradingStudentRowProps) {
   const { answers, studentUuid, score } = student
   const totalScoreDifference = totalScoreDifferenceFor(student)
 
@@ -57,14 +65,24 @@ export function GradingStudentRow({ student, examAndScores, studentEdited, setSt
         setStudentEdited={setStudentEdited}
         actionsDisabled={actionsDisabled}
       />
-      {answers.map((answer, i) => (
-        <GridScoreCell
-          key={answer.questionId || `${studentUuid}_${i}`}
-          answer={answer}
-          student={student}
-          isPregrading={false}
-        />
-      ))}
+      {answers.map((answer, i) =>
+        answer.answerId ? (
+          <GridScoreCell
+            key={answer.questionId || `${studentUuid}_${i}`}
+            answer={answer as GradingAnswerType}
+            studentIndex={studentIndex}
+            answerIndex={i}
+            student={student}
+            isPregrading={false}
+          />
+        ) : (
+          <td
+            key={answer.questionId || `${studentUuid}_${i}`}
+            className={classNames('answerScore', {
+              'no-answer': true
+            })}></td>
+        )
+      )}
       <AutogradedScores student={student} examAndScores={examAndScores} />
       <TotalScore student={student} examAndScores={examAndScores} />
       <td className="totalScoreDifference">

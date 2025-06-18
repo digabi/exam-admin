@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Pregrading } from '@digabi/grading-ui/lib/held-exams/pregrading'
-import { pregradingExamUrls } from './pregrading-exam-urls'
+import { gradingExamUrls } from './grading-exam-urls'
 import { TabManager } from '../TabManager'
 import { PageBanner, useLanguage } from '../page-banner/page-banner'
 import { useFetchUser } from './hooks'
@@ -25,7 +25,7 @@ function GradingList() {
           scopeId={''}
           roleType="GRADING_TEACHER"
           allowedExams={['']}
-          pregradingExamUrls={pregradingExamUrls}
+          pregradingExamUrls={gradingExamUrls}
           lang={lang}
           examReviewRequired={true}
           examsDeletable={true}

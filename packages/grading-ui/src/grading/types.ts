@@ -1,7 +1,7 @@
-import { Annotation, GradingStructure } from '@digabi/exam-engine-core'
+import { Annotation, AudioAnswer, GradingStructure, RichTextAnswer, TextAnswer } from '@digabi/exam-engine-core'
 import { Dispatch, SetStateAction } from 'react'
 import { Language, CensorDistributionState, UserData } from '../common/types'
-import { NavigationMap } from './grid-navigation'
+import { NavigateInGrid } from './grid-navigation'
 import { isEmpty } from 'lodash'
 
 export type ExamType = 'normal' | 'visually-impaired' | 'hearing-impaired'
@@ -102,11 +102,7 @@ export type Inspector = {
 export type GradingAnswerType = {
   answerId: number
   displayNumber: string
-  content: {
-    type: 'text' | 'richText'
-    value: string
-    characterCount: number
-  }
+  content: RichTextAnswer | TextAnswer | AudioAnswer
   questionId: number
   maxScore: number
   maxLength?: number
@@ -230,7 +226,7 @@ type CommonGradingContextData = {
 }
 
 export type GradingContextData = CommonGradingContextData & {
-  navigationMap: NavigationMap
+  navigateInGrid: NavigateInGrid
   currentAnswer: Partial<{
     schoolExamAnonCode: string
     studentCode: string

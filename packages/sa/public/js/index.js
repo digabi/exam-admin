@@ -9,7 +9,6 @@ import utils from './utils'
 import registration from './registration'
 import * as availableExams from './available-exams'
 import * as login from './login'
-import * as heldExam from './heldexam'
 import * as settings from './settings'
 import * as notifications from './notifications'
 
@@ -22,7 +21,6 @@ import * as i18n from './i18n'
 import { Footer } from './footer/footer'
 
 const $examWizard = $('#exam-wizard')
-const $examGradingTab = $('#exam-grading-tab')
 const $examSettingsTab = $('#exam-settings-tab')
 
 const ajaxReq = utils.net.ajaxRequests(error => {
@@ -63,13 +61,11 @@ function showLoginPage() {
 function initWithAuthenticatedUser(userData) {
   sautils.setDefaultUserRole(userData.roles)
   availableExams.init(ajaxReq, $('#exam-export'), showLoadError)
-  heldExam.init(ajaxReq, $examGradingTab, showLoadError)
   settings.init(ajaxReq, $examSettingsTab)
 
   const tabConfig = [
     /* eslint-disable no-multi-spaces */
     { name: 'exams', $root: $('#exam-export'), update: availableExams.update },
-    { name: 'grading', $root: $('#exam-grading-tab'), update: heldExam.update },
     { name: 'settings', $root: $('#exam-settings-tab'), update: settings.update }
     /* eslint-enable no-multi-spaces */
   ]

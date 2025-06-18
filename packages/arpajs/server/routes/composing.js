@@ -16,9 +16,8 @@ import { logger } from '../logger'
 const defaultJsonParser = bodyParser.json() // Has 100kB default limit
 const jsonMaxSizeInBytes = 500 * 1024
 const examContentJsonParser = bodyParser.json({ limit: jsonMaxSizeInBytes }) // Limit exam content to 500KB
-expressUtils.promisifyRouter(moduleRouter)
 
-moduleRouter.postAsync('/:examUuid/exam-content', examContentJsonParser, async (req, res) => {
+moduleRouter.post('/:examUuid/exam-content', examContentJsonParser, async (req, res) => {
   const { examLanguage, content } = req.body
   if (!['fi-FI', 'sv-FI'].includes(examLanguage)) {
     throw new DataError('Exam language is not valid')

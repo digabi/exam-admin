@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next'
 export default memo(Answer)
 
 function Answer(props: {
-  innerRef: MutableRefObject<HTMLDivElement | null>
+  innerRef?: MutableRefObject<HTMLDivElement | null>
   answer: GradingAnswerType
   gradingRole: GradingRole
   setLocalizedError: SetLocalizedError

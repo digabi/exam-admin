@@ -1,7 +1,7 @@
 import { pgrm } from './local-pg-resource-management'
 import R from 'ramda'
 
-type Attachment = {
+export type Attachment = {
   storageKey: string
   displayName: string
   mimeType: string

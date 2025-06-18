@@ -6,7 +6,7 @@ import { getScoreRegExp } from '../common/score-regexp'
 import { useAnimateMarkingReady, useDebouncedScoreChange, useLocalScoreState, useScrollIntoViewOnFocus } from './hooks'
 
 type CommonScoreCellProps = {
-  answer: GradingAnswerType | Record<string, never>
+  answer: GradingAnswerType
   scoreOverride?: string
   readOnlyOverride?: boolean
   isFocused?: boolean
@@ -43,18 +43,7 @@ export function ScoreCell({
   isWaitingForSecondOrThird,
   isWaitingForUser
 }: ScoreCellProps) {
-  const baseClassName = 'answerScore'
-
   const { answerId, maxScore, scoreValue } = answer
-
-  if (!answerId) {
-    return (
-      <td
-        className={classNames(baseClassName, {
-          'no-answer': true
-        })}></td>
-    )
-  }
 
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -80,7 +69,7 @@ export function ScoreCell({
       id={`cell-${answerId}`}
       data-censoring-state={censoringState}
       data-answer-id={answerId}
-      className={classNames(baseClassName, {
+      className={classNames('answerScore', {
         isWaitingForUser
       })}>
       <input

@@ -18,7 +18,7 @@ function GradingRouter() {
     <BrowserRouter>
       <Routes>
         <Route
-          path="/school/pregrading/:schoolExamAnonCode/:studentCode?/:displayNumber?"
+          path="/school/grading/:schoolExamAnonCode/:studentCode?/:displayNumber?"
           element={<GradingView pageBanner={pageBanner} lang={lang} />}
         />
       </Routes>

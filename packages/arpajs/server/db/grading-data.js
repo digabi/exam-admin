@@ -11,7 +11,7 @@ import { SQL } from 'sql-template-strings'
 import { getUnixTime } from 'date-fns'
 const DataError = jsUtils.exc.DataError
 
-export function importAnswers(examsWithAnswerPapers, screenshots, serverEnvironmentData) {
+export function importAnswers(examsWithAnswerPapers, screenshots, audios, serverEnvironmentData) {
   return using(pgrm.getTransaction(), async tx => {
     let serverEnvironmentId
 
@@ -30,30 +30,30 @@ export function importAnswers(examsWithAnswerPapers, screenshots, serverEnvironm
       await tx.queryRowsAsync(`ROLLBACK; BEGIN`)
     }
 
-    const screenshotMapping = await BPromise.mapSeries(
+    const attachmentMappings = await BPromise.mapSeries(
       examsWithAnswerPapers,
-      importAnswerPapersForSingleExam(tx, screenshots, serverEnvironmentId)
+      importAnswerPapersForSingleExam(tx, serverEnvironmentId)
     ).filter(v => v)
+
+    const screenshotMapping = attachmentMappings.map(x => x.screenshotMapping)
+    const audioMapping = attachmentMappings.map(x => x.audioMapping)
+
     if (screenshotMapping.length) {
       await uploadScreenshotsInTx(tx, screenshots, [].concat(...screenshotMapping))
+    }
+    if (audioMapping.length) {
+      await uploadAudiosInTx(tx, audios, [].concat(...audioMapping))
     }
   })
 }
 
-function importAnswerPapersForSingleExam(tx, screenshotsZipContents, serverEnvironmentId) {
+function importAnswerPapersForSingleExam(tx, serverEnvironmentId) {
   return async examWithAnswerPapers => {
     const examUuid = examWithAnswerPapers.examUuid
     const examType = examWithAnswerPapers.examType || 'json'
     const ktpVersion = examWithAnswerPapers.ktpVersion //It's ok if this is missing
 
-    const result = await uploadAnswersInTx(
-      tx,
-      examUuid,
-      examType,
-      ktpVersion,
-      examWithAnswerPapers.answerPapers,
-      screenshotsZipContents
-    )
+    const result = await uploadAnswersInTx(tx, examUuid, examType, ktpVersion, examWithAnswerPapers.answerPapers)
     if (!result) {
       return
     }
@@ -62,7 +62,7 @@ function importAnswerPapersForSingleExam(tx, screenshotsZipContents, serverEnvir
     if (serverEnvironmentId) {
       await mapServerEnvironmentToHeldExam(tx, serverEnvironmentId, result.heldExamUuid)
     }
-    return result.screenshotMapping
+    return { screenshotMapping: result.screenshotMapping, audioMapping: result.audioMapping }
   }
 }
 
@@ -73,7 +73,7 @@ function mapServerEnvironmentToHeldExam(tx, serverEnvironmentId, heldExamUuid) {
   )
 }
 
-export async function uploadAnswersInTx(tx, examUuid, examType, ktpVersion, answerPapers, screenshotFiles) {
+export async function uploadAnswersInTx(tx, examUuid, examType, ktpVersion, answerPapers) {
   const result = await tx.queryAsync(
     'insert into held_exam (exam_uuid, held_exam_type, held_exam_ktp_version) select exam_uuid, $2 as held_exam_type, $3 as held_exam_ktp_version from exam where exam_uuid = $1 returning held_exam_uuid',
     [examUuid, examType, ktpVersion]
@@ -81,25 +81,42 @@ export async function uploadAnswersInTx(tx, examUuid, examType, ktpVersion, answ
 
   if (result.rows.length === 1) {
     const { heldExamUuid } = _.first(result.rows.map(jsUtils.objectPropertiesToCamel))
-    const screenshotMapping = await BPromise.mapSeries(answerPapers, ap =>
+    const attachmentMappings = await BPromise.mapSeries(answerPapers, ap =>
       addASinglePaperAndConnectedStudent(ap, heldExamUuid)
     )
-    return { heldExamUuid, screenshotMapping: [].concat(...screenshotMapping) }
+    const screenshotMapping = attachmentMappings.map(x => x.screenshotMapping)
+    const audioMapping = attachmentMappings.map(x => x.audioMapping)
+
+    return {
+      heldExamUuid,
+      screenshotMapping: [].concat(...screenshotMapping),
+      audioMapping: [].concat(...audioMapping)
+    }
   } else {
     return undefined
   }
 
-  function addASinglePaperAndConnectedStudent(ap, heldExamUuid) {
-    return addStudent(tx, ap.student).then(studentUuid =>
-      addAnswerPaperWithConnection(studentUuid, heldExamUuid, ap.examStarted, ap.allowExternalComputer, tx).then(
-        answerPaperId =>
-          BPromise.join(
-            addTextAnswersWithConnection(ap.answers, screenshotFiles, answerPaperId, tx),
-            addMultiChoiceAnswersWithConnection(heldExamUuid, ap.answers, answerPaperId, tx)
-          ).then(() => (ap.screenshots || []).map(x => ({ answerPaperId, uuid: x })))
-      )
+  async function addASinglePaperAndConnectedStudent(ap, heldExamUuid) {
+    const studentUuid = await addStudent(tx, ap.student)
+    const answerPaperId = await addAnswerPaperWithConnection(
+      studentUuid,
+      heldExamUuid,
+      ap.examStarted,
+      ap.allowExternalComputer,
+      tx
     )
+
+    await Promise.all([
+      addTextAnswersWithConnection(ap.answers, answerPaperId, tx),
+      addMultiChoiceAnswersWithConnection(heldExamUuid, ap.answers, answerPaperId, tx),
+      addAudioAnswersWithConnection(ap.answers, answerPaperId, tx)
+    ])
+
+    const screenshotMapping = (ap.screenshots || []).map(x => ({ answerPaperId, uuid: x }))
+    const audioMapping = (ap.audios || []).map(x => ({ answerPaperId, id: x }))
+    return { screenshotMapping, audioMapping }
   }
+
   function addStudent(tx, student) {
     return studentDb.addStudentWithTx(tx, student)
   }
@@ -145,13 +162,11 @@ function addChoiceGroupAnswerWithConnection(answerContent, questionId, answerPap
     .then(result => _.first(result.rows.map(jsUtils.objectPropertiesToCamel)).answerId)
 }
 
-function addTextAnswersWithConnection(answers, screenshotFiles, answerPaperId, connection) {
+function addTextAnswersWithConnection(answers, answerPaperId, connection) {
   const textAnswers = _.filter(answers, answerIsText)
   return BPromise.mapSeries(textAnswers, answer => {
     validateIfRichtTextAnswer(answer)
-    return addTextAnswer(answer, answerPaperId).then(() =>
-      checkScreenshotsExist(answer.content.screenshots, screenshotFiles)
-    )
+    return addTextAnswer(answer, answerPaperId)
   })
 
   function answerIsText(answer) {
@@ -192,19 +207,21 @@ function addTextAnswersWithConnection(answers, screenshotFiles, answerPaperId, c
       )
       .then(result => _.first(result.rows.map(jsUtils.objectPropertiesToCamel)))
   }
+}
 
-  function checkScreenshotsExist(screenshotUuids = [], screenshotFiles = {}) {
-    const uuidsFromFiles = _.keys(screenshotFiles).map(f => f.replace('.png', ''))
-    const uuidsHavingFiles = _.intersection(screenshotUuids, uuidsFromFiles)
+function addAudioAnswersWithConnection(answers, answerPaperId, connection) {
+  const audioAnswers = answers.filter(a => a.content.type === 'audio')
+  return BPromise.mapSeries(audioAnswers, answer => addAudioAnswer(answer, answerPaperId))
 
-    if (uuidsHavingFiles.length < screenshotUuids.length) {
-      throw new DataError(
-        `Missing screenshot files for screenshot uuids ${JSON.stringify(
-          _.difference(screenshotUuids, uuidsHavingFiles)
-        )}`,
-        422
+  function addAudioAnswer(answer, answerPaperId) {
+    // language=PostgreSQL
+    return connection
+      .queryAsync(
+        `insert into answer (answer_paper_id, answer_content, question_id) values ($1, $2, $3)
+          returning answer_id`,
+        [answerPaperId, answer.content, answer.questionId]
       )
-    }
+      .then(result => _.first(result.rows.map(jsUtils.objectPropertiesToCamel)))
   }
 }
 
@@ -220,6 +237,18 @@ function uploadScreenshotsInTx(tx, screenshotFiles, screenshotMapping) {
     return tx.queryAsync(
       `insert into screenshots (screenshot_uuid, answer_paper_id, content) values ($1, $2, $3) on conflict do nothing`,
       [uuid, answerPaperId, screenshotFiles[filename]]
+    )
+  }
+}
+
+function uploadAudiosInTx(tx, audioFiles, audioMapping) {
+  return BPromise.mapSeries(_.keys(audioFiles), insertAudio)
+  function insertAudio(filename) {
+    const findResult = audioMapping.find(x => x.id === filename)
+    const answerPaperId = findResult ? findResult.answerPaperId : null
+    return tx.queryAsync(
+      `insert into audio (audio_id, answer_paper_id, content) values ($1, $2, $3) on conflict do nothing`,
+      [filename, answerPaperId, audioFiles[filename]]
     )
   }
 }

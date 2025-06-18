@@ -4,8 +4,8 @@ import config from '../../config/configParser'
 import * as jsUtils from '@digabi/js-utils'
 import * as examHandling from '../../db/exam-handling'
 
-export function getHeldExams(userId, beta) {
-  return jsUtils.getJsonAsync(`${config.examUri}/grading/status${beta ? '-pregrading' : ''}/${userId}`)
+export function getHeldExams(userId) {
+  return jsUtils.getJsonAsync(`${config.examUri}/grading/status/${userId}`)
 }
 
 export function markExamAsDeleted(userId, examUuid) {

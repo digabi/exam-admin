@@ -30,7 +30,7 @@ export function inputHandler(
           option.setAttribute('score', targetElement.value)
         })
         parentElement.setAttribute(
-          ['e:text-answer', 'e:scored-text-answer', 'e:dnd-answer'].includes(parentElement.localName)
+          ['e:text-answer', 'e:scored-text-answer', 'e:dnd-answer', 'e:audio-answer'].includes(parentElement.localName)
             ? 'max-score'
             : 'score',
           targetElement.value || '0'

@@ -13,10 +13,6 @@ router.get('/exams', (req, res) => {
   sendIndex(res)
 })
 
-router.get('/grading', (req, res) => {
-  sendIndex(res)
-})
-
 router.get('/teachers', (req, res) => {
   sendIndex(res)
 })
@@ -25,28 +21,20 @@ router.get('/settings', (req, res) => {
   sendIndex(res)
 })
 
-router.get('/grading/:examId', authSession.ensureAuthenticatedWithFallback(sendIndex), (req, res) => {
-  res.sendFile('/public/arpa.html', { root: `${__dirname}/../..` })
-})
-
-router.get('/grading/:examId/school/:schoolId', authSession.ensureAuthenticatedWithFallback(sendIndex), (req, res) => {
-  res.sendFile('/public/arpa.html', { root: `${__dirname}/../..` })
-})
-
 router.get('/bertta/:examId', authSession.ensureAuthenticatedWithFallback(sendIndex), (req, res) => {
   res.sendFile('/public/bertta.html', { root: `${__dirname}/../..` })
 })
 
 router.get(
-  '/pregrading/:schoolExamAnonCode/:studentCode?/:displayNumber?',
+  '/grading/:schoolExamAnonCode{/:studentCode{/:displayNumber}}',
   authSession.ensureAuthenticatedWithFallback(sendIndex),
   (req, res) => {
-    res.sendFile('/public/pregrading.html', { root: `${__dirname}/../..` })
+    res.sendFile('/public/grading.html', { root: `${__dirname}/../..` })
   }
 )
 
-router.get('/pregrading', authSession.ensureAuthenticatedWithFallback(sendIndex), (req, res) => {
-  res.sendFile('/public/pregrading-exams.html', { root: `${__dirname}/../..` })
+router.get('/grading', authSession.ensureAuthenticatedWithFallback(sendIndex), (req, res) => {
+  res.sendFile('/public/grading-exams.html', { root: `${__dirname}/../..` })
 })
 
 router.get('/review/:examId', authSession.ensureAuthenticatedWithFallback(sendIndex), (req, res) => {
@@ -65,13 +53,9 @@ router.get('/review/:examId', authSession.ensureAuthenticatedWithFallback(sendIn
   res.sendFile('/public/return-exams.html', { root: `${__dirname}/../..` })
 })
 
-router.get(
-  '/details/:examId/answer-paper/:apId',
-  authSession.ensureAuthenticatedWithFallback(sendIndex),
-  (req, res) => {
-    res.sendFile('/public/return-exams.html', { root: `${__dirname}/../..` })
-  }
-)
+router.get('/print-results/:examId', authSession.ensureAuthenticatedWithFallback(sendIndex), (req, res) => {
+  res.sendFile('/public/print-results.html', { root: `${__dirname}/../..` })
+})
 
 function sendIndex(res) {
   res.send(markup())

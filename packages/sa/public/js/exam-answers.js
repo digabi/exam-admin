@@ -32,7 +32,7 @@ export function questionMaxScores(examOrGradingStructureContent) {
   }
 }
 
-export function sortStudentsByName(students) {
+function sortStudentsByName(students) {
   return _.sortBy(students, student => `${student.lastName.toLowerCase()} ${student.firstNames.toLowerCase()}`)
 }
 

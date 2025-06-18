@@ -7,8 +7,10 @@ import { useGridNavigation } from './hooks'
 
 type GridScoreCellProps = {
   student: GradingStudent
-  answer: GradingAnswerType | Record<string, never>
+  answer: GradingAnswerType
   isPregrading: boolean
+  studentIndex: number
+  answerIndex: number
 }
 
 export type GridScoreCellPassThroughProps = {
@@ -19,7 +21,7 @@ export type GridScoreCellPassThroughProps = {
 
 export function GridScoreCell(props: GridScoreCellProps) {
   const { currentAnswer, navigateToAnswer } = useContext(GradingContext)
-  const { answer, student, isPregrading } = props
+  const { answer, student, isPregrading, studentIndex, answerIndex } = props
   const onKeyDown = useGridNavigation()
 
   const { studentCode, displayNumber } = currentAnswer
@@ -28,7 +30,7 @@ export function GridScoreCell(props: GridScoreCellProps) {
     student.studentAnonIdentifier?.toString() == studentCode && answer.displayNumber?.toString() == displayNumber
 
   const gridScoreCellPassThroughProps: GridScoreCellPassThroughProps = {
-    onKeyDown: e => onKeyDown(e, answer.answerId),
+    onKeyDown: e => onKeyDown(e, student, answer, studentIndex, answerIndex),
     isFocused: isCurrentAnswer,
     onClick: () => navigateToAnswer(student.studentAnonIdentifier, answer.displayNumber)
   }

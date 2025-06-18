@@ -6,12 +6,11 @@ import * as userMgmt from '../../auth/auth'
 import { logger } from '../../logger'
 import * as utils from '@digabi/js-utils'
 import * as email from '../../email'
-import { validEmail } from '../../validation'
 import config from '../../config/configParser'
 
 router.post('/', (req, res) => {
   const email = req.body.email
-  if (!validEmail(email)) {
+  if (!utils.validation.isValidEmail(email)) {
     return res.status(400).end()
   }
   userMgmt

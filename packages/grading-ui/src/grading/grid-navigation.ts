@@ -1,4 +1,4 @@
-import { isEmpty, mapValues, unzip } from 'lodash'
+import { isEmpty } from 'lodash'
 import {
   GradingAnswerType,
   GradingExam,
@@ -9,37 +9,12 @@ import {
   NavigateToAnswerFunction
 } from './types'
 import { getJson } from '../common/utils'
-
-export type NavigationMap = Record<string, NavigationFunctions>
-export type Direction = 'up' | 'down' | 'left' | 'right'
-type NavigationFunction = (() => Promise<void>) | (() => void)
-
-type NavigationFunctions = {
-  up: NavigationFunction
-  down: NavigationFunction
-  left: NavigationFunction
-  right: NavigationFunction
-  upAlt: NavigationFunction
-  downAlt: NavigationFunction
-  leftAlt: NavigationFunction
-  rightAlt: NavigationFunction
-}
+import { useMemo } from 'react'
 
 type AnswerWithAnonCodes = GradingAnswerType &
   Pick<GradingStudent, 'studentAnonIdentifier'> &
   Pick<GradingExam, 'schoolAnonCode'> &
   Pick<GradingExam, 'examUuid'>
-
-const directions = {
-  up: ['column', -1],
-  down: ['column', 1],
-  left: ['row', -1],
-  right: ['row', 1],
-  upAlt: ['column', -1],
-  downAlt: ['column', 1],
-  leftAlt: ['row', -1],
-  rightAlt: ['row', 1]
-} as const
 
 async function getStudentFromPreviousOrNextSchool(
   schoolExamAnonCode: string,
@@ -73,7 +48,7 @@ async function getPreviousOrNextAnswerWithNoScore(
   return null
 }
 
-function getAnotherSchoolNavigationFunction(
+async function navigateToAnotherSchool(
   getStudentFromPreviousOrNextSchoolFn: (
     schoolExamAnonCode: string,
     examUuid: string,
@@ -87,175 +62,145 @@ function getAnotherSchoolNavigationFunction(
   setUpdating: (updating: boolean) => void,
   gradingUrls: GradingUrlsContextData
 ) {
-  return async () => {
-    const nextStudentFromAnotherSchool = await getStudentFromPreviousOrNextSchoolFn(
-      focusedAnswer.schoolAnonCode,
-      focusedAnswer.examUuid,
-      focusedAnswer.questionId,
-      direction,
-      gradingUrls
-    )
-
-    if (!nextStudentFromAnotherSchool) {
-      return () => {}
-    }
-    setUpdating(true)
-
-    navigateToAnswer(
-      nextStudentFromAnotherSchool.studentAnonIdentifier,
-      focusedAnswer.displayNumber,
-      nextStudentFromAnotherSchool.schoolExamAnonCode
-    )
-  }
-}
-
-function getNavigationFunction(
-  focusedAnswer: AnswerWithAnonCodes,
-  answersInRowOrder: AnswerWithAnonCodes[],
-  answersInColumnOrder: AnswerWithAnonCodes[],
-  columnOrRow: 'column' | 'row',
-  delta: number,
-  navigateToAnswer: NavigateToAnswerFunction,
-  setUpdating: (updating: boolean) => void,
-  scoreTableType: GradingRole,
-  gradingUrls: GradingUrlsContextData
-) {
-  const answers =
-    columnOrRow == 'row'
-      ? answersInRowOrder
-      : answersInColumnOrder.filter(
-          a => scoreTableType === 'pregrading' || a.displayNumber === focusedAnswer.displayNumber
-        )
-
-  const nextAnswerIndex = answers.findIndex(a => focusedAnswer.answerId === a.answerId) + delta
-  const nextAnswer = answers[nextAnswerIndex]
-
-  if (!nextAnswer) {
-    if (scoreTableType === 'censoring' && columnOrRow === 'column') {
-      return getAnotherSchoolNavigationFunction(
-        getStudentFromPreviousOrNextSchool,
-        focusedAnswer,
-        delta > 0 ? 'next' : 'previous',
-        navigateToAnswer,
-        setUpdating,
-        gradingUrls
-      )
-    }
-    return () => {}
-  }
-
-  const navigationFunction = () =>
-    navigateToAnswer(nextAnswer.studentAnonIdentifier, nextAnswer.displayNumber, nextAnswer.schoolAnonCode)
-
-  return navigationFunction
-}
-
-function getAltNavigationFunction(
-  focusedAnswer: AnswerWithAnonCodes,
-  answersInRowOrder: AnswerWithAnonCodes[],
-  answersInColumnOrder: AnswerWithAnonCodes[],
-  columnOrRow: 'column' | 'row',
-  delta: number,
-  navigateToAnswer: NavigateToAnswerFunction,
-  setUpdating: (updating: boolean) => void,
-  scoreTableType: GradingRole,
-  gradingUrls: GradingUrlsContextData
-) {
-  const answers =
-    columnOrRow == 'row'
-      ? answersInRowOrder
-      : answersInColumnOrder.filter(
-          a => scoreTableType === 'pregrading' || a.displayNumber === focusedAnswer.displayNumber
-        )
-
-  const activeAnswersAndCurrentAnswer = answers.filter(
-    a => a.answerId == focusedAnswer.answerId || (a.userCanScore && a.scoreValue == undefined)
+  const nextStudentFromAnotherSchool = await getStudentFromPreviousOrNextSchoolFn(
+    focusedAnswer.schoolAnonCode,
+    focusedAnswer.examUuid,
+    focusedAnswer.questionId,
+    direction,
+    gradingUrls
   )
 
-  const nextAnswerIndex = activeAnswersAndCurrentAnswer.findIndex(a => focusedAnswer.answerId === a.answerId) + delta
-
-  const nextAnswer = activeAnswersAndCurrentAnswer[nextAnswerIndex]
-
-  if (!nextAnswer) {
-    if (scoreTableType === 'censoring' && columnOrRow === 'column') {
-      return getAnotherSchoolNavigationFunction(
-        getPreviousOrNextAnswerWithNoScore,
-        focusedAnswer,
-        delta > 0 ? 'next' : 'previous',
-        navigateToAnswer,
-        setUpdating,
-        gradingUrls
-      )
-    }
-
+  if (!nextStudentFromAnotherSchool) {
     return () => {}
   }
+  setUpdating(true)
 
-  const navigationFunction = () =>
-    navigateToAnswer(nextAnswer.studentAnonIdentifier, nextAnswer.displayNumber, nextAnswer.schoolAnonCode)
-
-  return navigationFunction
+  navigateToAnswer(
+    nextStudentFromAnotherSchool.studentAnonIdentifier,
+    focusedAnswer.displayNumber,
+    nextStudentFromAnotherSchool.schoolExamAnonCode
+  )
 }
 
-export function initScoreTableNavigation(
+function answerIsNotEmpty(answer: GradingAnswerType | Record<string, never>): answer is GradingAnswerType {
+  return !isEmpty(answer)
+}
+
+type NavigationFn = (
+  student: GradingStudent,
+  answer: GradingAnswerType,
+  studentIndex: number,
+  answerIndex: number,
+  alt: boolean
+) => Promise<void>
+
+export type Direction = 'right' | 'left' | 'down' | 'up'
+
+export type NavigateInGrid = Record<Direction, NavigationFn>
+
+export function useNavigateInGrid(
   examAndScores: GradingExamAndScores | undefined,
-  navigateToAnswer: (newStudentCode: number, newDisplayNumber: string, newSchoolExamCode?: string) => void,
+  gradingRole: GradingRole,
+  gradingUrls: GradingUrlsContextData,
   setUpdating: (updating: boolean) => void,
-  scoreTableType: GradingRole,
-  gradingUrls: GradingUrlsContextData
-): NavigationMap {
-  const isNotEmpty = (answer: AnswerWithAnonCodes | Record<string, never>): answer is AnswerWithAnonCodes =>
-    !isEmpty(answer)
+  navigateToAnswer: (newStudentCode: number, newDisplayNumber: string, newSchoolExamCode?: string) => void
+): NavigateInGrid {
+  const navigateInGrid = useMemo(() => {
+    if (!examAndScores) {
+      return {
+        right: async () => {},
+        left: async () => {},
+        down: async () => {},
+        up: async () => {}
+      }
+    }
 
-  const answers =
-    examAndScores?.students.map(student =>
-      student.answers.map(answer => {
-        if (isEmpty(answer)) {
-          return {}
+    const navigate =
+      (getNextIndexes: (studentIndex: number, answerIndex: number) => [studentIndex: number, answerIndex: number]) =>
+      async (
+        student: GradingStudent,
+        answer: GradingAnswerType,
+        studentIndex: number,
+        answerIndex: number,
+        alt: boolean
+      ) => {
+        function canNavigateToAnswer(
+          answer: GradingAnswerType | Record<string, never> | undefined
+        ): answer is GradingAnswerType {
+          if (!answer) return false
+          const answerNeedsAScore = answer.userCanScore && answer.scoreValue === undefined
+          return answerIsNotEmpty(answer) && (!alt || answerNeedsAScore)
         }
-        return {
-          ...answer,
-          studentAnonIdentifier: student.studentAnonIdentifier,
-          schoolAnonCode: examAndScores.exam.schoolAnonCode,
-          examUuid: examAndScores.exam.examUuid
+
+        const studentCount = examAndScores.students.length
+        const answerCount = examAndScores.students[0].answers.length
+
+        function handleOverflow([studentIndex, answerIndex]: [number, number]) {
+          if (answerIndex >= answerCount) {
+            studentIndex += 1
+            answerIndex = 0
+          }
+          if (studentIndex >= studentCount && gradingRole === 'pregrading') {
+            studentIndex = 0
+            answerIndex += 1
+          }
+          if (answerIndex < 0) {
+            studentIndex -= 1
+            answerIndex = answerCount - 1
+          }
+          if (studentIndex < 0 && gradingRole === 'pregrading') {
+            studentIndex = studentCount - 1
+            answerIndex -= 1
+          }
+          return [studentIndex, answerIndex]
         }
-      })
-    ) ?? []
 
-  const answersInRowOrder = answers.flat().filter(answer => isNotEmpty(answer))
-  const answersInColumnOrder = unzip(answers)
-    .flat()
-    .filter(answer => isNotEmpty(answer))
+        function indexesAreWithinBounds(studentIndex: number, answerIndex: number) {
+          return 0 <= studentIndex && studentIndex < studentCount && 0 <= answerIndex && answerIndex < answerCount
+        }
 
-  const answerIDsWithNavigationMap = answersInRowOrder.map<[number, NavigationFunctions]>(answer => {
-    const navigationFunctionsForAnswer = mapValues(directions, ([columnOrRow, delta], direction) =>
-      direction.endsWith('Alt')
-        ? getAltNavigationFunction(
-            answer,
-            answersInRowOrder,
-            answersInColumnOrder,
-            columnOrRow,
-            delta,
+        let nextStudentIndex = studentIndex
+        let nextAnswerIndex = answerIndex
+        let nextAnswer: GradingAnswerType | Record<string, never> | undefined
+        while (!canNavigateToAnswer(nextAnswer) && indexesAreWithinBounds(nextStudentIndex, nextAnswerIndex)) {
+          ;[nextStudentIndex, nextAnswerIndex] = handleOverflow(getNextIndexes(nextStudentIndex, nextAnswerIndex))
+          nextAnswer = examAndScores.students[nextStudentIndex]?.answers[nextAnswerIndex]
+        }
+
+        if (canNavigateToAnswer(nextAnswer)) {
+          const nextStudent = examAndScores.students[nextStudentIndex]
+          return navigateToAnswer(
+            nextStudent.studentAnonIdentifier,
+            nextAnswer.displayNumber,
+            examAndScores.exam.schoolAnonCode
+          )
+        }
+        const movingVertically = getNextIndexes(0, 0)[0] !== 0
+        if (gradingRole === 'censoring' && movingVertically) {
+          return void (await navigateToAnotherSchool(
+            alt ? getPreviousOrNextAnswerWithNoScore : getStudentFromPreviousOrNextSchool,
+            {
+              ...answer,
+              studentAnonIdentifier: student.studentAnonIdentifier,
+              displayNumber: answer.displayNumber,
+              examUuid: examAndScores.exam.examUuid,
+              schoolAnonCode: examAndScores.exam.schoolAnonCode
+            },
+            nextStudentIndex > studentIndex || nextAnswerIndex > answerIndex ? 'next' : 'previous',
             navigateToAnswer,
             setUpdating,
-            scoreTableType,
             gradingUrls
-          )
-        : getNavigationFunction(
-            answer,
-            answersInRowOrder,
-            answersInColumnOrder,
-            columnOrRow,
-            delta,
-            navigateToAnswer,
-            setUpdating,
-            scoreTableType,
-            gradingUrls
-          )
-    )
+          ))
+        }
+      }
 
-    return [answer.answerId, navigationFunctionsForAnswer]
-  })
+    return {
+      right: navigate((sI, aI) => [sI, aI + 1]),
+      left: navigate((sI, aI) => [sI, aI - 1]),
+      down: navigate((sI, aI) => [sI + 1, aI]),
+      up: navigate((sI, aI) => [sI - 1, aI])
+    }
+  }, [examAndScores, gradingRole, gradingUrls, setUpdating, navigateToAnswer])
 
-  return Object.fromEntries(answerIDsWithNavigationMap)
+  return navigateInGrid
 }

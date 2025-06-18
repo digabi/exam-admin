@@ -25,6 +25,7 @@ export const sv = {
   single_line: 'kortsvar',
   choice: 'flervalsuppgift',
   dropdown: 'rullgardinsmeny',
+  recording: 'inspelning',
   attachment: 'bilaga',
   add_question: 'lägg till uppgift',
   add_sub_question: 'lägg till deluppgift / flervalsuppgift',

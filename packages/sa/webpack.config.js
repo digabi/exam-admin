@@ -29,9 +29,9 @@ module.exports = function (env, argv) {
       'user-data': jsSource('user-data.js'),
       'return-exams-main': jsSource('return-exams-main.js'),
       'bertta-main': jsSource('bertta-main.js'),
-      'arpa-main': jsSource('arpa-main.js'),
       preview: jsSource('preview.js'),
       answers: jsSource('answers/answers-main.tsx'),
+      'print-results': jsSource('answers/print-results.tsx'),
       index: jsSource('index.js'),
       'oauth-consent': jsSource('oauth-consent.js'),
       'oauth-login': jsSource('oauth-login.js'),
@@ -41,8 +41,8 @@ module.exports = function (env, argv) {
       'html.worker': 'monaco-editor/esm/vs/language/html/html.worker',
       'ts.worker': 'monaco-editor/esm/vs/language/typescript/ts.worker',
       admin: jsSource('admin.js'),
-      'pregrading-exams': jsSource('grading/pregrading-exams.js'),
-      pregrading: jsSource('grading/pregrading-main.js')
+      'grading-exams': jsSource('grading/grading-exams.js'),
+      grading: jsSource('grading/grading-main.js')
     },
     output: {
       globalObject: 'self',

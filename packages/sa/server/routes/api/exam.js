@@ -9,17 +9,9 @@ import * as jsUtils from '@digabi/js-utils'
 import { importExamHandler } from './import-exam-handler'
 import { ensureAuthenticated } from '../../auth/auth-session'
 
-router.get('/held-exams', (req, res, next) =>
-  // todo check auth
+router.get('/held-exams', ensureAuthenticated, (req, res, next) =>
   examBl
     .getHeldExams(req.user.userId)
-    .then(heldExams => res.json(heldExams))
-    .catch(next)
-)
-
-router.get('/held-exams-pregrading', ensureAuthenticated, (req, res, next) =>
-  examBl
-    .getHeldExams(req.user.userId, true)
     .then(heldExams => res.json(heldExams))
     .catch(next)
 )

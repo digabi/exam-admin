@@ -20,16 +20,6 @@ export function popupHandlerByDelegateTarget(selector, windowName) {
   })
 }
 
-function getSelection() {
-  if (typeof window.getSelection !== 'undefined') {
-    return window.getSelection()
-  } else if (typeof document.selection !== 'undefined' && document.selection.type === 'Text') {
-    return document.selection
-  }
-
-  return undefined
-}
-
 // We allow exams to contain arbitrary HTML on the koe side. As an attempt to
 // keep the sa side secure but at the same time to avoid showing encoded
 // HTML to the user, try to thwart most obvious XSS attack vectors this way.
@@ -169,10 +159,6 @@ export const ui = {
       $('body').append('<div id="floating-error">' + '<div class="message"></div> ' + '</div>')
     }
   },
-  makePreviewButton(selector, eventId) {
-    $(selector).attr('href', `/school/preview/${eventId}`)
-    popupHandlerByDelegateTarget(selector)
-  },
   makePrintButton(selector) {
     $(selector).asEventStream('click').onValue(openPrintDialog)
   },
@@ -187,13 +173,5 @@ export const ui = {
   unsupportedBrowserMessage:
     'Valitettavasti käyttämäsi selain ei ole tällä hetkellä tuettu. Sähköistä asiointia voi käyttää vain 11.0 tai sitä uudemmilla Internet Explorerin versiolla.' +
     '<p>Tyvärr stöder tjänsten för tillfället inte din webbläsare. Studentexamensnämndens e-tjänster kan användas endast med 11.0 eller nyare versioner av Internet Explorer.</p>' +
-    '<p>Muita tuettuja selaimia / övriga webbläsare med stöd: <a href="https://www.mozilla.org/fi/firefox/new/">Firefox</a>, <a href="http://www.google.com/chrome/">Chrome</a></p>',
-  renderMathInMultiChoiceAnswers() {
-    const elements = $('.answerMultiChoiceGap, .answerMultiChoice').toArray()
-    if (elements.length > 0) {
-      window.MathJax.Hub.Configured()
-      window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub, elements, () => {}])
-    }
-  },
-  getSelection
+    '<p>Muita tuettuja selaimia / övriga webbläsare med stöd: <a href="https://www.mozilla.org/fi/firefox/new/">Firefox</a>, <a href="http://www.google.com/chrome/">Chrome</a></p>'
 }

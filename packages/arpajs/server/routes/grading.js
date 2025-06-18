@@ -17,6 +17,7 @@ import * as L from 'partial.lenses'
 import { getGradingAccessDeniedForAnswer } from '../db/grading-data'
 import { getToken } from '../db/student-data'
 import { getAnswerLength } from '../db/answer-data'
+import { parseAnswersAndScores, masterIfXml } from './student'
 const defaultJsonParser = bodyParser.json() // Has 100kB default limit
 
 const multerConfigsForAnswerUpload = {
@@ -30,25 +31,19 @@ const answerUploadMiddleware = (req, res, next) => {
   )
 }
 
-expressUtils.promisifyRouter(moduleRouter)
-
 async function extract(fileBuffer) {
   const { zipContents, keys } = await answersExtractor.extractAndDecryptZipContents(fileBuffer)
   const answers = await answersExtractor.decryptAnswers(keys, zipContents)
   const screenshots = await answersExtractor.decryptScreenshots(keys, zipContents)
+  const audios = await answersExtractor.decryptAudios(keys, zipContents)
   const environmentData = await answersExtractor.decryptEnvironmentData(keys, zipContents).catch(_.noop)
-  const result = await answersExtractor.importAnswersFromZip(answers, screenshots, environmentData)
+  const result = await answersExtractor.importAnswersFromZip(answers, screenshots, audios, environmentData)
   const logs = await answersExtractor.decryptLogs(keys, zipContents)
   await answersExtractor.importLogs(logs, result.examUuids)
   return result
 }
 
-moduleRouter.postAsync('/answers-meb', answerUploadMiddleware, async (req, res) => {
-  const result = await extract(req.file.buffer)
-  res.json(_.omit(result, ['examUuids']))
-})
-
-moduleRouter.postAsync('/answers-meb/pregrading', answerUploadMiddleware, async (req, res) => {
+moduleRouter.post('/answers-meb', answerUploadMiddleware, async (req, res) => {
   const result = await extract(req.file.buffer)
   const deletedExams = result.deletedExams.map(exam => ({ ...exam, isDeleted: true }))
   res.json([
@@ -78,22 +73,22 @@ moduleRouter.post('/scores/:answerId', defaultJsonParser, validateScore, answerC
     .catch(next)
 })
 
-moduleRouter.post('/scores/:heldExamUuid/mark-pregrading-finished', defaultJsonParser, async (req, res) => {
+moduleRouter.post('/scores/:heldExamUuid/mark-grading-finished', defaultJsonParser, async (req, res) => {
   const { answerIds } = req.body
   if (!answerIds || answerIds.length === 0) {
-    logger.error('No answerIds provided for marking pregrading finished')
+    logger.error('No answerIds provided for marking grading finished')
     return res.status(400).end()
   }
-  logger.info('Marking pregrading finished', answerIds)
+  logger.info('Marking grading finished', answerIds)
   const answerPregradingData = await gradingDb.setMultipleAnswerPregradingFinishedAt(answerIds)
   res.send(answerPregradingData)
 })
 
-moduleRouter.post('/scores/:answerId/revert-pregrading-finished', defaultJsonParser, async (req, res) => {
+moduleRouter.post('/scores/:answerId/revert-grading-finished', defaultJsonParser, async (req, res) => {
   const { answerId } = req.params
   const answerIdAsNumber = parseInt(answerId, 10)
 
-  logger.info('Reverting pregrading finished', { answerId })
+  logger.info('Reverting grading finished', { answerId })
   const answerPregradingData = await gradingDb.clearPregradingFinishedAtForAnswer(answerIdAsNumber)
   res.send(answerPregradingData)
 })
@@ -130,7 +125,7 @@ moduleRouter.get('/answerPaperId/:answerPaperId/examUuid', (req, res, next) => {
     .catch(next)
 })
 
-moduleRouter.get('/:heldExamUuid/student-answers/', (req, res, next) => {
+moduleRouter.get('/:heldExamUuid/student-answers-return/', (req, res, next) => {
   studentDb.getAnswerPapersForHeldExam(req.params.heldExamUuid).then(expressUtils.respondWithJsonOr404(res)).catch(next)
 })
 
@@ -255,7 +250,7 @@ function prepareScoreAverages(questions, scoreAverages) {
     })
 }
 
-moduleRouter.get('/:heldExamUuid/student-answers-pregrading', async (req, res) => {
+moduleRouter.get('/:heldExamUuid/student-answers', async (req, res) => {
   const exam = await examDb.getHeldExam(req.params.heldExamUuid)
   if (!exam) {
     return res.sendStatus(404)
@@ -286,13 +281,6 @@ moduleRouter.get('/:heldExamUuid/student-answers-pregrading', async (req, res) =
 
 moduleRouter.get('/status/:userAccountId', (req, res, next) => {
   examDb
-    .getGradingStatusForExams(req.params.userAccountId)
-    .then(data => res.json(data))
-    .catch(next)
-})
-
-moduleRouter.get('/status-pregrading/:userAccountId', (req, res, next) => {
-  examDb
     .getGradingStatusForExams(req.params.userAccountId, true)
     .then(data => res.json(data))
     .catch(next)
@@ -301,6 +289,30 @@ moduleRouter.get('/status-pregrading/:userAccountId', (req, res, next) => {
 moduleRouter.get('/results/:heldExamUuid/:studentUuid', async (req, res) => {
   const token = await getToken(req.params.heldExamUuid, req.params.studentUuid)
   res.json({ token })
+})
+
+moduleRouter.get('/results/:heldExamUuid', async (req, res) => {
+  const onlyWithoutEmail = req.query.withoutEmail !== undefined
+  const answersPapers = await studentDb.getAnswerPapersForHeldExam(req.params.heldExamUuid)
+  const answersAndScores = await Promise.all(
+    answersPapers
+      .filter(ap => (onlyWithoutEmail ? ap.email === null : true))
+      .map(async ap => {
+        const answersAndScores = await parseAnswersAndScores(ap.answerPaperId, [ap])
+        return {
+          ...answersAndScores,
+          answerPaperId: ap.answerPaperId,
+          studentName: `${ap.lastName}, ${ap.firstNames}`
+        }
+      })
+  )
+
+  const exam = await examDb.getExamContent(answersPapers[0].answerPaperId)
+  const masteredExam = await masterIfXml(exam)
+  res.json({
+    exam: masteredExam,
+    answersAndScores: answersAndScores.sort((a, b) => a.studentName.localeCompare(b.studentName))
+  })
 })
 
 function validateScore(req, res, next) {
@@ -343,7 +355,7 @@ async function validateAnnotations(req, res, next) {
 
 function validateGradingText(req, res, next) {
   let isValid = !_.isUndefined(req.body.gradingText)
-  if (!isValid) return res.status(404).end()
+  if (!isValid || req.body.gradingText.length >= 100) return res.status(400).end()
   else return next()
 }
 

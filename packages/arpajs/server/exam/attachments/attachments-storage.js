@@ -120,9 +120,9 @@ export async function storeFileInS3AndDb(examUuid, displayName, buffer) {
   const metadata = await readAttachmentMetadata(displayName, attachmentFileStream)
 
   try {
-    const storageKey = await awsUtils.uploadAttachmentFileBufferToS3(examUuid, displayName, buffer)
     // eslint-disable-next-line promise/valid-params
     await deleteAttachment(examUuid, displayName).catch(AttachmentNotFound, () => {})
+    const storageKey = await awsUtils.uploadAttachmentFileBufferToS3(examUuid, displayName, buffer)
     await examDb.ensureAttachmentFitsWithinLimits(examUuid, buffer.length)
 
     // Several files with same name can be uploaded at the same time

@@ -90,5 +90,10 @@ function sanitize(xml: string): string {
     .replace(/<hr ([^>]+[^/])>(<\/hr>)?/g, '<hr $1 />')
     .replace(/<source [^>]+>/g, '')
     .replace(/&nbsp;/g, '&#160;')
+    .replace(
+      /assistive-title="([^"]*)"/g,
+      (_match, assistiveTitle: string) =>
+        `assistive-title="${assistiveTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')}"`
+    )
     .replace(/<u>(.*?)<\/u>/gs, '<span class="e-underline">$1</span>')
 }

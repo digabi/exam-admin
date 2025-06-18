@@ -9,13 +9,13 @@ import * as examBl from './exam-bl'
 import { checkAccessForHeldExamAndProxy } from '../../db/exam-handling'
 import * as jsUtils from '@digabi/js-utils'
 
-router.get(['/:heldExamUuid/student-answers', '/:heldExamUuid/student-answers-pregrading'], (req, res, next) => {
+router.get(['/:heldExamUuid/student-answers-return', '/:heldExamUuid/student-answers'], (req, res, next) => {
   const heldExamUuid = req.params.heldExamUuid
   return exam
     .userCanAccessHeldExam(req.user.userId, heldExamUuid)
     .then(canAccess => {
       if (!canAccess) {
-        return res.status(403).end()
+        return res.status(404).end()
       }
       return proxying.proxy(`${config.examUri}/grading`)(req, res, next)
     })
@@ -24,9 +24,9 @@ router.get(['/:heldExamUuid/student-answers', '/:heldExamUuid/student-answers-pr
 
 router.post('/scores/:answerId', verifyParamIsNumber('answerId'), checkAnswerAccessAndProxyRequest)
 
-router.post('/scores/:heldExamUuid/mark-pregrading-finished', checkAccessForHeldExamAndProxy)
+router.post('/scores/:heldExamUuid/mark-grading-finished', checkAccessForHeldExamAndProxy)
 
-router.post('/scores/:answerId/revert-pregrading-finished', checkAnswerAccessAndProxyRequest)
+router.post('/scores/:answerId/revert-grading-finished', checkAnswerAccessAndProxyRequest)
 
 router.post('/metadata/:answerId', verifyParamIsNumber('answerId'), checkAnswerAccessAndProxyRequest)
 
@@ -45,6 +45,19 @@ router.get('/results/:heldExamUuid/:studentUuid', (req, res, next) => {
       return jsUtils
         .getJsonAsync(`${config.examUri}/grading/results/${req.params.heldExamUuid}/${req.params.studentUuid}`)
         .then(({ token }) => res.redirect(`/answers/${token}`))
+    })
+    .catch(next)
+})
+
+router.get('/results/:heldExamUuid/', (req, res, next) => {
+  const heldExamUuid = req.params.heldExamUuid
+  return exam
+    .userCanAccessHeldExam(req.user.userId, heldExamUuid)
+    .then(canAccess => {
+      if (!canAccess) {
+        return res.status(404).end()
+      }
+      return proxying.proxy(`${config.examUri}/grading`)(req, res, next)
     })
     .catch(next)
 })

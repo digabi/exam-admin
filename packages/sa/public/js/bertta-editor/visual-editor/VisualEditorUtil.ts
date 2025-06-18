@@ -291,17 +291,31 @@ export const addDragAndDropExtraOptions = (t: Translations) =>
    `
 export const addChoiceOption = (t: Translations) =>
   `<button contenteditable="false" data-type="button-choice-option" class="labeled-basic-action removed" title="↵"><i class="fa fa-plus-circle" aria-hidden="true"></i> ${t.add_option}</button>`
-export function insertSingleLineAtCursor(container: HTMLElement, question: HTMLElement, elementBelow: HTMLElement) {
+
+function insertAnswerElementAtCursor(
+  container: HTMLElement,
+  question: HTMLElement,
+  elementBelow: HTMLElement,
+  answerTag: string
+) {
   insertAtCursor(
     container,
     question,
     elementBelow,
-    `&nbsp;<e:text-answer max-score="2" contenteditable="false"><max-score class="removed">${scoreInput(
+    `&nbsp;<${answerTag} max-score="2" contenteditable="false"><max-score class="removed">${scoreInput(
       2,
       2
-    )}</max-score></e:text-answer>&nbsp;`,
+    )}</max-score></${answerTag}>&nbsp;`,
     true
   )
+}
+
+export function insertSingleLineAtCursor(container: HTMLElement, question: HTMLElement, elementBelow: HTMLElement) {
+  insertAnswerElementAtCursor(container, question, elementBelow, 'e:text-answer')
+}
+
+export function insertAudioAtCursor(container: HTMLElement, question: HTMLElement, elementBelow: HTMLElement) {
+  insertAnswerElementAtCursor(container, question, elementBelow, 'e:audio-answer')
 }
 
 export function insertDropdownAtCursor(

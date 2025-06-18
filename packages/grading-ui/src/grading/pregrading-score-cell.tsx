@@ -7,7 +7,7 @@ import { GridScoreCellPassThroughProps } from './grid-score-cell'
 
 type PregradingScoreCellProps = {
   student: GradingStudent
-  answer: GradingAnswerType | Record<string, never>
+  answer: GradingAnswerType
   gridScoreCellPassThroughProps: GridScoreCellPassThroughProps
 }
 

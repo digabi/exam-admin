@@ -20,14 +20,14 @@ const sv: typeof fi = {
     },
     held_exams: 'Genomförda prov',
     info_text:
-      'Nämnden rekommenderar att 50 % av den preliminära bedömningen av svaren markeras klar senast på den första utsatta dagen.',
+      'Gymnasiet ska markera den preliminära bedömningen klar för minst 30 % av svaren senast på den första utsatta dagen.',
     students: 'Examinander',
     held_exam_name: 'Prov',
     held_answers: 'Svar att bedöma',
     pre_grading: 'Preliminärt bedömda svar',
     pre_grading_answers_graded: 'Svar bedömda',
     pre_grading_answers_finished: 'Bedömningar markerade klara',
-    recommended_deadline: 'Rekommenderad utsatt dag',
+    recommended_deadline: 'Följande utsatta dag',
     still_to_be_finished: 'Ännu att markeras som klar',
     gradings: 'bedömningar',
     today: 'Idag',
@@ -41,6 +41,8 @@ const sv: typeof fi = {
       exam_meb: 'Den valda filen innehåller provfrågor. Välj filen som innehåller provsvaren.',
       incorrect_exam: 'Provet som svaren tillhör hittades inte. Uppladdningen misslyckades.',
       exam_structure_not_imported: 'Provprestationer till detta prov kan inte ännu införas, försök på nytt senare.',
+      incorrect_answer_package:
+        'Du försökte ladda upp provprestationer som inte hör till ett prov vid detta examenstillfälle. Kontrollera att du har valt rätt fil.',
       invalid_file: 'Det finns inte provprestationer i den uppladdade filen, införandet misslyckades.',
       no_answer_papers: 'Det finns inte provprestationer i den uppladdade filen.',
       answer_upload_failed: 'Införandet av provprestationerna misslyckades. Försök på nytt om en stund.',
@@ -78,7 +80,9 @@ const sv: typeof fi = {
       mark_finished_n: 'Markera {{count}} bedömda uppgifter klara',
       just_marked_finished_n: 'Bedömningen av {{count}} uppgifter markerades klara!',
       cancel: 'Ångra',
-      close: 'Stäng'
+      close: 'Stäng',
+      only_visible_to_teacher:
+        'Anteckningarna för denna uppgiftstyp behandlas som bedömarens anteckningar och visas inte för examinanden.'
     },
     answer_search: {
       search_answers: 'Sök svar...',

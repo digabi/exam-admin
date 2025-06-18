@@ -424,7 +424,6 @@
 }
 
 #available-exams,
-#held-exams,
 #added-teachers,
 .oauth-client-table {
   border-collapse: collapse;
@@ -478,30 +477,6 @@
   }
 }
 
-#answers-upload-panel {
-  border-bottom: 1px solid #ddd;
-  .answers-upload-button-wrapper {
-    position: relative;
-    display: inline-block;
-  }
-}
-
-.answers-uploaded-notification,
-.answers-upload-error-email-template {
-  .notification();
-  margin-bottom: 30px;
-  padding: 14px 18px;
-  line-height: 20px;
-}
-
-.answers-uploaded-notification {
-  display: none;
-}
-
-.answers-visibility-info {
-  margin-top: 5px;
-}
-
 .button-container {
   text-align: right;
   font-weight: 400;
@@ -542,66 +517,6 @@
     top: 18px;
     left: 18px;
   }
-}
-
-#held-exams {
-  td:nth-child(1) {
-    width: 85px;
-  }
-  td:nth-child(3) {
-    width: 55px;
-  }
-  td:nth-child(4) {
-    width: 55px;
-  }
-  td:nth-child(5) {
-    width: 95px;
-  }
-  td:nth-child(6),
-  td:nth-child(7),
-  td:nth-child(8) {
-    width: 90px;
-    text-align: center;
-  }
-
-  td .grading-progress {
-    // -webkit- required for Safari
-    width: 100%;
-    height: @body-line-height;
-    display: -webkit-flex;
-    display: flex;
-    justify-content: center;
-    -webkit-justify-content: center;
-    align-items: center;
-    -webkit-align-items: center;
-    .grading-completed {
-      font-weight: 400;
-      width: 100%;
-      text-align: center;
-    }
-    .progress-bg {
-      width: 47px;
-      height: (@body-line-height - 12px);
-      background-color: #ddd;
-      display: -webkit-flex;
-      display: flex;
-      .progress-fg {
-        height: (@body-line-height - 12px);
-        background-color: @clickable-color;
-        display: inline-block;
-      }
-    }
-    .progress-text {
-      width: 30px;
-      text-align: right;
-    }
-  }
-}
-
-.remove-held-exam {
-  position: relative;
-  vertical-align: top;
-  display: inline-block;
 }
 
 .notification-popup {

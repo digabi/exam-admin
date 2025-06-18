@@ -110,13 +110,13 @@ router.post('/prune-deleted-exams/:days', async (req, res) => {
   }
 })
 
-router.post('/prune-deleted-exams-for-user/:userName/:dateUntil?', async (req, res) => {
+router.post('/prune-deleted-exams-for-user/:userName{/:dateUntil}', async (req, res) => {
   const { userName, dateUntil } = req.params
   try {
     const { deletedExams } = await deleteExamsFromUser(userName, dateUntil)
     res.send(`Poistettu ${deletedExams} koetta vastauksineen`)
   } catch (error) {
-    logger.error('Error in /prune-deleted-exams-for-user/:userName/:dateUntil?', { error, userName, dateUntil })
+    logger.error('Error in /prune-deleted-exams-for-user/:userName{/:dateUntil}', { error, userName, dateUntil })
     res.status(500).send()
   }
 })

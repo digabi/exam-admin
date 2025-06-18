@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { GradingAnswerType, Pregrading } from './types'
 import { format } from 'date-fns'
 import { GradingContext, hasCensorWaitingPeriodPassedForAnswer } from './grading-view'
@@ -9,8 +9,9 @@ interface Props {
   answer: GradingAnswerType
   isImpersonating: boolean
   isPregradedByUser: boolean
+  cellSavingOngoing: boolean
   postMarkPregradingFinished: (answerIds: number[]) => Promise<Array<Pregrading & { answerId: number }> | undefined>
-  postRevertPregradingFinishedAt: (answerId: number) => void
+  postRevertPregradingFinishedAt: (answerId: number) => Promise<void>
 }
 
 export const PregradingControls = ({
@@ -18,14 +19,29 @@ export const PregradingControls = ({
   postMarkPregradingFinished,
   postRevertPregradingFinishedAt,
   isImpersonating,
-  isPregradedByUser
+  isPregradedByUser,
+  cellSavingOngoing
 }: Props) => {
   if (answer?.scoreValue == null) {
     return null
   }
   const { waitingForCensorHours } = useContext(GradingContext)
+  const [saving, setSaving] = useState<boolean>(false)
   const { t } = useTranslation()
   const censorWaitingPeriodHasPassed = hasCensorWaitingPeriodPassedForAnswer(answer, waitingForCensorHours)
+  useEffect(() => {
+    setSaving(cellSavingOngoing)
+  }, [cellSavingOngoing])
+  const markFinished = async () => {
+    setSaving(true)
+    await postMarkPregradingFinished([answer.answerId])
+    setSaving(false)
+  }
+  const revertFinished = async () => {
+    setSaving(true)
+    await postRevertPregradingFinishedAt(answer.answerId)
+    setSaving(false)
+  }
 
   return (
     <div className="finish-pregrading">
@@ -39,7 +55,7 @@ export const PregradingControls = ({
             </p>
           )}
 
-          <button onClick={() => void postMarkPregradingFinished([answer.answerId])} className="button">
+          <button disabled={saving} onClick={() => void markFinished()} className="button">
             {t('sa.pregrading.mark_finished')}
           </button>
         </>
@@ -71,7 +87,7 @@ export const PregradingControls = ({
                   <strong>{t('sa.pregrading.nb')}</strong> {t('sa.pregrading.not_graded_by_you')}
                 </p>
               )}
-              <button className="button" onClick={() => void postRevertPregradingFinishedAt(answer.answerId)}>
+              <button disabled={saving} className="button" onClick={() => void revertFinished()}>
                 {t('sa.pregrading.revert_pregrading_finished')}
               </button>
             </>

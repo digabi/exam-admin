@@ -16,7 +16,7 @@ const validateExamUuid = (req, res, next) => {
 }
 
 // public routes
-router.get('/:examUuid/attachments/:fileName*', validateExamUuid, exam.proxyToArpa)
+router.get('/:examUuid/attachments/{*fileName}', validateExamUuid, exam.proxyToArpa)
 
 // authenticated routes
 router.use(ensureAuthenticated)
@@ -30,7 +30,7 @@ router.get('/:examUuid/attachments', exam.checkAccessForExamAndProxy)
 router.delete('/:examUuid/attachments/:fileName', exam.checkAccessForExamAndProxy)
 router.delete('/held-exam/:heldExamUuid', exam.checkAccessForHeldExamAndProxy)
 router.post('/:examUuid/attachments/add', exam.checkAccessForExamAndProxy)
-router.post('/:examUuid/attachments/copyFrom/:examUuid/:fileName*', exam.checkAccessForExamAndProxy)
+router.post('/:examUuid/attachments/copyFrom/:examUuid/{*fileName}', exam.checkAccessForExamAndProxy)
 router.get('/ee-version', proxyToArpa)
 
 export default router

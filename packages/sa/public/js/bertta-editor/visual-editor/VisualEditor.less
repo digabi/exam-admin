@@ -357,6 +357,7 @@ e\:exam {
       button[data-type='button-single-line'],
       button[data-type='button-dropdown'],
       button[data-type='button-choice'],
+      button[data-type='button-audio'],
       div.toolbar-new-question {
         display: none;
       }
@@ -478,7 +479,8 @@ e\:exam {
   }
 
   e\:text-answer,
-  e\:scored-text-answer {
+  e\:scored-text-answer,
+  e\:audio-answer {
     .text-input-style();
     padding: 0px;
     display: inline-block;
@@ -524,6 +526,13 @@ e\:exam {
       top: 0;
     }
   }
+
+  e\:audio-answer {
+    background-image: url(../../../img/microphone-icon.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
   option-wrapper {
     display: block;
     min-width: 0.5rem;

@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect } from 'react'
 import { GradingContext } from './grading-view'
 import { debounce } from 'lodash'
-import { GradingAnswerType } from './types'
+import { GradingAnswerType, GradingStudent } from './types'
 import { getScoreRegExp } from '../common/score-regexp'
 import { Direction } from './grid-navigation'
 
@@ -92,24 +92,22 @@ export function useDebouncedScoreChange(
 }
 
 export const useGridNavigation = () => {
-  const { navigationMap } = useContext(GradingContext)
-  async function moveFocusWithModifier(direction: Direction, answerId: number) {
-    await navigationMap[answerId][`${direction}Alt`]()
-  }
+  const { navigateInGrid } = useContext(GradingContext)
 
-  async function moveFocus(direction: Direction, answerId: number) {
-    await navigationMap[answerId][direction]()
-  }
-
-  function keyDown(e: React.KeyboardEvent<HTMLInputElement>, answerId: number) {
+  function keyDown(
+    e: React.KeyboardEvent<HTMLInputElement>,
+    student: GradingStudent,
+    answer: GradingAnswerType,
+    studentIndex: number,
+    answerIndex: number
+  ) {
     const callEventHandler = (direction: Direction) => {
-      const eventHandler = e.altKey ? moveFocusWithModifier : moveFocus
       e.preventDefault()
       // avoid moving focus multiple times when holding down arrow keys
       if (e.repeat) {
         return Promise.resolve()
       }
-      return eventHandler(direction, answerId)
+      return navigateInGrid[direction](student, answer, studentIndex, answerIndex, e.altKey)
     }
 
     switch (e.key) {

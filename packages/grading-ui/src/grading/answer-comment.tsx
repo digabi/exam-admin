@@ -74,6 +74,9 @@ export function AnswerComment({
         )
       ) : (
         <>
+          {answer.isProductive && (
+            <em data-testid="pregrading-only-for-teachers">{t('sa.pregrading.only_visible_to_teacher')}</em>
+          )}
           <label htmlFor="note-textarea">
             <h4>
               {t('arpa.comment')}
@@ -121,19 +124,26 @@ export function AnswerComment({
     </div>
   )
 
-  function updateCommentState(previousState?: GradingExamAndScores, newValue?: string) {
+  function updateCommentState(
+    previousState?: GradingExamAndScores,
+    comment?: string
+  ): GradingExamAndScores | undefined {
     if (!previousState) return previousState
-    const examAndScores = { ...previousState }
-    const student = examAndScores.students.find(student =>
-      student?.answers.map(a => a.answerId).includes(answer.answerId)
-    )
-    const answerIndex = student?.answers.findIndex(a => a.answerId == answer.answerId) ?? -1
-    if (student && answerIndex >= 0) {
-      const answerCopy = { ...answer }
-      answerCopy.comment = newValue
-      student.answers[answerIndex] = answerCopy
+    return {
+      ...previousState,
+      students: previousState.students.map(student => {
+        if (student?.answers.find(({ answerId }) => answerId === answer.answerId)) {
+          return {
+            ...student,
+            answers: student.answers.map(studentAnswer => {
+              if (studentAnswer.answerId === answer.answerId) {
+                return { ...studentAnswer, comment } as GradingAnswerType
+              } else return studentAnswer
+            })
+          }
+        } else return student
+      })
     }
-    return examAndScores
   }
 
   function updateComment(valueWithWhitespace?: string) {

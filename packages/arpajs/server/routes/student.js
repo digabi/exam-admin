@@ -24,7 +24,7 @@ router.get('/exam/:answerPaperToken', token.untokenizeApId, (req, res, next) => 
   examDb.getExamContent(req.apId).then(masterIfXml).then(expressUtils.respondWithJsonOr404(res)).catch(next)
 })
 
-async function parseAnswersAndScores(answerPaperId, answerPapers) {
+export async function parseAnswersAndScores(answerPaperId, answerPapers) {
   if (answerPapers.length === 0) {
     return
   }
@@ -89,7 +89,7 @@ function parseScoresAndMetadata(exam, answerPaper) {
   })
 }
 
-async function masterIfXml(examContent) {
+export async function masterIfXml(examContent) {
   if (examContent) {
     const contentXml = await getMasteredXml(examContent)
     return {

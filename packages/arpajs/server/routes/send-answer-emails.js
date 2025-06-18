@@ -22,6 +22,7 @@ router.post('/:heldExamUuid', (req, res, next) => {
   // eslint-disable-next-line promise/valid-params
   return studentDb
     .getStudentsForMailing(req.params.heldExamUuid)
+    .then(students => students.filter(({ email }) => utils.validation.isValidEmail(email)))
     .then(students => {
       if (students.length > 0) return students
       throw new AppError('No emails found for exam', 400)

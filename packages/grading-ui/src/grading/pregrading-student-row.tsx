@@ -6,11 +6,12 @@ import { TotalScore } from './total-score'
 import React, { Dispatch, SetStateAction, useContext } from 'react'
 import classNames from 'classnames'
 import { GradingContext, GradingUrlsContext } from './grading-view'
-import { GradingExamAndScores, GradingStudent, SetExamAndScores, SetStudentEdited } from './types'
+import { GradingAnswerType, GradingExamAndScores, GradingStudent, SetExamAndScores, SetStudentEdited } from './types'
 import { GridScoreCell } from './grid-score-cell'
 
 type PregradingStudentRowProps = {
   student: GradingStudent
+  studentIndex: number
   examAndScores: GradingExamAndScores
   studentEdited?: string
   setStudentEdited: SetStudentEdited
@@ -22,6 +23,7 @@ type PregradingStudentRowProps = {
 
 export function PregradingStudentRow({
   student,
+  studentIndex,
   studentEdited,
   setStudentEdited,
   examAndScores,
@@ -95,14 +97,24 @@ export function PregradingStudentRow({
         showActions={isPrincipal}
       />
 
-      {answers.map((answer, i) => (
-        <GridScoreCell
-          key={answer.questionId || `${studentUuid}_${i}`}
-          answer={answer}
-          student={student}
-          isPregrading
-        />
-      ))}
+      {answers.map((answer, i) =>
+        answer.answerId ? (
+          <GridScoreCell
+            key={answer.questionId || `${studentUuid}_${i}`}
+            answer={answer as GradingAnswerType}
+            student={student}
+            studentIndex={studentIndex}
+            answerIndex={i}
+            isPregrading
+          />
+        ) : (
+          <td
+            key={answer.questionId || `${studentUuid}_${i}`}
+            className={classNames('answerScore', {
+              'no-answer': true
+            })}></td>
+        )
+      )}
       <AutogradedScores student={student} examAndScores={examAndScores} />
       <TotalScore student={student} examAndScores={examAndScores} />
     </tr>

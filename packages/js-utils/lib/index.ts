@@ -4,6 +4,7 @@ import { generatePassphraseAsync } from './passphrase-generator'
 import { validateAttachments } from './exam-validators/attachment'
 import { capitalizeName, getSortingNameFromName } from './name-utils'
 import { examCopyFileNameToS3Path } from './copy-of-exam-paper'
+import { asyncFilter } from './async-utils'
 import * as answerValidator from './answer-validator'
 import * as autogradingValidator from './autograding/autograding-validator'
 import * as examAutograding from './autograding/exam-autograding'
@@ -92,8 +93,9 @@ export {
   examAutograding as autograding,
   migrations,
   examination,
-  examCopyFileNameToS3Path
+  examCopyFileNameToS3Path,
+  asyncFilter
 }
 
 export * from './object-manipulation-utils'
-export * from './request-js-wrappers'
+export * from './fetch-wrappers'

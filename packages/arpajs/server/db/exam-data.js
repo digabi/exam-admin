@@ -257,7 +257,7 @@ export const updateExamContent = (examUuid, content, examLanguage) => {
 export const createExamWithContent = async (examLanguage, content, userId) =>
   insertExamContent(examLanguage, content, await generatePassphraseAsync(config.passphraseWordList), userId)
 
-export const insertExamContent = (examLanguage, content, passphrase, userId) => {
+const insertExamContent = (examLanguage, content, passphrase, userId) => {
   const contentValid = examValidator.validateExamContentFields(content).valid
   return pgrm
     .queryRowsAsync(
@@ -568,18 +568,17 @@ export const updateXmlExamPassword = (examUuid, userId, password) =>
     [password, examUuid, userId]
   )
 
-export const getGradingStatusForExams = (userAccountId, withExtraProps = false) =>
-  pgrm
-    .queryRowsAsync(
-      // language=PostgreSQL
-      ` select
+export const getGradingStatusForExams = async userAccountId => {
+  const result = await pgrm.queryRowsAsync(
+    // language=PostgreSQL
+    SQL`select
           stats.uuid as uuid,
           title,
           uploaded,
           ap_count,
           answer_count,
           total_scored_count,
-          text_scored_count,
+          manual_scored_count,
           pregrading_finished_count,
           creation_date,
           held_exam_deletion_date
@@ -590,9 +589,9 @@ export const getGradingStatusForExams = (userAccountId, withExtraProps = false) 
               count(distinct apid) :: int as ap_count,
               count(aid) :: int           as answer_count,
               count(sval) :: int          as total_scored_count,
-              count(case when atype = 'text' or atype = 'richText'
+              count(case when atype = 'text' or atype = 'richText' or atype = 'audio'
                 then sval
-                    else null end) :: int as text_scored_count,
+                    else null end) :: int as manual_scored_count,
             count(finished) filter (where finished is not null) :: int as pregrading_finished_count
             from (select
                     ap.held_exam_uuid           as uuid,
@@ -607,7 +606,7 @@ export const getGradingStatusForExams = (userAccountId, withExtraProps = false) 
                     natural join exam
                     natural left join answer a
                     natural left join score s
-                  where exam.user_account_id = $1
+                  where exam.user_account_id = ${userAccountId}
                     and deletion_date IS NULL) exam_answers
             group by uuid ) stats,
           ( select
@@ -617,48 +616,39 @@ export const getGradingStatusForExams = (userAccountId, withExtraProps = false) 
               held_exam_deletion_date
             from exam
               natural join held_exam
-            where exam.user_account_id = $1 ) as titles
-        where titles.held_exam_uuid = stats.uuid`,
-      [userAccountId]
-    )
-    .then(
-      R.map(record => {
-        const statusProps = {
-          uuid: record.uuid,
-          title: record.title,
-          uploaded: record.uploaded,
-          answerPapers: record.ap_count,
-          answers: record.answer_count,
-          scoredAnswers: record.total_scored_count,
-          scoredTextAnswers: record.text_scored_count,
-          creationDate: record.creation_date,
-          heldExamDeletionDate: record.held_exam_deletion_date
+            where exam.user_account_id = ${userAccountId} ) as titles
+        where titles.held_exam_uuid = stats.uuid`
+  )
+
+  const exams = result.map(record => {
+    const autogradedScores = record.total_scored_count - record.manual_scored_count
+    return {
+      uuid: record.uuid,
+      title: record.title,
+      uploaded: record.uploaded,
+      answerPapers: record.ap_count,
+      answers: record.answer_count,
+      heldExamDeletionDate: record.held_exam_deletion_date,
+      eventDate: record.uploaded,
+      schoolAnonCode: record.uuid,
+      examCode: '',
+      pregradingScores: record.manual_scored_count,
+      autogradedScores,
+      pregradingFinishedCount: record.pregrading_finished_count,
+      canBePregraded: record.pregrading_finished_count + autogradedScores < record.answer_count,
+      pregradingDeadlines: {
+        intDeadline: {
+          target: 1
+        },
+        finalDeadline: {
+          target: 1
         }
-        const autogradedScores = record.total_scored_count - record.text_scored_count
-        return withExtraProps
-          ? {
-              ...statusProps,
-              scoredAnswers: record.text_scored_count,
-              eventDate: record.uploaded,
-              schoolAnonCode: record.uuid,
-              examCode: '',
-              pregradingScores: record.text_scored_count,
-              autogradedScores,
-              pregradingFinishedCount: record.pregrading_finished_count,
-              canBePregraded: record.pregrading_finished_count + autogradedScores < record.answer_count,
-              pregradingDeadlines: {
-                intDeadline: {
-                  target: 1
-                },
-                finalDeadline: {
-                  target: 1
-                }
-              }
-            }
-          : statusProps
-      })
-    )
-    .then(exams => _.orderBy(exams, ['uploaded', 'title'], ['desc', 'asc']))
+      }
+    }
+  })
+
+  return _.orderBy(exams, ['uploaded', 'title'], ['desc', 'asc'])
+}
 
 const toggleHeldExamDelete = (heldExamUuid, exists) =>
   using(pgrm.getConnection(), connection =>

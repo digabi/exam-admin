@@ -1,6 +1,6 @@
 {
   "name": "js-utils",
-  "version": "27.0.3",
+  "version": "30.0.1",
   "homepage": "https://github.com/digabi/js-utils",
   "description": "Common js-utils for the production side",
   "main": "client-utils.js",

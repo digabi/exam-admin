@@ -197,6 +197,7 @@ function ScoreTable(
               key={student.studentUuid}
               examAndScores={examAndScores}
               student={student}
+              studentIndex={index}
               setExamAndScores={setExamAndScores}
               studentEdited={studentEdited}
               setStudentEdited={setStudentEdited}

@@ -5,6 +5,7 @@ import { expressUtils, loggerUtils } from '@digabi/js-utils'
 import config from './config/configParser'
 import { logger } from './logger'
 import screenshotRouter from './routes/screenshot'
+import audioRouter from './routes/audio'
 import gradingRouter from './routes/grading'
 import examsRouter from './routes/exams'
 import sendAnswerEmailsRouter from './routes/send-answer-emails'
@@ -29,6 +30,7 @@ app.get('/', (req, res) => {
 })
 
 app.use('/grading/screenshot', screenshotRouter)
+app.use('/grading/audio', audioRouter)
 app.use('/grading', gradingRouter)
 app.use('/exams', examsRouter)
 

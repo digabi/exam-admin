@@ -17,9 +17,13 @@ const zipEntrySizeLimit = 300 * 1024 * 1024
 export async function extractAndDecryptZipContents(zipBuffer) {
   const zipContents = await extractZipAsync(zipBuffer)
   assertNotExamMeb(zipContents)
-  const keys = await decryptKeys(zipContents)
+  try {
+    const keys = await decryptKeys(zipContents)
 
-  return { zipContents, keys }
+    return { zipContents, keys }
+  } catch (err) {
+    throw new DataError('Could not decrypt zip file', 400, err)
+  }
 }
 
 export function decryptAnswers(keys, zipContents) {
@@ -28,6 +32,13 @@ export function decryptAnswers(keys, zipContents) {
 
 export function decryptScreenshots(keys, zipContents) {
   const buffer = zipContents['screenshots.zip.bin']
+  if (buffer) {
+    return decryptUsing(keys, buffer).then(extractZipAsync)
+  }
+}
+
+export function decryptAudios(keys, zipContents) {
+  const buffer = zipContents['audios.zip.bin']
   if (buffer) {
     return decryptUsing(keys, buffer).then(extractZipAsync)
   }
@@ -42,12 +53,13 @@ export function decryptEnvironmentData(keys, zipContents) {
 }
 
 export function decryptLogs(keys, zipContents) {
-  if (zipContents['everything.log.zip.bin']) {
-    return decryptUsing(keys, zipContents['everything.log.zip.bin'])
+  const logs = zipContents['everything.log.zip.bin'] || zipContents['logs.zip.bin']
+  if (logs) {
+    return decryptUsing(keys, logs)
   }
 }
 
-export async function importAnswersFromZip(answers, screenshots, environmentData) {
+export async function importAnswersFromZip(answers, screenshots, audios, environmentData) {
   const examsWithAnswerPapers = parseAnswers(answers)
   if (!examsWithAnswerPapers.length) throw new DataError('Meb file contained no answer papers', 422)
   const answerCounts = examsWithAnswerPapers.map(e => ({ examUuid: e.examUuid, answerCount: e.answerPapers.length }))
@@ -63,7 +75,7 @@ export async function importAnswersFromZip(answers, screenshots, environmentData
   const isPermanentlyDeleted = entry => !entry.exam
   const isNotPermanentlyDeleted = R.complement(isPermanentlyDeleted)
 
-  await gradingDb.importAnswers(examsWithAnswerPapers, screenshots, environmentData)
+  await gradingDb.importAnswers(examsWithAnswerPapers, screenshots, audios, environmentData)
 
   const [exams, deletedExams] = R.partition(e => !e.deletionDate)(
     allExams.filter(isNotPermanentlyDeleted).map(entry => entry.exam)

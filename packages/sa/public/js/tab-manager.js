@@ -7,7 +7,6 @@ import utils from './utils'
 const DEFAULT_TAB = 'exams'
 
 const examsPath = 'exams'
-const gradingPath = 'grading'
 const teachersPath = 'teachers'
 const settingsPath = 'settings'
 
@@ -26,11 +25,10 @@ export function init(updatesE, config) {
 
   function setupTabChangeHandlers() {
     const examsClicked = $('#exams-link').asEventStream('click').doAction(goToTab(examsPath))
-    const gradingClicked = $('#grading-link').asEventStream('click').doAction(goToTab(gradingPath))
     const teachersClicked = $('#teachers-link').asEventStream('click').doAction(goToTab(teachersPath))
     const settingsClicked = $('#settings-link').asEventStream('click').doAction(goToTab(settingsPath))
 
-    Bacon.mergeAll(examsClicked, gradingClicked, teachersClicked, settingsClicked)
+    Bacon.mergeAll(examsClicked, teachersClicked, settingsClicked)
       .doAction(preventDefault)
       .merge($(window).asEventStream('popstate'))
       .merge(updatesE)
@@ -42,7 +40,6 @@ export function init(updatesE, config) {
 
     function goToTab(tabName) {
       return () => {
-        $('.clear-when-switching-tab').remove()
         history.pushState(undefined, undefined, `/school/${tabName}`)
       }
     }

@@ -7,11 +7,7 @@ import * as arpautils from './arpa-utils'
 import * as sautils from './sa-utils'
 import utils from './utils'
 
-import * as annotationsEditing from '@digabi/answer-annotation/dist/annotations-editing'
-
-import examAnswersT from '../templates/exam-answers.hbs'
 import reviewActionBarT from '../templates/review-action-bar.hbs'
-import studentDetailsActionBarT from '../templates/student-details-action-bar.hbs'
 import gradingSummaryT from '../templates/grading-summary.hbs'
 import examReturningT from '../templates/exam-returning.hbs'
 
@@ -34,11 +30,7 @@ if (!sautils.ui.showErrorIfBrowserUnsupported()) {
   ajaxReq.getJson('/kurko-api/user').onValue(userData => {
     $('#pagebanner').replaceWith(reactComponentAsContainer(PageBanner, { userName: userData.userName }))
     sautils.setDefaultUserRole(userData.roles)
-    if (uri.routeId === 'review') {
-      loadAndRenderReviewUI(uri.eventId)
-    } else if (uri.routeId === 'details') {
-      loadAndRenderStudentDetails(uri.eventId, uri.apId)
-    }
+    loadAndRenderReviewUI(uri.eventId)
     $('#footer').append(reactComponentAsContainer(Footer))
   })
 }
@@ -57,7 +49,6 @@ function loadAndRenderReviewUI(heldExamUuid) {
   $('body').addClass('gradingSummary')
   const answersWithTotalScoresStream = arpautils.loadAnswersWithTotalScores(heldExamUuid)
   answersWithTotalScoresStream.onValue(renderReviewUI)
-  setupPrintStudentsWithoutEmail(answersWithTotalScoresStream)
   addActionBar()
   addGradingTextHandler()
   arpautils.showPageStatus('arpa.review_instruction')
@@ -80,31 +71,6 @@ function loadAndRenderReviewUI(heldExamUuid) {
       })
   }
 
-  function setupPrintStudentsWithoutEmail(answersWithTotalScoresStream) {
-    answersWithTotalScoresStream.map(withoutEmail).onValue(renderStudents)
-
-    $('#gradingInfo')
-      .asEventStream('click', '#printAnswerPapersWithoutEmailLink')
-      .doAction(event => event.preventDefault())
-      .onValue(printRest)
-
-    function renderStudents(papers) {
-      const $answers = $('#answers')
-      $answers
-        .empty()
-        .hide()
-        .append(examAnswersT({ isReadOnly: true, students: papers }))
-      const annotationDb = arpautils.makeAnnotationDb(_.flatten(_.map(papers, 'answers')))
-      arpautils.renderAbittiAnnotations('.answerText', annotationDb.get, true)
-      annotationsEditing.setupAnnotationDisplaying($answers, false)
-      sautils.ui.renderMathInMultiChoiceAnswers()
-    }
-
-    function printRest() {
-      $('body').addClass('answerPapersPrint')
-      window.print()
-    }
-  }
   function addActionBar() {
     $('#actionBar').append(reviewActionBarT())
     $('.returnToEvents').attr('href', eventViewUri)
@@ -126,6 +92,7 @@ function loadAndRenderReviewUI(heldExamUuid) {
     function setupEmailReturning(students) {
       const studentsWithEmail = students.filter(student => student.email).length
       const emailData = {
+        heldExamUuid: heldExamUuid,
         studentsWithEmail: studentsWithEmail,
         studentsInTotal: students.length,
         studentsWithoutEmail: students.length - studentsWithEmail,
@@ -175,27 +142,5 @@ function loadAndRenderReviewUI(heldExamUuid) {
         }
       }
     }
-  }
-  function withoutEmail(examAndAnswers) {
-    return examAndAnswers.students.filter(student => _.isUndefined(student.email) || student.email === null)
-  }
-}
-
-// Student answer paper view
-
-function loadAndRenderStudentDetails(heldExamUuid, answerPaperId) {
-  $('body').addClass('studentDetails')
-  arpautils.loadSingleStudentAnswers(heldExamUuid, answerPaperId).onValue(renderAnswerPaperUI)
-
-  function renderAnswerPaperUI(answerPapers) {
-    const annotationDb = arpautils.makeAnnotationDb(_.flatten(_.map(answerPapers, 'answers')))
-
-    $('#actionBar').append(studentDetailsActionBarT())
-    sautils.ui.makePreviewButton('.previewLink', _.get(answerPapers, '[0].examUuid'))
-    sautils.ui.makePrintButton('.printStudentDetailsLink')
-    $('#answers')
-      .append(examAnswersT({ isReadOnly: true, students: answerPapers }))
-      .show(0, sautils.ui.renderMathInMultiChoiceAnswers)
-    arpautils.renderAbittiAnnotations('.answerText', annotationDb.get, true)
   }
 }

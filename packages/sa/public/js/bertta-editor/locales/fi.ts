@@ -25,6 +25,7 @@ export const fi = {
   single_line: 'lyhyt vastaus',
   choice: 'monivalinta',
   dropdown: 'pudotusvalikko',
+  recording: 'äänitys',
   attachment: 'tiedosto',
   add_question: 'Lisää tehtävä',
   add_sub_question: 'Lisää alitehtävä / monivalintakysymys',

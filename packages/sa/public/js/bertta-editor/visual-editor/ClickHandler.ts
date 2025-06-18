@@ -21,6 +21,7 @@ import {
   insertAfter,
   insertAndSelectText,
   insertAtCursor,
+  insertAudioAtCursor,
   insertBefore,
   insertDragAndDropAtCursor,
   insertDropdownAtCursor,
@@ -167,6 +168,10 @@ function domModify(
     case 'button-dragndrop': {
       insertDragAndDropAtCursor(container, question, footer, t)
       return 'e:dnd-answer-container'
+    }
+    case 'button-audio': {
+      insertAudioAtCursor(container, question, footer)
+      return 'e:audio-answer'
     }
     case 'button-question': {
       insertBefore(

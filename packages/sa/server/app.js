@@ -65,7 +65,8 @@ app.use(
       ? {}
       : {
           directives: {
-            upgradeInsecureRequests: null
+            upgradeInsecureRequests: null,
+            'worker-src': ['blob:']
           }
         }
   )
@@ -147,6 +148,7 @@ app.get('/admin', ensureSuperuser, sendFile('admin.html'))
 app.use('/exam-api/grading/student/answers', proxying.proxy(`${config.examUri}/grading/student/answers`))
 app.use('/exam-api/grading/student/exam', proxying.proxy(`${config.examUri}/grading/student/exam`))
 app.use('/screenshot', proxying.proxy(`${config.examUri}/grading/screenshot`)) // Screenshots in rich text answers
+app.use('/audio', proxying.proxy(`${config.examUri}/grading/audio`)) // Audio files in audio answers
 app.use('/exam-api/grading/answers-meb', ensureAuthenticated, answersMebRouter)
 app.use('/exam-api/grading', ensureAuthenticated, gradingRouter)
 app.use('/exam-api/composing', ensureAuthenticated, composingProxyRouter)

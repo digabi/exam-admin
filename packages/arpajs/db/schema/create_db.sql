@@ -7,6 +7,7 @@ drop table if exists student_ssn cascade;
 drop table if exists student cascade;
 drop table if exists score;
 drop table if exists screenshots;
+drop table if exists audio;
 drop table if exists attachment;
 drop table if exists server_environment_held_exam_map;
 drop table if exists server_environment cascade;

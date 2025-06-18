@@ -21,6 +21,7 @@ const commonSchema = z
     arpaDbUrl: z.string(),
     interface: z.string(),
     port: z.union([z.string(), z.number()]),
+    runningInJenkins: z.boolean(),
     s3ExamLogsBucket: z.string(),
     s3AttachmentsBucket: z.string(),
     prePackagedNsaScriptZipPath: z.string(),
@@ -60,10 +61,12 @@ const secretsSchema = z
           accessKeyId: z.string(),
           secretAccessKey: z.string()
         }),
-        attachmentUpAndDownloader: z.object({
-          accessKeyId: z.string(),
-          secretAccessKey: z.string()
-        })
+        attachmentUpAndDownloader: z
+          .object({
+            accessKeyId: z.string(),
+            secretAccessKey: z.string()
+          })
+          .optional()
       })
       .optional()
   })

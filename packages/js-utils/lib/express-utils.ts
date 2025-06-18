@@ -7,11 +7,9 @@ import * as https from 'https'
 import * as json2csv from 'json2csv'
 import { pipeline } from 'stream/promises'
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse, AxiosResponseHeaders, ResponseType } from 'axios'
-import { Express, NextFunction, Request, Response, Router } from 'express'
+import { Express, Handler, NextFunction, Request, Response } from 'express'
 import { Logger } from 'winston'
-import { IRouterAsync } from './express-async-types'
 import { FieldInfo } from 'json2csv'
-import { Handler } from 'express-serve-static-core'
 
 export const abittiImportExamMaxFileSize = 305 * 1024 * 1024
 
@@ -171,13 +169,7 @@ export const proxyWithOpts =
       .then(response => pipeResponseData(req, res, next, response, 'outgoing'))
       .catch((err: AxiosError) => {
         if (!err.response) {
-          // Most likely user cancels request when data is sent to backend
-          // ECONNABORTED === timeout; ECONNRESET = socket hang up / aborted
-          if (err && (err.code === 'ECONNABORTED' || err.code === 'ECONNRESET')) {
-            next(new ProxyWarning(err, err.config, 'incoming'))
-          } else {
-            next(new ProxyError(err, err.config, 'incoming'))
-          }
+          proxyErrorHandling(next, err, err.config, 'incoming')
         } else {
           // If target server responses with >=400, it comes here
           return pipeResponseData(req, res, next, err.response, 'outgoing after error')
@@ -196,13 +188,24 @@ async function pipeResponseData(
   try {
     return await pipeline(response.data, res)
   } catch (err: unknown) {
-    const code = (err as Error & { code?: string }).code
-    // ERR_STREAM_PREMATURE_CLOSE and ECONNRESET happens when the user's browser cancels the request when data is sent to browser
-    if (code && code !== 'ERR_STREAM_PREMATURE_CLOSE' && code !== 'ECONNRESET') {
-      next(new ProxyError(err as Error, req, errorPrefix))
-    } else {
-      next(new ProxyWarning(err as Error, req, errorPrefix))
-    }
+    const error = err as Error & { code?: string }
+    proxyErrorHandling(next, error, req, errorPrefix)
+  }
+}
+
+type ProxyErrorParams = Request | AxiosRequestConfig | undefined
+type ProxyErrorError = Error & { code?: string }
+
+function proxyErrorHandling(next: NextFunction, err: ProxyErrorError, params: ProxyErrorParams, errorPrefix: string) {
+  // Most likely user cancels request when data is sent to backend
+  // ECONNABORTED === timeout; ECONNRESET = socket hang up / aborted
+  // ERR_STREAM_PREMATURE_CLOSE and ECONNRESET happens when the user's browser cancels the request when data is sent to browser
+  if (err && err.code === 'ECONNRESET') {
+    next(new ProxyError(err, params, errorPrefix, 400, 'notice'))
+  } else if (err && (err.code === 'ECONNABORTED' || err.code === 'ERR_STREAM_PREMATURE_CLOSE')) {
+    next(new ProxyError(err, params, errorPrefix, 400, 'warning'))
+  } else {
+    next(new ProxyError(err, params, errorPrefix, 500, 'error'))
   }
 }
 
@@ -212,26 +215,11 @@ class ProxyError extends Error {
   status: number
   code: string | undefined
 
-  constructor(error: Error & { code?: string }, params: Request | AxiosRequestConfig | undefined, errorPrefix: string) {
-    super(`Proxy error ${errorPrefix}: ${error.message}`)
-    this.url = params && params.url
-    this.method = params && params.method
-    this.status = 500
-    this.code = error.code
-  }
-}
-
-class ProxyWarning extends Error {
-  url: string | undefined
-  method: string | undefined
-  status: number
-  code: string | undefined
-
-  constructor(error: Error & { code?: string }, params: Request | AxiosRequestConfig | undefined, errorPrefix: string) {
-    super(`Proxy warning ${errorPrefix}: ${error.message}`)
-    this.url = params && params.url
-    this.method = params && params.method
-    this.status = 400
+  constructor(error: ProxyErrorError, params: ProxyErrorParams, errorPrefix: string, status: number, type: string) {
+    super(`Proxy ${type} ${errorPrefix}: ${error.message}`)
+    this.url = params?.url
+    this.method = params?.method
+    this.status = status
     this.code = error.code
   }
 }
@@ -335,25 +323,6 @@ export function preventBowerJsonGet(req: Request, res: Response, next: NextFunct
 
 export function extendTimeoutForUploadRouteWithLargeFiles(req: Request, res: Response, next: NextFunction) {
   // node defaults to 2 minutes. With 300 MB, that's 20 Mbps. 30 minutes is 1.3 Mbps
-  res.connection!.setTimeout(30 * 60 * 1000)
+  res.setTimeout(30 * 60 * 1000)
   next()
-}
-
-type Method = 'get' | 'post' | 'put' | 'patch' | 'delete'
-
-export function promisifyRouter(expressRouter: Router) {
-  const promisifiedRouter = expressRouter as IRouterAsync
-  for (const method of <Method[]>['get', 'post', 'put', 'patch', 'delete']) {
-    promisifiedRouter[`${method}Async`] = function (...args: unknown[]) {
-      const fn = args.pop() as (req: Request, res: Response) => Promise<void>
-      if (fn.length !== 2) {
-        throw Error(`Expected arity of handler to be 2. was ${fn.length}`)
-      }
-      // args type forced to the simplest type to make typescript happy
-      return this[method](...(args as [string]), (req: Request, res: Response, next: NextFunction) => {
-        void Promise.resolve(fn(req, res)).catch(next)
-      })
-    }
-  }
-  return promisifiedRouter
 }

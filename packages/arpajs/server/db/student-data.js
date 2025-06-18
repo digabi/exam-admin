@@ -161,6 +161,21 @@ export function getScreenshot(screenshotUuid) {
   )
 }
 
+export function getAudio(audioId) {
+  // language=PostgreSQL
+  return using(pgrm.getTransaction(), tx =>
+    tx
+      .queryAsync(
+        `
+    SELECT content
+    FROM audio
+    WHERE audio_id=$1`,
+        [audioId]
+      )
+      .then(result => _.first(result.rows).content)
+  )
+}
+
 export function addStudentWithTx(tx, student) {
   // language=PostgreSQL
   return tx

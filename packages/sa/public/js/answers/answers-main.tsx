@@ -30,7 +30,7 @@ function ExamCopyPage() {
         resolveAttachment={resolveExamContentURI}
         examContent={exam => `/school/preview/${exam.examUuid}`}
         attachmentsContent={exam => `/school/preview/${exam.examUuid}/attachments`}
-        returnToGrid={exam => `/school/pregrading/${exam.heldExamUuid}`}
+        returnToGrid={exam => `/school/grading/${exam.heldExamUuid}`}
         language={language}
         hideActionBar={!userName || source === 'returnExams'}
         singleGrading={true}

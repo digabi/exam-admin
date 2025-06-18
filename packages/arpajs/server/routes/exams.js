@@ -29,6 +29,7 @@ import { getAttachments, getAttachment } from '../db/attachment-data'
 import { getExamAsXml } from '../exam/json-to-xml/json-to-xml'
 import { migrateXmlToLatestSchemaVersion } from '../exam/xml-mastering'
 import { version } from '@digabi/exam-engine-mastering/package.json'
+import { renameAttachmentIfAlreadyExists } from '../utils/exam-attachment-utils'
 const jsonMaxSizeInBytes = 500 * 1024
 
 moduleRouter.get('/status/:userId', (req, res, next) => {
@@ -176,7 +177,11 @@ moduleRouter.post(
   attachmentUploadMiddleware,
   (req, res, next) => {
     BPromise.map(req.files, file =>
-      attachmentsStorage.storeFileInS3AndDb(req.params.examUuid, sanitizeFileName(file.originalname), file.buffer)
+      attachmentsStorage.storeFileInS3AndDb(
+        req.params.examUuid,
+        sanitizeFileName(Buffer.from(file.originalname, 'latin1').toString('utf8')),
+        file.buffer
+      )
     )
       .tap(badRequestIfNothingAdded)
       .then(addedAttachments => res.json(addedAttachments))
@@ -188,11 +193,12 @@ moduleRouter.post(
 )
 
 moduleRouter.post(
-  '/:examUuid/attachments/copyFrom/:sourceExamUuid/:fileName*',
+  '/:examUuid/attachments/copyFrom/:sourceExamUuid/{*fileName}',
   uuidValidator('examUuid'),
   uuidValidator('sourceExamUuid'),
   async (req, res, next) => {
-    const { examUuid, sourceExamUuid, fileName } = req.params
+    const { examUuid, sourceExamUuid } = req.params
+    const fileName = req.params.fileName.join('/')
     try {
       const attachments = await getAttachments(examUuid)
       const existingAttachment = await getAttachment(sourceExamUuid, fileName)
@@ -205,30 +211,12 @@ moduleRouter.post(
         return next()
       }
 
-      const renameIfAlreadyExists = (attachmentToRename, size) => {
-        const extensionIndex = attachmentToRename.lastIndexOf('.')
-        const parts = attachmentToRename.substring(0, extensionIndex).match(/^([^_]*)_?(\d*)$/)
-        if (!parts || parts.length < 2) return undefined
+      const newName = renameAttachmentIfAlreadyExists(
+        existingAttachment.displayName,
+        existingAttachment.size,
+        attachments
+      )
 
-        const attachmentAlreadyUploaded = attachments.find(
-          a => a.size === size && a.displayName.match(new RegExp(`${parts[1]}(_\\d+\\.)?`))
-        )
-        if (attachmentAlreadyUploaded) {
-          return attachmentAlreadyUploaded.displayName
-        }
-
-        const attachmentBySameButDifferentSize = attachments.find(
-          a => a.size !== size && a.displayName === attachmentToRename
-        )
-        if (attachmentBySameButDifferentSize) {
-          const n = Number(parts[2] || '0') + 1
-          const newName = `${parts[1]}_${n}${attachmentToRename.substring(extensionIndex)}`
-          return renameIfAlreadyExists(newName, size)
-        }
-        return attachmentToRename
-      }
-
-      const newName = renameIfAlreadyExists(existingAttachment.displayName, existingAttachment.size)
       const newDisplayName = newName || existingAttachment.displayName
       if (existingAttachment.displayName !== newDisplayName) {
         logger.info(`Renamed '${existingAttachment.displayName}' to '${newDisplayName}'`)
@@ -249,11 +237,11 @@ moduleRouter.post(
   }
 )
 
-moduleRouter.get('/:examUuid/attachments/:fileName*', uuidValidator('examUuid'), async (req, res, next) => {
+moduleRouter.get('/:examUuid/attachments/{*fileName}', uuidValidator('examUuid'), async (req, res, next) => {
   try {
     const { contents, mimeType } = await attachmentStream.retrieveAttachmentS3Stream(
       req.params.examUuid,
-      req.params.fileName + req.params[0]
+      req.params.fileName.join('/')
     )
 
     const charset = /^text/.test(mimeType) ? 'UTF-8' : ''
@@ -267,10 +255,10 @@ moduleRouter.get('/:examUuid/attachments/:fileName*', uuidValidator('examUuid'),
       return res.sendStatus(404)
     }
 
-    logger.warn('Error in /:examUuid/attachments/:fileName*', {
+    logger.warn('Error in /:examUuid/attachments/{*fileName}', {
       error: err,
       examUuid: req.params.examUuid,
-      fileName: req.params.fileName
+      fileName: req.params.fileName.join('/')
     })
 
     if (err.code === 'TimeoutError') {
@@ -281,12 +269,12 @@ moduleRouter.get('/:examUuid/attachments/:fileName*', uuidValidator('examUuid'),
   }
 })
 
-moduleRouter.delete('/:examUuid/attachments/:fileName*', uuidValidator('examUuid'), (req, res, next) => {
+moduleRouter.delete('/:examUuid/attachments/{*fileName}', uuidValidator('examUuid'), (req, res, next) => {
   attachmentsStorage
-    .deleteAttachment(req.params.examUuid, req.params.fileName + req.params[0])
+    .deleteAttachment(req.params.examUuid, req.params.fileName.join('/'))
     .then(() => res.status(204).json(null))
     .catch(error => {
-      logger.warn('Error in /:examUuid/attachments/:fileName*', error)
+      logger.warn('Error in /:examUuid/attachments/{*fileName}', error)
       return next(error)
     })
 })

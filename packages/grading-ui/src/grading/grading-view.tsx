@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import {
   CensoringUrls,
   GradingAnswerType,
@@ -35,7 +35,7 @@ import { add, isBefore } from 'date-fns'
 import { PregradingControls } from './PregradingControls'
 import { AnswerSearch } from './answer-search'
 import Split from 'react-split'
-import { initScoreTableNavigation } from './grid-navigation'
+import { useNavigateInGrid } from './grid-navigation'
 import { postScoreUpdateState } from './post-score-utils'
 import { I18nextProvider, useTranslation } from 'react-i18next'
 import i18next from '../locales/i18n'
@@ -70,6 +70,7 @@ function CommonGradingView(props: {
   const [localizedError, setLocalizedError] = useState<LocalizeKeyWithOptions | undefined>()
   const [helpVisible, setHelpVisible] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(true)
+  const [cellSaving, setCellSaving] = useState<boolean>(false)
   const [studentEdited, setStudentEdited] = React.useState<string | undefined>()
   const [showMarkGradingFinishedUI, setShowMarkGradingFinishedUI] = useState<boolean>(false)
   const [showAnswerSearchUI, setShowAnswerSearchUI] = useState<boolean>(false)
@@ -82,12 +83,15 @@ function CommonGradingView(props: {
   const DEFAULT_SPLIT_SIZES: [number, number] = [75, 25]
   const [latestSplitSizes, setLatestSplitSizes] = useState<[number, number]>(DEFAULT_SPLIT_SIZES)
 
-  const setUpdating = (updating: boolean) => {
-    setExamAndScores((previousState: GradingExamAndScores | undefined) => {
-      if (!previousState) return previousState
-      return { ...previousState, updating }
-    })
-  }
+  const setUpdating = useCallback(
+    (updating: boolean) => {
+      setExamAndScores((previousState: GradingExamAndScores | undefined) => {
+        if (!previousState) return previousState
+        return { ...previousState, updating }
+      })
+    },
+    [setExamAndScores]
+  )
 
   useEffect(() => {
     const savedSizes = localStorage.getItem('split-sizes')
@@ -174,9 +178,6 @@ function CommonGradingView(props: {
   const isScoring = studentCode && displayNumber
   const student = examAndScores?.students?.find(student => student?.studentAnonIdentifier === Number(studentCode))
   const answer = student?.answers.find((answer): answer is GradingAnswerType => answer.displayNumber == displayNumber)
-  const answerAndScoresRef = useRef<HTMLDivElement | null>(null)
-  const scoreMarginRef = useRef<HTMLDivElement | null>(null)
-  const answerWrapRef = useRef<HTMLDivElement | null>(null)
   const allStudentsVisible = (examAndScores?.students || []).every(student => !student.isHidden)
 
   useEffect(() => {
@@ -187,8 +188,6 @@ function CommonGradingView(props: {
     if (!isScoring) {
       document.body.classList.remove('full_screen')
     }
-    scoreMarginRef.current?.scrollTo(0, 0)
-    answerWrapRef.current?.scrollTo(0, 0)
   }, [answer?.answerId])
 
   const unfinishedStudentsAndAnswers = useMemo(
@@ -209,6 +208,28 @@ function CommonGradingView(props: {
       }, [] as UnfinishedGradedAnswer[]),
     [examAndScores]
   )
+
+  const navigateToAnswer = useCallback(
+    (newStudentCode?: number, newDisplayNumber?: string, newSchoolExamCode?: string) => {
+      if (newStudentCode === undefined || newDisplayNumber === undefined) {
+        return
+      }
+      navigate(
+        gradingUrls.navigateToAnswer(
+          gradingRole,
+          newSchoolExamCode || schoolExamAnonCode!,
+          newStudentCode.toString(),
+          newDisplayNumber
+        ),
+        {
+          replace: true
+        }
+      )
+    },
+    [schoolExamAnonCode, gradingRole]
+  )
+
+  const navigateInGrid = useNavigateInGrid(examAndScores, gradingRole, gradingUrls, setUpdating, navigateToAnswer)
 
   if (loading) {
     return <div style={{ padding: '1rem' }}>{t('sa.censor.loading')}</div>
@@ -295,17 +316,15 @@ function CommonGradingView(props: {
     }
   }
 
-  function postRevertPregradingFinishedAt(answerId: number) {
-    void (async () => {
-      const response = await postJson<Array<Pregrading & { answerId: number }>>(
-        gradingUrls.revertPregradingFinished!(answerId)
-      )
+  async function postRevertPregradingFinishedAt(answerId: number) {
+    const response = await postJson<Array<Pregrading & { answerId: number }>>(
+      gradingUrls.revertPregradingFinished!(answerId)
+    )
 
-      if (response.json) {
-        updateState(response.json)
-        return
-      }
-    })()
+    if (response.json) {
+      updateState(response.json)
+      return
+    }
   }
 
   const pregradingDone = answer?.pregrading && answer.pregrading.pregradingFinishedAt
@@ -314,25 +333,6 @@ function CommonGradingView(props: {
 
   const questionIds =
     gradingRole == 'censoring' && exam ? exam.content.sections.flatMap(section => section.questions) : []
-
-  const navigationMap = initScoreTableNavigation(examAndScores, navigateToAnswer, setUpdating, gradingRole, gradingUrls)
-
-  function navigateToAnswer(newStudentCode?: number, newDisplayNumber?: string, newSchoolExamCode?: string) {
-    if (newStudentCode === undefined || newDisplayNumber === undefined) {
-      return
-    }
-    navigate(
-      gradingUrls.navigateToAnswer(
-        gradingRole,
-        newSchoolExamCode || schoolExamAnonCode!,
-        newStudentCode.toString(),
-        newDisplayNumber
-      ),
-      {
-        replace: true
-      }
-    )
-  }
 
   async function postScoreAndUpdateState(
     answer: GradingAnswerType | Record<string, never>,
@@ -343,7 +343,7 @@ function CommonGradingView(props: {
       if (isEmptyAnswer(answer)) {
         return
       }
-
+      setCellSaving(true)
       const scoreValueNumber = scoreValue == '' ? null : Number(scoreValue)
       setCellSavingState(true)
       const scoreResponse = await postJson<PostPreGradingScoreResponse | PostCensoringScoreResponse>(
@@ -368,6 +368,7 @@ function CommonGradingView(props: {
           scoreValueNumber
         )
       }
+      setCellSaving(false)
       if (scoreResponse.status >= 400) {
         if (scoreResponse.status == 401) {
           window.location.assign('/')
@@ -386,9 +387,7 @@ function CommonGradingView(props: {
       answer={answer}
       setExamAndScores={setExamAndScores}
       setLocalizedError={setLocalizedError}
-      canBeCommented={
-        !answer.isProductive && (gradingRole === 'censoring' ? exam.canBeCommented : !!exam.canBePregraded)
-      }
+      canBeCommented={gradingRole === 'censoring' ? exam.canBeCommented : !!exam.canBePregraded}
       postCommentUrl={gradingUrls.postComment(gradingRole, answer.answerId)}
     />
   )
@@ -397,7 +396,7 @@ function CommonGradingView(props: {
     <GradingContext.Provider
       value={{
         user: userData,
-        navigationMap,
+        navigateInGrid,
         currentAnswer: {
           schoolExamAnonCode,
           studentCode,
@@ -512,10 +511,12 @@ function CommonGradingView(props: {
                 setRowsToMarkFinished={setRowsToMarkFinished}
               />
 
-              <div className="answer-and-scores" ref={answerAndScoresRef} tabIndex={1}>
+              {/* Using key here makes sure the answer is scrolled to the
+                  beginning and no state is shared between different answers */}
+              <div key={answer?.answerId} className="answer-and-scores" tabIndex={1}>
                 {answer && (
                   <>
-                    <div className="score-margin" ref={scoreMarginRef}>
+                    <div className="score-margin">
                       <ScoreHistory
                         answer={answer}
                         gradingRole={gradingRole}
@@ -533,21 +534,19 @@ function CommonGradingView(props: {
                           answer={answer}
                           isImpersonating={isImpersonating(userData)}
                           isPregradedByUser={answer.pregrading?.authorId === userData?.user?.userAccountId}
+                          cellSavingOngoing={cellSaving}
                           postRevertPregradingFinishedAt={postRevertPregradingFinishedAt}
                           postMarkPregradingFinished={postMarkPregradingFinished}
                         />
                       )}
                     </div>
                     <Answer
-                      innerRef={answerWrapRef}
                       answer={answer}
                       gradingRole={gradingRole}
                       setLocalizedError={setLocalizedError}
                       setExamAndScores={setExamAndScores}
                       AnswerCommentElement={getAnswerCommentInput(answer, exam)}
-                      canBeAnnotated={
-                        !answer.isProductive && (pregradingAnnotationsEnabled || gradingAnnotationsEnabled)
-                      }
+                      canBeAnnotated={pregradingAnnotationsEnabled || gradingAnnotationsEnabled}
                       showPregradingAnnotations={showPregradingAnnotations}
                     />
                   </>

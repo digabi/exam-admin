@@ -13,7 +13,7 @@ export const importExamHandler = [
         examZip: {
           value: file.buffer,
           options: {
-            filename: file.originalname,
+            filename: Buffer.from(file.originalname, 'latin1').toString('utf8'),
             contentType: 'application/octet-stream'
           }
         },

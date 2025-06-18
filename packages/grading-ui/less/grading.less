@@ -45,8 +45,24 @@ body {
   color: #000;
 }
 
-#grading-view #fixed-pos-wrapper {
-  display: flex;
+#grading-view {
+  #fixed-pos-wrapper {
+    display: flex;
+  }
+
+  main {
+    height: calc(100vh - 60px);
+  }
+
+  .is_scoring main {
+    height: 100vh;
+    padding-top: 32px;
+    z-index: 0;
+
+    .full_screen & {
+      padding-top: 0;
+    }
+  }
 }
 
 main {
@@ -56,19 +72,6 @@ main {
   flex-direction: column;
   position: relative;
   padding-top: 3rem;
-
-  .is_scoring & {
-    height: 100vh;
-  }
-
-  .is_scoring & {
-    padding-top: 32px;
-    z-index: 0;
-
-    .full_screen & {
-      padding-top: 0;
-    }
-  }
 }
 
 .is_scoring {

@@ -20,6 +20,8 @@ export function noopExamServerAPI(resolveAttachment: (s: string) => string): Exa
         reader.readAsDataURL(file)
       })
     },
+    saveAudio: (_questionId: number, _audio: Blob) => Promise.resolve('fakeaudio'),
+    deleteAudio: (_audioId: string) => Promise.resolve(),
     examineExam: () => undefined,
     async playAudio(src) {
       if (!audioPlayer) {

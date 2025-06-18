@@ -219,7 +219,8 @@ ${isTopLevel ? addSubQuestion(t) : ''}
   <button class="answer-button togglable" data-type="button-rich-text">${t.rich_text}</button>
   <button class="answer-button togglable" data-type="button-dragndrop">${t.dragndrop}</button>
   <button class="answer-button togglable" data-type="button-single-line" title="Ctrl-T">${t.single_line}</button>
-  <button class="answer-button togglable margin-right" data-type="button-dropdown" title="Ctrl-P">${t.dropdown}</button>
+  <button class="answer-button togglable" data-type="button-dropdown" title="Ctrl-P">${t.dropdown}</button>
+  <button class="answer-button togglable margin-right" data-type="button-audio">${t.recording}</button>
   <button class="answer-button " data-type="button-open-attachments"><i class="fa fa-paperclip" aria-hidden="true"></i> ${
     t.attachment
   }</button>
