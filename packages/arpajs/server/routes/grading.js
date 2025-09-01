@@ -3,9 +3,6 @@
 import express from 'express'
 const moduleRouter = express.Router()
 import _ from 'lodash'
-import * as utils from '@digabi/js-utils'
-const DataError = utils.exc.DataError
-const expressUtils = utils.expressUtils
 import * as examDb from '../db/exam-data'
 import * as studentDb from '../db/student-data'
 import * as gradingDb from '../db/grading-data'
@@ -18,11 +15,12 @@ import { getGradingAccessDeniedForAnswer } from '../db/grading-data'
 import { getToken } from '../db/student-data'
 import { getAnswerLength } from '../db/answer-data'
 import { parseAnswersAndScores, masterIfXml } from './student'
+import { DataError, respondWith204, respondWith204Or400, respondWithJsonOr404 } from '@digabi/express-utils'
 const defaultJsonParser = bodyParser.json() // Has 100kB default limit
 
 const multerConfigsForAnswerUpload = {
   inMemory: true,
-  limits: { fileSize: 300 * 1024 * 1024 }
+  limits: { fileSize: 1024 * 1024 * 1024 }
 }
 const answerUpload = multer(multerConfigsForAnswerUpload).single('examUpload')
 const answerUploadMiddleware = (req, res, next) => {
@@ -65,7 +63,7 @@ moduleRouter.post('/scores/:answerId', defaultJsonParser, validateScore, answerC
   // eslint-disable-next-line promise/valid-params
   gradingDb
     .upsertScore(req.params.answerId, req.body.scoreValue)
-    .then(expressUtils.respondWithJsonOr404(res))
+    .then(respondWithJsonOr404(res))
     .catch(DataError, e => {
       logger.info(`/grading/scores, ${e.message}, data:${JSON.stringify(req.body)}`)
       res.status(400).end()
@@ -76,7 +74,7 @@ moduleRouter.post('/scores/:answerId', defaultJsonParser, validateScore, answerC
 moduleRouter.post('/scores/:heldExamUuid/mark-grading-finished', defaultJsonParser, async (req, res) => {
   const { answerIds } = req.body
   if (!answerIds || answerIds.length === 0) {
-    logger.error('No answerIds provided for marking grading finished')
+    logger.warn('No answerIds provided for marking grading finished')
     return res.status(400).end()
   }
   logger.info('Marking grading finished', answerIds)
@@ -94,21 +92,15 @@ moduleRouter.post('/scores/:answerId/revert-grading-finished', defaultJsonParser
 })
 
 moduleRouter.post('/comments/:answerId', defaultJsonParser, validateComment, (req, res, next) => {
-  gradingDb.upsertComment(req.params.answerId, req.body.comment).then(expressUtils.respondWith204Or400(res)).catch(next)
+  gradingDb.upsertComment(req.params.answerId, req.body.comment).then(respondWith204Or400(res)).catch(next)
 })
 
 moduleRouter.post('/metadata/:answerId', defaultJsonParser, validateMetadata, validateAnnotations, (req, res, next) => {
-  gradingDb
-    .upsertGradingMetadata(req.params.answerId, req.body.metadata)
-    .then(expressUtils.respondWith204Or400(res))
-    .catch(next)
+  gradingDb.upsertGradingMetadata(req.params.answerId, req.body.metadata).then(respondWith204Or400(res)).catch(next)
 })
 
 moduleRouter.post('/gradingTexts/:answerPaperId', defaultJsonParser, validateGradingText, (req, res, next) => {
-  gradingDb
-    .updateGradingText(req.params.answerPaperId, req.body.gradingText)
-    .then(expressUtils.respondWith204(res))
-    .catch(next)
+  gradingDb.updateGradingText(req.params.answerPaperId, req.body.gradingText).then(respondWith204(res)).catch(next)
 })
 
 moduleRouter.get('/answerId/:answerId/examUuid', (req, res, next) => {
@@ -126,7 +118,7 @@ moduleRouter.get('/answerPaperId/:answerPaperId/examUuid', (req, res, next) => {
 })
 
 moduleRouter.get('/:heldExamUuid/student-answers-return/', (req, res, next) => {
-  studentDb.getAnswerPapersForHeldExam(req.params.heldExamUuid).then(expressUtils.respondWithJsonOr404(res)).catch(next)
+  studentDb.getAnswerPapersForHeldExam(req.params.heldExamUuid).then(respondWithJsonOr404(res)).catch(next)
 })
 
 export function prepareQuestions(examOrGradingStructureContent) {

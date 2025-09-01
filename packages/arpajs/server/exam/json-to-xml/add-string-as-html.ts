@@ -2,7 +2,7 @@ import * as libxml from 'libxmljs2'
 import { Element } from 'libxmljs2'
 import sanitizeHtml, { AllowedAttribute } from 'sanitize-html'
 import crypto from 'crypto'
-import { Attachment } from '@digabi/exam-types'
+import { Attachment } from '@digabi/json-exam-utils'
 
 const defaultAttributes = {
   a: ['href'],

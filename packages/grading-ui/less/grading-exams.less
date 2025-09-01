@@ -44,9 +44,14 @@ body {
 
   #answers-upload {
     .error-notice {
-      display: inline;
-      margin-left: 15px;
+      margin-top: 10px;
       color: @sa-error-text-color;
+      font-size: 16px;
+    }
+
+    td .error-notice {
+      display: inline;
+      font-size: inherit;
     }
 
     .import-answers-instructions {
@@ -207,12 +212,12 @@ body {
         }
 
         &_graded:before {
-          .before;
+          .before();
           background: @bar-graded;
         }
 
         &_finished:before {
-          .before;
+          .before();
           background: @bar-finished;
         }
       }

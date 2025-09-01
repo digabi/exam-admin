@@ -4,9 +4,9 @@ import _ from 'lodash'
 import { pgrm } from './local-pg-resource-management'
 import BPromise from 'bluebird'
 const using = BPromise.using
-import * as jsUtils from '@digabi/js-utils'
 import * as token from '../crypt/token'
 import { SQL } from 'sql-template-strings'
+import { objectPropertiesToCamel } from '@digabi/database-utils'
 
 // language=PostgreSQL
 const gradedAnswerPaperQuery = `
@@ -65,7 +65,7 @@ const addAnswerPaperToken = students =>
   }))
 
 function groupAnswerPapersByStudent(rows) {
-  const students = rows.map(jsUtils.objectPropertiesToCamel)
+  const students = rows.map(objectPropertiesToCamel)
 
   const grouped = _.groupBy(students, student => student.studentUuid)
   const joined = _.map(grouped, studentAndAnswer => {
@@ -94,17 +94,18 @@ function extractStudent(studentAndAnswer) {
 
 function extractAnswer(studentAndAnswer) {
   const newAnswer = _.pick(studentAndAnswer, [
-    'answerId',
-    'answerContent',
     'questionId',
     'scoreValue',
     'pregradingFinishedAt',
     'comment',
     'metadata'
   ])
-  jsUtils.renameProperty(newAnswer, 'answerId', 'id')
-  jsUtils.renameProperty(newAnswer, 'answerContent', 'content')
-  return newAnswer
+
+  return {
+    ...newAnswer,
+    id: studentAndAnswer.answerId,
+    content: studentAndAnswer.answerContent
+  }
 }
 
 export function getStudentsForMailing(heldExamUuid) {
@@ -126,7 +127,7 @@ export function getStudentsForMailing(heldExamUuid) {
         WHERE held_exam_uuid=$1 AND email IS NOT NULL AND held_exam.held_exam_deletion_date IS NULL`,
         [heldExamUuid]
       )
-      .then(result => result.rows.map(jsUtils.objectPropertiesToCamel))
+      .then(result => result.rows.map(objectPropertiesToCamel))
   )
 }
 
@@ -142,7 +143,7 @@ export function updateAnswersSentTime(heldExamUuid) {
         RETURNING answer_emails_sent`,
         [heldExamUuid]
       )
-      .then(result => _.first(result.rows.map(jsUtils.objectPropertiesToCamel)))
+      .then(result => _.first(result.rows.map(objectPropertiesToCamel)))
   )
 }
 
@@ -194,5 +195,5 @@ export function addStudentWithTx(tx, student) {
       returning student_uuid`,
       [student.uuid, student.firstNames, student.lastName, student.email]
     )
-    .then(result => _.first(result.rows.map(jsUtils.objectPropertiesToCamel)).studentUuid)
+    .then(result => _.first(result.rows.map(objectPropertiesToCamel)).studentUuid)
 }

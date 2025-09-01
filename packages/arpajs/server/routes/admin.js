@@ -16,9 +16,7 @@ import {
   deleteExams,
   deleteExamsFromUser
 } from '../db/admin'
-
-import { expressUtils } from '@digabi/js-utils'
-const { sendCsv } = expressUtils
+import { sendCsv } from '@digabi/express-utils'
 
 router.get('/answers/:answerPaperToken/debug', token.untokenizeApId, async (req, res) => {
   const { answerPaperToken } = req.params

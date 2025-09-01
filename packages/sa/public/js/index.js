@@ -1,7 +1,7 @@
 import './init-side-effects'
 import $ from 'jquery'
 import * as Bacon from 'baconjs'
-import '@digabi/js-utils/dist/hbs-helpers'
+import './hbs-helpers'
 
 import * as tabManager from './tab-manager'
 import * as sautils from './sa-utils'

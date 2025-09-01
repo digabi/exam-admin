@@ -6,10 +6,11 @@ const using = BPromise.using
 import { pgrm } from '../db/local-pg-resource-management'
 import * as studentDb from './student-data'
 import { logger } from '../logger'
-import * as jsUtils from '@digabi/js-utils'
 import { SQL } from 'sql-template-strings'
 import { getUnixTime } from 'date-fns'
-const DataError = jsUtils.exc.DataError
+import { objectPropertiesToCamel } from '@digabi/database-utils'
+import { DataError } from '@digabi/express-utils'
+import { containsInvalidImgTags, sanitizeAnswerContent } from '@digabi/answer-utils'
 
 export function importAnswers(examsWithAnswerPapers, screenshots, audios, serverEnvironmentData) {
   return using(pgrm.getTransaction(), async tx => {
@@ -80,7 +81,7 @@ export async function uploadAnswersInTx(tx, examUuid, examType, ktpVersion, answ
   )
 
   if (result.rows.length === 1) {
-    const { heldExamUuid } = _.first(result.rows.map(jsUtils.objectPropertiesToCamel))
+    const { heldExamUuid } = _.first(result.rows.map(objectPropertiesToCamel))
     const attachmentMappings = await BPromise.mapSeries(answerPapers, ap =>
       addASinglePaperAndConnectedStudent(ap, heldExamUuid)
     )
@@ -147,7 +148,7 @@ function addAnswerPaperWithConnection(studentUuid, heldExamUuid, examStarted, ex
         returning answer_paper_id`,
       [studentUuid, heldExamUuid, examStarted, !!externalComputerAllowed]
     )
-    .then(result => _.first(result.rows.map(jsUtils.objectPropertiesToCamel)).answerPaperId)
+    .then(result => _.first(result.rows.map(objectPropertiesToCamel)).answerPaperId)
 }
 
 function addChoiceGroupAnswerWithConnection(answerContent, questionId, answerPaperId, connection) {
@@ -159,7 +160,7 @@ function addChoiceGroupAnswerWithConnection(answerContent, questionId, answerPap
         returning answer_id`,
       [answerPaperId, JSON.stringify(answerContent), questionId]
     )
-    .then(result => _.first(result.rows.map(jsUtils.objectPropertiesToCamel)).answerId)
+    .then(result => _.first(result.rows.map(objectPropertiesToCamel)).answerId)
 }
 
 function addTextAnswersWithConnection(answers, answerPaperId, connection) {
@@ -176,12 +177,12 @@ function addTextAnswersWithConnection(answers, answerPaperId, connection) {
   function validateIfRichtTextAnswer(answer) {
     if (answer.content.type === 'richText') {
       const stripped = answer.content.value.replaceAll(' alt ', ' ')
-      const sanitized = jsUtils.answerValidator.sanitizeAnswerContent(stripped, {
+      const sanitized = sanitizeAnswerContent(stripped, {
         nonBooleanAttributes: []
       })
       if (sanitized !== stripped) {
         throwError('Answer meb contains un-sanitized answer.')
-      } else if (jsUtils.answerValidator.containsInvalidImgTags(sanitized, logger)) {
+      } else if (containsInvalidImgTags(sanitized, logger)) {
         throwError('Answer meb contains answer with invalid img tag.')
       }
     }
@@ -205,7 +206,7 @@ function addTextAnswersWithConnection(answers, answerPaperId, connection) {
           returning answer_id`,
         [answerPaperId, answer.content, answer.questionId]
       )
-      .then(result => _.first(result.rows.map(jsUtils.objectPropertiesToCamel)))
+      .then(result => _.first(result.rows.map(objectPropertiesToCamel)))
   }
 }
 
@@ -221,7 +222,7 @@ function addAudioAnswersWithConnection(answers, answerPaperId, connection) {
           returning answer_id`,
         [answerPaperId, answer.content, answer.questionId]
       )
-      .then(result => _.first(result.rows.map(jsUtils.objectPropertiesToCamel)))
+      .then(result => _.first(result.rows.map(objectPropertiesToCamel)))
   }
 }
 
@@ -270,7 +271,7 @@ export function upsertCalculatedScoresForMultiChoiceAnswersInTx(tx, heldExamUuid
           [heldExamUuid, choiceGroup.id]
         )
         .then(result =>
-          BPromise.mapSeries(result.rows.map(jsUtils.objectPropertiesToCamel), row => {
+          BPromise.mapSeries(result.rows.map(objectPropertiesToCamel), row => {
             const scoreValue = choiceGroup.maxScore
               ? getPointsForAnswersWithMaxScore(choiceGroup, row.answerContent)
               : getPointsForAnswersWithoutMaxScore(choiceGroup.choiceOptions, row.answerContent)

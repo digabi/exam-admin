@@ -6,17 +6,10 @@ import { Attachment, createMex } from '@digabi/exam-engine-mastering'
 import { Response } from 'express'
 import { tryXmlMastering, XmlExam } from './xml-mastering'
 import { logger } from '../logger'
-import BPromise from 'bluebird'
 import * as attachmentStream from './attachments/attachment-stream'
 import { Readable } from 'stream'
-
-import { zip } from '@digabi/js-utils'
-
-interface AttachmentStream {
-  mimeType: string
-  filename: string
-  contents: Readable
-}
+import { downloadNsaScripts } from '../aws-utils'
+import { createZipName } from '@digabi/zip-utils'
 
 function isAttachmentRestricted(attachmentFilename: string, masteredAttachmentList: Attachment[]) {
   const masteredAttachment = masteredAttachmentList.find(
@@ -45,30 +38,48 @@ export const streamXmlMeb = async (examUuid: string, noShuffle: boolean, res: Re
 
   await examDb.updateGradingStructure(examUuid, gradingStructure)
 
-  return BPromise.map(exam.attachments || [], (fileName: string) =>
-    attachmentStream.retrieveAttachmentS3Stream(examUuid, fileName)
-  ).then((attachmentStreams: AttachmentStream[]) => {
-    const nsaScripts = fs.createReadStream(config.prePackagedNsaScriptZipPath)
-    const ktpUpdate = config.useKtpUpdate ? fs.createReadStream(config.prePackagedKtpUpdatePath) : undefined
-    const koeUpdate = config.useKoeUpdate ? fs.createReadStream(config.prePackagedKoeUpdatePath) : undefined
-
-    const filename = zip.createZipName('exam_', exam.title, 'mex')
-    res.set('Content-disposition', `attachment; filename=${filename}`)
-
-    return createMex(
-      xml.toString(),
-      attachmentStreams.map(attachment => ({
+  const attachments = await Promise.all(
+    exam.attachments.map(async fileName => {
+      const attachment = await attachmentStream.retrieveAttachmentS3Stream(examUuid, fileName)
+      return {
         ...attachment,
         restricted: isAttachmentRestricted(attachment.filename, masteredAttachmentList)
-      })),
-      nsaScripts,
-      null,
-      exam.password,
-      answersPrivateKey,
-      res,
-      null,
-      ktpUpdate,
-      koeUpdate
-    )
-  })
+      }
+    })
+  )
+
+  const nsaScripts = await getNsaScripts(examUuid)
+  const ktpUpdate = config.useKtpUpdate ? fs.createReadStream(config.prePackagedKtpUpdatePath) : undefined
+  const koeUpdate = config.useKoeUpdate ? fs.createReadStream(config.prePackagedKoeUpdatePath) : undefined
+
+  const filename = createZipName('exam_', exam.title, 'mex')
+  res.set('Content-disposition', `attachment; filename=${filename}`)
+
+  return createMex(
+    xml.toString(),
+    attachments,
+    nsaScripts,
+    null,
+    exam.password,
+    answersPrivateKey,
+    res,
+    null,
+    ktpUpdate,
+    koeUpdate
+  )
+}
+
+async function getNsaScripts(examUuid: string): Promise<Readable> {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  if (await examDb.useS3NsaScripts(examUuid)) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const scripts: Readable | null | undefined = await downloadNsaScripts()
+    return scripts ?? prepackagedNsaScripts()
+  } else {
+    return prepackagedNsaScripts()
+  }
+}
+
+function prepackagedNsaScripts() {
+  return fs.createReadStream(config.prePackagedNsaScriptZipPath)
 }

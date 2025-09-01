@@ -1,8 +1,8 @@
 'use strict'
 
+import { DataError } from '@digabi/express-utils'
 import * as examDb from '../db/exam-data'
 import * as attachmentsStorage from './attachments/attachments-storage'
-import { exc } from '@digabi/js-utils'
 import { tryXmlMasteringWithShuffle } from './xml-mastering'
 
 export async function importXmlTransferZip(userId: number | null, xml: string, zipFileBuffer: Buffer) {
@@ -40,7 +40,7 @@ export async function importXmlTransferZip(userId: number | null, xml: string, z
   }[]
   for (const xmlExamAttachmentEntry of masteringResult.attachments) {
     if (!attachmentEntries.some(attachmentEntry => attachmentEntry.displayName === xmlExamAttachmentEntry.filename))
-      throw new exc.DataError(`Zip did not contain ${xmlExamAttachmentEntry.filename}`, 422)
+      throw new DataError(`Zip did not contain ${xmlExamAttachmentEntry.filename}`, 422)
   }
 
   for (const attachmentEntry of attachmentEntries) {

@@ -131,6 +131,7 @@ type UploadErrorKey =
   | 'sa.errors.no_answer_papers'
   | 'sa.errors.grading_started'
   | 'sa.errors.exam_meb'
+  | 'sa.errors.payload_too_large'
   | 'sa.errors.exam_structure_not_imported'
   | 'sa.errors.incorrect_exam'
   | 'sa.errors.invalid_file'
@@ -145,6 +146,8 @@ function getUploadErrorMessageKey(error: AxiosError): UploadErrorKey {
       return 'sa.errors.grading_started'
     case 415:
       return 'sa.errors.exam_meb'
+    case 413:
+      return 'sa.errors.payload_too_large'
     case 409:
       return `sa.errors.${data.errorCode || 'incorrect_exam'}`
     case 400:

@@ -1,14 +1,13 @@
 'use strict'
 
-import * as utils from '@digabi/js-utils'
 import * as cryptoUtils from '@digabi/crypto-utils'
 import * as awsUtils from '../aws-utils'
 import Promise from 'bluebird'
-const zipUtils = utils.zip
 import _ from 'lodash'
-const examValidator = utils.examValidatorAbitti
+import * as examValidator from './validator/validator'
 import * as attachmentDb from '../db/attachment-data'
 import attachmentsPreview from './attachments/attachments-preview'
+import { createZip } from '@digabi/zip-utils'
 
 function makePossiblyEncryptedAttachmentZip(exam, keyAndIv) {
   if (exam.attachmentsFilename) {
@@ -46,7 +45,7 @@ export function createExportExamPackage(exam) {
     if (attachmentsFile) {
       filenamesAndContents.push({ name: 'attachments.zip', content: Buffer.from(attachmentsFile) })
     }
-    return zipUtils.createZip(filenamesAndContents)
+    return createZip(filenamesAndContents)
   })
 
   function addSchemaVersionIfMissing(content) {
@@ -80,7 +79,7 @@ function downloadAndMaybeEncryptAttachmentsAndZipThem(examUuid, keyAndIv) {
         !keyAndIv ? data : data.concat([{ content: index, name: 'index.html' }])
       )
     )
-    .then(zipUtils.createZip)
+    .then(createZip)
     .then(zipBuffer => (keyAndIv ? encryptBuffer(zipBuffer, keyAndIv) : zipBuffer))
 }
 

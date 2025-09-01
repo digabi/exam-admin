@@ -1,13 +1,10 @@
 'use strict'
 
+import { DataError } from '@digabi/express-utils'
 import * as examDb from '../db/exam-data'
 import * as attachmentsStorage from './attachments/attachments-storage'
-import * as utils from '@digabi/js-utils'
-const {
-  exc: { DataError },
-  examValidatorAbitti: examValidator
-} = utils
 import { fixTextQuestions } from './exam-packer'
+import { validateExamContentJSONFormat } from './validator/validator'
 
 export async function importLegacyTransferZip(userId, examContent, zipFileBuffer) {
   const createdJsonExamInfo = await examDb.createExamWithContent('fi-FI', validatedJsonExamContent(examContent), userId)
@@ -31,7 +28,7 @@ function validatedJsonExamContent(examContent) {
   } catch (e) {
     throw new DataError(`Exam content is not valid json. ${e.message}`, 400)
   }
-  if (!examValidator.validateExamContentJSONFormat(examJson).valid) {
+  if (!validateExamContentJSONFormat(examJson).valid) {
     throw new DataError('Exam json was not valid a exam.', 400)
   }
   return examJson

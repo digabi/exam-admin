@@ -3,18 +3,14 @@
 import yauzl from 'yauzl-promise'
 import * as examDb from '../../db/exam-data'
 import * as attachmentDb from '../../db/attachment-data'
-import * as utils from '@digabi/js-utils'
-const {
-  expressUtils: { abittiImportExamMaxFileSize },
-  exc: { DataError },
-  zip: zipUtils
-} = utils
 import * as awsUtils from '../../aws-utils'
 import mime from 'mime'
 import BPromise from 'bluebird'
 import fileType from 'file-type'
 import { logger } from '../../logger'
 import { readAttachmentMetadata } from './attachment-metadata'
+import { abittiImportExamMaxFileSize, DataError } from '@digabi/express-utils'
+import { extractZipWithMetadata } from '@digabi/zip-utils'
 
 const FILTERED_FILES = ['__MACOSX', '.DS_Store', 'Thumbs.db']
 
@@ -99,7 +95,7 @@ function attachmentInXmlExam(isXmlExam, masteredAttachmentList, attachment) {
 }
 
 export async function convertAttachmentZipBufferToAttachmentsAndUploadToS3(examUuid, zipBuffer) {
-  const filesWithMetadata = await zipUtils.extractZipWithMetadata(zipBuffer)
+  const filesWithMetadata = await extractZipWithMetadata(zipBuffer)
   const filesToBeStored = Object.keys(filesWithMetadata).filter(
     key => !FILTERED_FILES.includes(key.split('/')[0]) && key[0] !== '.' && filesWithMetadata[key].uncompressedSize > 0
   )

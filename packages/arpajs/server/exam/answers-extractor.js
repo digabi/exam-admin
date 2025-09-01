@@ -3,14 +3,13 @@
 import _ from 'lodash'
 import * as awsUtils from '../aws-utils'
 import * as gradingDb from '../db/grading-data'
-import * as utils from '@digabi/js-utils'
 import BPromise from 'bluebird'
-const zipUtils = utils.zip
 import * as examDb from '../db/exam-data'
 import * as cryptoUtils from '@digabi/crypto-utils'
 import config from '../config/configParser'
-const DataError = utils.exc.DataError
 import R from 'ramda'
+import { DataError } from '@digabi/express-utils'
+import { extractZip } from '@digabi/zip-utils'
 
 const zipEntrySizeLimit = 300 * 1024 * 1024
 
@@ -130,8 +129,23 @@ function isLegacyAnswersJson(answers) {
   return !_.isArray(answers) && _.has(answers, 'answerPapers') && answers.answerPapers.length
 }
 
+export function singleUnambiguousValue(key, rows) {
+  var allValues = _.reduce(
+    rows,
+    (memo, row) => _.filter(_.union(memo, _.flatten([row[key]])), v => !_.isUndefined(v)),
+    []
+  )
+  if (allValues.length > 1) {
+    throw new Error(`Multiple values for field '${key}':${JSON.stringify(allValues)}`)
+  } else if (allValues.length === 0) {
+    throw new Error(`No values for mandatory field '${key}':${JSON.stringify(allValues)}`)
+  } else {
+    return allValues[0]
+  }
+}
+
 function convertLegacyJson(answers) {
-  const examUuid = utils.singleUnambiguousValue('examUuid', answers.answerPapers)
+  const examUuid = singleUnambiguousValue('examUuid', answers.answerPapers)
   return [
     {
       examUuid,
@@ -153,7 +167,7 @@ function decryptUsing(keys, thingToDecrypt) {
 }
 
 function extractZipAsync(zip) {
-  return zipUtils.extractZip(zip, zipEntrySizeLimit)
+  return extractZip(zip, zipEntrySizeLimit)
 }
 
 export function importLogs(logBuffer, examUuids) {

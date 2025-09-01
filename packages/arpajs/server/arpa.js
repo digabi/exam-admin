@@ -1,7 +1,6 @@
 'use strict'
 
 import express from 'express'
-import { expressUtils, loggerUtils } from '@digabi/js-utils'
 import config from './config/configParser'
 import { logger } from './logger'
 import screenshotRouter from './routes/screenshot'
@@ -13,6 +12,8 @@ import studentsRouter from './routes/student'
 import composingRouter from './routes/composing'
 import adminRouter from './routes/admin'
 import helmet from 'helmet'
+import { requestLogger } from '@digabi/logger'
+import { setupDefaultErrorHandlers } from '@digabi/express-utils'
 
 const app = express()
 
@@ -23,7 +24,7 @@ if (config.runningInCloud) {
   app.set('trust proxy', 1) // one hop (private ALB)
 }
 
-app.use(loggerUtils.requestLogger(logger))
+app.use(requestLogger(logger))
 
 app.get('/', (req, res) => {
   res.json({ application: 'arpajs' })
@@ -59,6 +60,6 @@ if (devEnv && config.testRestRouter) {
     .catch(error => logger.error(`Failed to import ${config.testRestRouter}`, { error }))
 }
 
-expressUtils.setupDefaultErrorHandlers(app, devEnv, logger)
+setupDefaultErrorHandlers(app, devEnv, logger)
 
 export default app

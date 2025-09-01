@@ -39,6 +39,7 @@ const sv: typeof fi = {
     errors: {
       grading_started: 'Prestationerna har redan införts.',
       exam_meb: 'Den valda filen innehåller provfrågor. Välj filen som innehåller provsvaren.',
+      payload_too_large: 'Den laddade filen är för stor. Kontakta Abitti-stödet, vi hjälper.',
       incorrect_exam: 'Provet som svaren tillhör hittades inte. Uppladdningen misslyckades.',
       exam_structure_not_imported: 'Provprestationer till detta prov kan inte ännu införas, försök på nytt senare.',
       incorrect_answer_package:
@@ -111,7 +112,8 @@ const sv: typeof fi = {
       limited_results: '. Endast {{count}} resultat visas. Precisera sökningen vid behov.'
     },
     censor: {
-      loading: 'Laddar...'
+      loading: 'Laddar...',
+      batch_graded_score_title: 'Svaret bedöms centraliserat'
     },
     productive: {
       page_instructions: 'Börja bedömningen genom att klicka på poängcellen',

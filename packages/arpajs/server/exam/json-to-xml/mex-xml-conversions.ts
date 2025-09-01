@@ -1,5 +1,5 @@
 import { ns, parseExam } from '@digabi/exam-engine-mastering'
-import { ExamContent, ExamMultichoiceGapGap } from '@digabi/exam-types'
+import { ExamContent, ExamMultichoiceGapGap } from '@digabi/json-exam-utils'
 import { Element } from 'libxmljs2'
 import { callExamMastering, Exam, JSONExam } from '../xml-mastering'
 import { generateXmlfromJson } from './json-to-xml'

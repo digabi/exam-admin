@@ -5,7 +5,8 @@ import path from 'path'
 import { logger } from './logger'
 import cookieParser from 'cookie-parser'
 import bodyParser from 'body-parser'
-import { expressUtils, loggerUtils } from '@digabi/js-utils'
+import { setupDefaultErrorHandlers } from '@digabi/express-utils'
+import { requestLogger } from '@digabi/logger'
 import session from 'express-session'
 import config from './config/configParser'
 import * as proxying from './proxying'
@@ -92,7 +93,7 @@ app.use('/js/lib/MathJax', express.static(externalModule('mathjax')))
 app.use('/js/lib/jquery', express.static(externalModule('jquery')))
 app.use('/js/lib/lodash', express.static(externalModule('lodash')))
 
-app.use(loggerUtils.requestLogger(logger, { getRemoteUser: req => req.user?.userName }))
+app.use(requestLogger(logger, { getRemoteUser: req => req.user?.userName }))
 
 app.get('/math.svg', mathSvgHandler)
 
@@ -209,7 +210,7 @@ function allowCrossDomain(req, res, next) {
   next()
 }
 
-expressUtils.setupDefaultErrorHandlers(app, config.stackTracesOnErrorResponses, logger)
+setupDefaultErrorHandlers(app, config.stackTracesOnErrorResponses, logger)
 
 function redirectSink(req, res) {
   const redirectURI = req.body.redirectUri

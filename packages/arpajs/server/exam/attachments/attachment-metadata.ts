@@ -1,4 +1,4 @@
-import { exec } from 'child-process-promise'
+import { exec } from 'promisify-child-process'
 import { path as ffprobePath } from '@ffprobe-installer/ffprobe'
 import * as mm from 'music-metadata'
 import path from 'path'
@@ -6,7 +6,7 @@ import sharp from 'sharp'
 import { pipeline } from 'stream/promises'
 import { Readable } from 'stream'
 import { logger } from '../../logger'
-import { exc } from '@digabi/js-utils'
+import { DataError } from '@digabi/express-utils'
 
 async function readImageMetadataFromStream(readable: Readable): Promise<{ width: number; height: number }> {
   const sharpInstance = sharp()
@@ -33,8 +33,8 @@ async function readAudioMetadataFromStream(readable: Readable) {
 
 async function readVideoMetadataFromStream(readable: Readable): Promise<{ width: number; height: number }> {
   const ffprobe = exec(`${ffprobePath} -show_streams -print_format json -`)
-  const [result] = await Promise.all([ffprobe, pipeline(readable, ffprobe.childProcess.stdin!).catch(ignoreEPIPE)])
-  const output = JSON.parse(result.stdout) as { streams: { width: number; height: number }[] }
+  const [result] = await Promise.all([ffprobe, pipeline(readable, ffprobe.stdin!).catch(ignoreEPIPE)])
+  const output = JSON.parse(result.stdout!.toString()) as { streams: { width: number; height: number }[] }
   const { width, height } = output.streams[0]
 
   if (width && height) {
@@ -88,6 +88,6 @@ export async function readAttachmentMetadata(
     }
   } catch (err) {
     logger.warn(`Error while parsing attachment metadata from ${filename}`, (err as Error).message)
-    throw new exc.DataError(`Error while parsing attachment metadata from ${filename}`, 415)
+    throw new DataError(`Error while parsing attachment metadata from ${filename}`, 415)
   }
 }

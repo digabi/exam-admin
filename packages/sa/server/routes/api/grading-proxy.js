@@ -1,13 +1,13 @@
 'use strict'
 
 import express from 'express'
+import { getJsonAsync } from '@digabi/fetch'
 const router = express.Router()
 import config from '../../config/configParser'
 import * as exam from '../../db/exam-handling'
 import * as proxying from '../../proxying'
 import * as examBl from './exam-bl'
 import { checkAccessForHeldExamAndProxy } from '../../db/exam-handling'
-import * as jsUtils from '@digabi/js-utils'
 
 router.get(['/:heldExamUuid/student-answers-return', '/:heldExamUuid/student-answers'], (req, res, next) => {
   const heldExamUuid = req.params.heldExamUuid
@@ -42,9 +42,9 @@ router.get('/results/:heldExamUuid/:studentUuid', (req, res, next) => {
       if (!canAccess) {
         return res.status(403).end()
       }
-      return jsUtils
-        .getJsonAsync(`${config.examUri}/grading/results/${req.params.heldExamUuid}/${req.params.studentUuid}`)
-        .then(({ token }) => res.redirect(`/answers/${token}`))
+      return getJsonAsync(
+        `${config.examUri}/grading/results/${req.params.heldExamUuid}/${req.params.studentUuid}`
+      ).then(({ token }) => res.redirect(`/answers/${token}`))
     })
     .catch(next)
 })

@@ -37,6 +37,7 @@ const fi = {
     errors: {
       grading_started: 'Koesuoritukset on jo tuotu.',
       exam_meb: 'Ladattu tiedosto sisältää koetehtäviä. Valitse koesuoritukset sisältävä tiedosto.',
+      payload_too_large: 'Ladattu tiedosto on liian suuri. Ota yhteyttä Abitti-tukeen, niin autamme.',
       incorrect_exam: 'Koetta, johon vastaukset liittyvät, ei löydy. Lataus epäonnistui.',
       exam_structure_not_imported: 'Koesuorituksia tähän kokeeseen ei voi vielä tuoda, yritä myöhemmin uudestaan.',
       incorrect_answer_package:
@@ -109,7 +110,8 @@ const fi = {
       limited_results: '. Näytetään vain {{count}} tulosta. Tarkenna hakua tarvittaessa.'
     },
     censor: {
-      loading: 'Ladataan...'
+      loading: 'Ladataan...',
+      batch_graded_score_title: 'Vastaus arvostellaan keskitetysti'
     },
     productive: {
       page_instructions: 'Aloita arvostelu klikkaamalla pistesolua',

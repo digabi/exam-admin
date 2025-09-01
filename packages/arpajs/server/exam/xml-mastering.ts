@@ -1,8 +1,8 @@
 import { logger } from '../logger'
 import { masterExam, MasteringOptions, MasteringResult, migrateExam, parseExam } from '@digabi/exam-engine-mastering'
-import { exc } from '@digabi/js-utils'
-import { ExamContent } from '@digabi/exam-types'
+import { ExamContent } from '@digabi/json-exam-utils'
 import config from '../config/configParser'
+import { DataError } from '@digabi/express-utils'
 
 export type AttachmentsMetadata = { [key: string]: { duration?: number; width?: number; height?: number } | null }
 
@@ -39,7 +39,7 @@ export function migrateXmlToLatestSchemaVersion(xml: string) {
     return doc.toString(false).replace(/([\s\S]*?)(<e:exam [\s\S]*)/, '$2')
   } catch (err) {
     logger.warn((err as Error).message)
-    throw new exc.DataError('Error while migrating XML exam', 400)
+    throw new DataError('Error while migrating XML exam', 400)
   }
 }
 
@@ -109,6 +109,6 @@ export const tryXmlMastering = async (
     }
   } catch (err) {
     logger.warn('XML mastering failed', (err as Error).message)
-    throw new exc.DataError(`XML mastering failed, ${(err as Error).message}`, 400)
+    throw new DataError(`XML mastering failed, ${(err as Error).message}`, 400)
   }
 }

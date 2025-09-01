@@ -1,16 +1,17 @@
 'use strict'
 
 import config from '../config/configParser'
-import * as jsUtils from '@digabi/js-utils'
+import { postJsonAsync, getJsonAsync } from '@digabi/fetch'
+import { proxyWithOpts } from '@digabi/express-utils'
 import pgrm from './arpajs-database'
 import { sep as pathSeparator } from 'path'
 import { logger } from '../logger'
 import SQL from 'sql-template-strings'
 
 export function createExamInArpa(userId, title, examLanguage, xml) {
-  return jsUtils
-    .postJsonAsync(`${config.examUri}/composing/exam`, { examLanguage, title, userId, xml })
-    .then(result => result.examUuid)
+  return postJsonAsync(`${config.examUri}/composing/exam`, { examLanguage, title, userId, xml }).then(
+    result => result.examUuid
+  )
 }
 
 export function markExamDeletedInSa(userId, examUuid) {
@@ -78,11 +79,7 @@ export function checkAccessForDeletedHeldExamAndProxy(req, res, next) {
 export function proxyToArpa(req, res, next) {
   // redirection address: /api-something/grading/blah ==> /grading
   const redirectionAddress = `/${req.originalUrl.split(pathSeparator)[2]}`
-  return jsUtils.expressUtils.proxyWithOpts(config.examUri + redirectionAddress, { timeout: 2.5 * 60 * 1000 }, logger)(
-    req,
-    res,
-    next
-  )
+  return proxyWithOpts(config.examUri + redirectionAddress, { timeout: 2.5 * 60 * 1000 }, logger)(req, res, next)
 }
 
 export async function userCanAccessExam(userId, examUuid) {
@@ -104,7 +101,7 @@ function userCanAccessHeldExamIncludingDeleted(userId, heldExamUuid) {
 
 export async function userCanAccessHeldExam(userId, heldExamUuid) {
   try {
-    const { examUuid } = await jsUtils.getJsonAsync(`${config.examUri}/exams/held-exam/${heldExamUuid}`)
+    const { examUuid } = await getJsonAsync(`${config.examUri}/exams/held-exam/${heldExamUuid}`)
     const query = getExamByIdAndUser(userId, examUuid)
     return await isResultExactlyOneRow(query)
   } catch (e) {

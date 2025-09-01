@@ -6,14 +6,14 @@ import {
   ExamQuestion,
   ExamSection,
   ExamTextQuestion
-} from '@digabi/exam-types'
+} from '@digabi/json-exam-utils'
 import * as libxml from 'libxmljs2'
-import { exc } from '@digabi/js-utils'
 import { addStringAsHtml, getSHA1Hash, SanitizeLevel } from './add-string-as-html'
 import { isConvertibleToMex } from './mex-checker'
 import { attachmentFiles, tryMexConversion } from './mex-xml-conversions'
 import { JSONExam, migrateXmlToLatestSchemaVersion, tryXmlMasteringWithShuffle, XmlExam } from '../xml-mastering'
 import { logger } from '../../logger'
+import { DataError } from '@digabi/express-utils'
 
 export async function getExamAsXml(exam: XmlExam | JSONExam) {
   if (exam.contentXml !== null) {
@@ -24,7 +24,7 @@ export async function getExamAsXml(exam: XmlExam | JSONExam) {
     let convertedExam = await jsonToXml(exam, SanitizeLevel.NORMAL)
     if (!convertedExam.contentXml) convertedExam = await jsonToXml(exam, SanitizeLevel.ALL)
     if (!convertedExam.contentXml) convertedExam = await jsonToXml(exam, SanitizeLevel.NO_TAGS)
-    if (!convertedExam.contentXml) throw new exc.DataError(`Cannot convert exam ${exam.examUuid}`, 400)
+    if (!convertedExam.contentXml) throw new DataError(`Cannot convert exam ${exam.examUuid}`, 400)
     return convertedExam
   }
 }

@@ -1,12 +1,17 @@
-import { expressUtils, postFormAsync } from '@digabi/js-utils'
+import {
+  abittiImportExamMaxFileSize,
+  extendTimeoutForUploadRouteWithLargeFiles,
+  fileUploadMiddleware
+} from '@digabi/express-utils'
+import { postFormAsync } from '@digabi/fetch'
 import config from '../../config/configParser'
 import * as _ from 'lodash'
 import { logger } from '../../logger'
 
-const maxImportFileSize = expressUtils.abittiImportExamMaxFileSize
+const maxImportFileSize = abittiImportExamMaxFileSize
 export const importExamHandler = [
-  expressUtils.extendTimeoutForUploadRouteWithLargeFiles,
-  expressUtils.fileUploadMiddleware('examZip', maxImportFileSize, 413, `${maxImportFileSize}`),
+  extendTimeoutForUploadRouteWithLargeFiles,
+  fileUploadMiddleware('examZip', maxImportFileSize, 413, `${maxImportFileSize}`),
   (req, res, next) => {
     function uploadZipToArpa(file, userId) {
       const formdata = {

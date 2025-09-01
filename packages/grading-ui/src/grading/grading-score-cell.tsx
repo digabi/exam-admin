@@ -4,6 +4,7 @@ import { GradingAnswerType } from './types'
 import { canApproveOrReject } from './answer-controls'
 import { ScoreCell } from './score-cell'
 import { GridScoreCellPassThroughProps } from './grid-score-cell'
+import { useTranslation } from 'react-i18next'
 
 type GradingScoreCellProps = {
   answer: GradingAnswerType
@@ -13,6 +14,7 @@ type GradingScoreCellProps = {
 export function GradingScoreCell({ answer, gridScoreCellPassThroughProps }: GradingScoreCellProps) {
   const { user, showAllPregradingScores } = useContext(GradingContext)
   const { scoreValue, pregrading, censoring } = answer
+  const { t } = useTranslation()
 
   const isWaitingForSecondOrThird =
     ['waiting_for_second', 'waiting_for_third'].includes(censoring?.censoringState || '') &&
@@ -28,15 +30,22 @@ export function GradingScoreCell({ answer, gridScoreCellPassThroughProps }: Grad
   const scoreDifferenceText =
     scoreDifference > 0 ? `+${scoreDifference}` : scoreDifference < 0 ? `${scoreDifference}` : undefined
 
+  const batchGraded = Number.isInteger(answer.batchGroupNumber)
+  const batchGradedLabel = answer.scoreValue == null && batchGraded ? 'K' : undefined
+  const title = batchGraded ? t('sa.censor.batch_graded_score_title') : undefined
+  const scoreOverride = showAllPregradingScores ? (pregrading?.scoreValue?.toString() ?? '') : batchGradedLabel
+  const readOnlyOverride = showAllPregradingScores || batchGraded
+
   return (
     <ScoreCell
       answer={answer}
-      scoreOverride={showAllPregradingScores ? (pregrading?.scoreValue?.toString() ?? '') : undefined}
-      readOnlyOverride={showAllPregradingScores}
+      scoreOverride={scoreOverride}
+      readOnlyOverride={readOnlyOverride}
       isWaitingForSecondOrThird={isWaitingForSecondOrThird}
       censoringState={censoring?.censoringState}
       isWaitingForUser={isWaitingForUser}
       scoreDifferenceText={scoreDifferenceText}
+      title={title}
       {...gridScoreCellPassThroughProps}
     />
   )

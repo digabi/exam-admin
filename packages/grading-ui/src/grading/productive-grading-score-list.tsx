@@ -18,6 +18,9 @@ interface ScoreResponse {
   censorShortCode: string
 }
 
+/*
+ * @deprecated Use productive-grading-score-list.tsx from sa-yo for now
+ */
 export const ProductiveGradingScoreList = ({
   maxScore,
   answer,

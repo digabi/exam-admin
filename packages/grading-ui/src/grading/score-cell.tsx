@@ -10,6 +10,7 @@ type CommonScoreCellProps = {
   scoreOverride?: string
   readOnlyOverride?: boolean
   isFocused?: boolean
+  title?: string
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => Promise<void>
   onClick?: () => void
 }
@@ -32,6 +33,7 @@ export function ScoreCell({
   scoreOverride,
   readOnlyOverride,
   isFocused,
+  title,
   onKeyDown,
   onClick,
   //pregrading
@@ -92,6 +94,7 @@ export function ScoreCell({
         pattern={answerScorePattern}
         value={scoreOverride ?? localScore}
         readOnly={isReadOnly}
+        title={title}
       />
       <div className="score-difference">{scoreDifferenceText}</div>
       <div className={`saving-score fa-spin ${isSavingScore ? 'visible' : ''}`}>

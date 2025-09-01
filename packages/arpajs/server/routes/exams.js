@@ -7,13 +7,7 @@ import _ from 'lodash'
 import * as examDb from '../db/exam-data'
 import { logger } from '../logger'
 import * as examPacker from '../exam/exam-packer'
-import * as utils from '@digabi/js-utils'
 import yauzl from 'yauzl-promise'
-const {
-  expressUtils,
-  zip: zipUtils,
-  exc: { AppError, DataError }
-} = utils
 import BPromise from 'bluebird'
 import * as awsUtils from '../aws-utils'
 import multer from 'multer'
@@ -30,6 +24,16 @@ import { getExamAsXml } from '../exam/json-to-xml/json-to-xml'
 import { migrateXmlToLatestSchemaVersion } from '../exam/xml-mastering'
 import { version } from '@digabi/exam-engine-mastering/package.json'
 import { renameAttachmentIfAlreadyExists } from '../utils/exam-attachment-utils'
+import {
+  abittiImportExamMaxFileSize,
+  AppError,
+  DataError,
+  extendTimeoutForUploadRouteWithLargeFiles,
+  fileUploadMiddleware,
+  respondWithJsonOr404,
+  respondWithZip
+} from '@digabi/express-utils'
+import { createZipName } from '@digabi/zip-utils'
 const jsonMaxSizeInBytes = 500 * 1024
 
 moduleRouter.get('/status/:userId', (req, res, next) => {
@@ -97,7 +101,7 @@ moduleRouter.delete('/held-exam/:heldExamUuid', uuidValidator('heldExamUuid'), (
 })
 
 moduleRouter.get('/held-exam/:heldExamUuid/exam', uuidValidator('heldExamUuid'), (req, res, next) => {
-  examDb.getHeldExam(req.params.heldExamUuid).then(expressUtils.respondWithJsonOr404(res)).catch(next)
+  examDb.getHeldExam(req.params.heldExamUuid).then(respondWithJsonOr404(res)).catch(next)
 })
 
 moduleRouter.get('/:examUuid/exam', uuidValidator('examUuid'), async (req, res, next) => {
@@ -321,8 +325,8 @@ function readStreamToString(readStream) {
 
 moduleRouter.post(
   '/import-exam',
-  expressUtils.extendTimeoutForUploadRouteWithLargeFiles,
-  expressUtils.fileUploadMiddleware('examZip', expressUtils.abittiImportExamMaxFileSize),
+  extendTimeoutForUploadRouteWithLargeFiles,
+  fileUploadMiddleware('examZip', abittiImportExamMaxFileSize),
   async (req, res, next) => {
     try {
       const examContent = await extractZipFileExamContent(req.file.buffer)
@@ -346,7 +350,7 @@ moduleRouter.post(
 
 moduleRouter.get(
   '/copy-exam/:examUuid/:userId',
-  expressUtils.extendTimeoutForUploadRouteWithLargeFiles,
+  extendTimeoutForUploadRouteWithLargeFiles,
   uuidValidator('examUuid'),
   uuidValidator('userId'),
   async (req, res, next) => {
@@ -397,19 +401,20 @@ const cloneAttachment = async (existingAttachment, newExamUuid) => {
 }
 
 function respondWithExamPackage(createPackageFn, isForbiddenFn, fileSuffix, req, res, next) {
-  let startTime = process.hrtime()
+  const requestStartTime = performance.now()
+
   examDb
     .getExam(req.params.examUuid)
     .then(exam => {
-      logger.debug(`got exam at ${utils.hrTimeDiffAsMillis(process.hrtime(startTime))}`)
-      startTime = process.hrtime()
+      logger.debug(`got exam at ${Math.round(performance.now() - requestStartTime)} ms`)
+      const zipCreateStartTime = performance.now()
       if (isForbiddenFn(exam)) {
         return res.status(403).end()
       }
       return createPackageFn(exam).then(zip => {
-        logger.debug(`zip creation took ${utils.hrTimeDiffAsMillis(process.hrtime(startTime))}`)
-        const filename = encodeURIComponent(zipUtils.createZipName(getPrefix(fileSuffix), exam.title, fileSuffix))
-        return expressUtils.respondWithZip(res, filename, zip)
+        logger.debug(`zip creation took ${Math.round(performance.now() - zipCreateStartTime)} ms`)
+        const filename = encodeURIComponent(createZipName(getPrefix(fileSuffix), exam.title, fileSuffix))
+        return respondWithZip(res, filename, zip)
       })
     })
     .catch(error => {

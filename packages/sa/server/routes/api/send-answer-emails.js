@@ -3,7 +3,7 @@
 import express from 'express'
 const router = express.Router()
 import * as proxying from '../../proxying'
-import * as utils from '@digabi/js-utils'
+import { baseUrlFromRequestHeaders } from '../../utils'
 import config from '../../config/configParser'
 import * as exam from '../../db/exam-handling'
 
@@ -19,7 +19,7 @@ router.post('/', (req, res, next) => {
       return proxying
         .POST(
           `${config.examUri}/grading/send-answer-emails/${heldExamUuid}`,
-          { answersPageBaseUrl: `${utils.baseUrlFromRequestHeaders(req)}/answers/` },
+          { answersPageBaseUrl: `${baseUrlFromRequestHeaders(req)}/answers/` },
           next
         )
         .then(body => res.json(body))

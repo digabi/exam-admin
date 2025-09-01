@@ -1,8 +1,6 @@
 import $ from 'jquery'
 import _ from 'lodash'
 import utils from './utils'
-import * as _sanitizeHtml from 'sanitize-html'
-import * as L from 'partial.lenses'
 const { Spinner } = require('spin.js')
 
 export function openPopup(url, windowName, field) {
@@ -19,15 +17,6 @@ export function popupHandlerByDelegateTarget(selector, windowName) {
     openPopup($(event.delegateTarget).attr('href'), windowName)
   })
 }
-
-// We allow exams to contain arbitrary HTML on the koe side. As an attempt to
-// keep the sa side secure but at the same time to avoid showing encoded
-// HTML to the user, try to thwart most obvious XSS attack vectors this way.
-const sanitizeOptions = {
-  allowedTags: _sanitizeHtml.defaults.allowedTags.concat(['img', 'h1', 'h2', 'dd', 'dt', 'dl'])
-}
-export const sanitizeHtml = dirty => _sanitizeHtml(dirty, sanitizeOptions)
-export const sanitizeHtmlDeep = L.modify([L.leafs, L.when(x => typeof x === 'string')], sanitizeHtml)
 
 export function setSchoolId(schoolId) {
   $.ajaxSetup({ headers: { 'x-school-id': schoolId } })
@@ -165,10 +154,6 @@ export const ui = {
   isBrowserCompatible() {
     const version = utils.browser.getInternetExplorerVersion()
     return version === -1 || version >= 11.0
-  },
-  isBrowserIE() {
-    const version = utils.browser.getInternetExplorerVersion()
-    return version !== -1
   },
   unsupportedBrowserMessage:
     'Valitettavasti käyttämäsi selain ei ole tällä hetkellä tuettu. Sähköistä asiointia voi käyttää vain 11.0 tai sitä uudemmilla Internet Explorerin versiolla.' +

@@ -4,15 +4,11 @@ import express from 'express'
 const moduleRouter = express.Router()
 import * as examDb from '../db/exam-data'
 import * as attachmentDb from '../db/attachment-data'
-import * as utils from '@digabi/js-utils'
-const {
-  exc: { DataError },
-  expressUtils,
-  examValidatorAbitti: examValidator
-} = utils
 import { migrateXmlToLatestSchemaVersion } from '../exam/xml-mastering'
 import bodyParser from 'body-parser'
 import { logger } from '../logger'
+import { DataError, respondWith204, respondWithJsonOr404 } from '@digabi/express-utils'
+import { validateExamContentJSONFormat } from '../exam/validator/validator'
 const defaultJsonParser = bodyParser.json() // Has 100kB default limit
 const jsonMaxSizeInBytes = 500 * 1024
 const examContentJsonParser = bodyParser.json({ limit: jsonMaxSizeInBytes }) // Limit exam content to 500KB
@@ -42,11 +38,11 @@ moduleRouter.post('/:examUuid/exam-content', examContentJsonParser, async (req, 
     )
     return res.json({ xml, usedAttachments: attachments })
   } else {
-    if (!examValidator.validateExamContentJSONFormat(content).valid) {
+    if (!validateExamContentJSONFormat(content).valid) {
       throw new DataError('Exam content is not valid.')
     }
     await examDb.updateExamContent(req.params.examUuid, content, examLanguage)
-    expressUtils.respondWith204(res)()
+    respondWith204(res)()
   }
 })
 
@@ -63,10 +59,7 @@ ${userAgent}`
 moduleRouter.post('/exam', defaultJsonParser, (req, res, next) => {
   const { examLanguage, title, userId, xml } = req.body
   const migratedXml = xml ? migrateXmlToLatestSchemaVersion(xml) : xml
-  examDb
-    .createExam(examLanguage, title, userId, migratedXml, true)
-    .then(expressUtils.respondWithJsonOr404(res))
-    .catch(next)
+  examDb.createExam(examLanguage, title, userId, migratedXml, true).then(respondWithJsonOr404(res)).catch(next)
 })
 
 export default moduleRouter

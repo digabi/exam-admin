@@ -24,6 +24,7 @@ const commonSchema = z
     runningInJenkins: z.boolean(),
     s3ExamLogsBucket: z.string(),
     s3AttachmentsBucket: z.string(),
+    s3NsaScriptsBucket: z.string(),
     prePackagedNsaScriptZipPath: z.string(),
     useKtpUpdate: z.boolean(),
     prePackagedKtpUpdatePath: z.string(),
@@ -43,6 +44,7 @@ const commonSchema = z
         })
       ),
     matriculationExamsBucket: z.string(),
+    s3Config: s3ConfigSchema,
     s3ConfigForAttachments: s3ConfigSchema,
     s3ConfigForLogs: s3ConfigSchema
   })

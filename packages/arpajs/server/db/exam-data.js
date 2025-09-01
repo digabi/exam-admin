@@ -9,16 +9,14 @@ import SQL from 'sql-template-strings'
 
 const { using } = BPromise
 import { pgrm } from './local-pg-resource-management'
-import * as utils from '@digabi/js-utils'
-const {
-  examValidatorAbitti: examValidator,
-  exc: { AppError, DataError },
-  generatePassphraseAsync
-} = utils
 
 import config from '../config/configParser'
 import { parseExam } from '@digabi/exam-engine-mastering'
 import { tryXmlMasteringWithShuffle } from '../exam/xml-mastering'
+import { validateExamContentFields } from '../exam/validator/validator'
+import { AppError, DataError } from '@digabi/express-utils'
+import { objectPropertiesToCamel } from '@digabi/database-utils'
+import { generatePassphraseAsync } from '@digabi/passphrase-generator'
 
 const assertSingleRowResponse = errorMsg => rows => {
   if (rows.length !== 1) {
@@ -205,7 +203,7 @@ export const lockExam = examUuid =>
 
     const exam = shuffleOptions(examOriginal)
 
-    if (exam.content && !examValidator.validateExamContentFields(exam.content).valid) {
+    if (exam.content && !validateExamContentFields(exam.content).valid) {
       throw new DataError(`Can't lock invalid exam! ${examUuid}`)
     }
 
@@ -221,7 +219,7 @@ export const lockExam = examUuid =>
       logger.error('Failed to lock exam', { examUuid })
       throw new AppError(`Failed to lock exam`)
     }
-    return utils.objectPropertiesToCamel(rows[0])
+    return objectPropertiesToCamel(rows[0])
   })
 
 export const createExam = (examLanguage, title, userId, contentXml, validate) => {
@@ -237,7 +235,7 @@ export const createExam = (examLanguage, title, userId, contentXml, validate) =>
 }
 
 export const updateExamContent = (examUuid, content, examLanguage) => {
-  const contentValid = examValidator.validateExamContentFields(content).valid
+  const contentValid = validateExamContentFields(content).valid
   return pgrm
     .queryRowsAsync(
       SQL`
@@ -258,7 +256,7 @@ export const createExamWithContent = async (examLanguage, content, userId) =>
   insertExamContent(examLanguage, content, await generatePassphraseAsync(config.passphraseWordList), userId)
 
 const insertExamContent = (examLanguage, content, passphrase, userId) => {
-  const contentValid = examValidator.validateExamContentFields(content).valid
+  const contentValid = validateExamContentFields(content).valid
   return pgrm
     .queryRowsAsync(
       SQL`
@@ -360,7 +358,7 @@ export const updateExamAccessible = (examUuid, accessible) =>
     })
 
 const getExamFromRows = R.pipe(
-  R.map(utils.objectPropertiesToCamel),
+  R.map(objectPropertiesToCamel),
   R.map(
     R.pick([
       'examUuid',
@@ -392,7 +390,7 @@ export const getExamIdByAnswerId = answerId =>
     )
   )
     .then(assertAtLeastOneRowResult(`Exam not found with answerId: ${answerId}`, 404))
-    .then(L.get([0, L.reread(utils.objectPropertiesToCamel)]))
+    .then(L.get([0, L.reread(objectPropertiesToCamel)]))
 
 export const getExamIdByAnswerPaperId = answerPaperId =>
   using(pgrm.getConnection(), connection =>
@@ -404,7 +402,7 @@ export const getExamIdByAnswerPaperId = answerPaperId =>
     )
   )
     .then(assertAtLeastOneRowResult(`Exam not found with answerPaperId: ${answerPaperId}`, 404))
-    .then(L.get([0, L.reread(utils.objectPropertiesToCamel)]))
+    .then(L.get([0, L.reread(objectPropertiesToCamel)]))
 
 function getQuestionsByExamUuid(exams) {
   const questionsByExamUuid = exams.reduce((acc, questionRow) => {
@@ -811,4 +809,11 @@ export const updateGradingStructure = async (examUuid, gradingStructure) => {
       throw new AppError('Modifying grading structure not supported', 409)
     }
   })
+}
+
+export const useS3NsaScripts = async examUuid => {
+  const rows = await pgrm.queryRowsAsync(
+    SQL`SELECT user_account_use_s3_nsa_scripts from user_account natural join exam where exam_uuid = ${examUuid}`
+  )
+  return rows[0].user_account_use_s3_nsa_scripts ?? false
 }

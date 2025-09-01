@@ -96,7 +96,7 @@ main {
     top: @score-scroller-height;
     width: 100%;
     overflow: auto;
-    box-shadow: 0 0 10px 0px #0003;
+    box-shadow: 0 0 10px 0 #0003;
     z-index: @answer-and-scores-z-index;
   }
   .full_screen & {
@@ -328,20 +328,16 @@ body.is_inspection {
 
   .icon-button {
     font-family: 'Source Sans 3', sans-serif;
-    font-size: 16px;
     font-weight: 400;
     line-height: 27px;
-    text-decoration: underline;
     color: @link-color;
     width: initial;
-    height: initial;
     text-align: left;
     background: none;
     border: none;
     box-shadow: none;
     outline: none;
     margin: 0;
-    padding: 0;
     padding: 0 5px;
     font-size: 22px;
     min-width: 28px;
@@ -531,7 +527,6 @@ aside#answer-search {
   padding: 1rem 0;
   overflow: hidden;
   font-size: 16px;
-  line-height: 1rem;
   position: relative;
 
   &.visible {
@@ -671,8 +666,6 @@ aside#answer-search {
   fieldset {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
-    border: none;
     margin-bottom: 1rem;
     background: #f9f9f9;
     gap: 0.5rem 1rem;
@@ -906,11 +899,10 @@ aside#answer-search {
           cursor: pointer;
           color: @link-color;
           font-size: 13px;
-          margin: 0px 3px;
+          margin: 0 3px;
           background: #f1f5f9;
           border-radius: 15px;
           padding: 1px 8px;
-          color: #004dd0;
           letter-spacing: 0.5px;
           vertical-align: baseline;
           display: inline;
@@ -1249,7 +1241,6 @@ aside#answer-search {
     font-weight: 400;
 
     .wrapper {
-      display: inline-block;
       margin: 0 2px;
       line-height: 18px;
       color: #777;
@@ -1412,7 +1403,7 @@ tr.students-latest-scores {
   }
 
   td.totalAutogradingScore {
-    padding-left: 0px;
+    padding-left: 0;
   }
   td.totalScore:not(:empty) {
     opacity: 1;
@@ -1643,7 +1634,7 @@ td.studentCode {
       font-weight: 900;
       display: block;
       position: absolute;
-      top: 0px;
+      top: 0;
       right: -1px;
       font-size: 12px;
       background: #fff;
@@ -1660,14 +1651,14 @@ td.studentCode {
     &[data-censoring-state='needs_second_approval'],
     &[data-censoring-state='needs_both_approvals'] {
       &::after {
-        .mark-general-styles;
+        .mark-general-styles();
         content: '\f06a'; // exclamation mark
         color: #419cb5;
       }
     }
 
     &[data-censoring-state='handled']::after {
-      .mark-general-styles;
+      .mark-general-styles();
       content: '\f058'; // check mark
       color: #7ec23f;
     }
@@ -2013,7 +2004,6 @@ input.e-grading-answer-add-annotation-text {
   background: #fff;
   border: 1px solid #aaa;
   border-radius: 50px;
-  line-height: 0;
   text-align: center;
   width: 23px;
   height: 23px;

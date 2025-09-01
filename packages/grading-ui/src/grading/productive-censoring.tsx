@@ -7,6 +7,9 @@ import { LocalizeKeyWithOptions } from './types'
 import { GradingUrlsContext } from './grading-view'
 import { useTranslation } from 'react-i18next'
 
+/*
+ * @deprecated Use productive-censoring.tsx from sa-yo for now
+ */
 export interface Answer {
   answerCount: number
   answerText: string
@@ -17,10 +20,16 @@ export interface Answer {
   examType: string
 }
 
+/*
+ * @deprecated Use productive-censoring.tsx from sa-yo for now
+ */
 export interface FullAnswer extends Answer {
   ordinal: number
 }
 
+/*
+ * @deprecated Use productive-censoring.tsx from sa-yo for now
+ */
 export interface ExamQuestion {
   displayNumber: number
   examCode: string
@@ -53,6 +62,9 @@ function examTypeForUI(examType: string) {
   }
 }
 
+/*
+ * @deprecated Use productive-censoring.tsx from sa-yo for now
+ */
 export const ProductiveCensoring = ({ PageBanner }: { PageBanner: JSX.Element }) => {
   const gradingUrls = useContext(GradingUrlsContext)
   const { t } = useTranslation()

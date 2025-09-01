@@ -2,7 +2,7 @@ import './init-side-effects'
 import $ from 'jquery'
 import _ from 'lodash'
 import * as Bacon from 'baconjs'
-import '@digabi/js-utils/dist/hbs-helpers'
+import './hbs-helpers'
 import * as arpautils from './arpa-utils'
 import * as sautils from './sa-utils'
 import utils from './utils'
@@ -25,8 +25,6 @@ if (!sautils.ui.showErrorIfBrowserUnsupported()) {
   sautils.setupAjax()
   arpautils.init(ajaxReq)
 
-  arpautils.setupAfterPrintHandling()
-
   ajaxReq.getJson('/kurko-api/user').onValue(userData => {
     $('#pagebanner').replaceWith(reactComponentAsContainer(PageBanner, { userName: userData.userName }))
     sautils.setDefaultUserRole(userData.roles)
@@ -47,7 +45,7 @@ function showExamName(examName) {
 
 function loadAndRenderReviewUI(heldExamUuid) {
   $('body').addClass('gradingSummary')
-  const answersWithTotalScoresStream = arpautils.loadAnswersWithTotalScores(heldExamUuid)
+  const answersWithTotalScoresStream = arpautils.loadStudentsWithTotalScores(heldExamUuid)
   answersWithTotalScoresStream.onValue(renderReviewUI)
   addActionBar()
   addGradingTextHandler()

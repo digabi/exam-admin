@@ -1,11 +1,11 @@
 'use strict'
 
 import config from '../../config/configParser'
-import * as jsUtils from '@digabi/js-utils'
+import { getJsonAsync } from '@digabi/fetch'
 import * as examHandling from '../../db/exam-handling'
 
 export function getHeldExams(userId) {
-  return jsUtils.getJsonAsync(`${config.examUri}/grading/status/${userId}`)
+  return getJsonAsync(`${config.examUri}/grading/status/${userId}`)
 }
 
 export function markExamAsDeleted(userId, examUuid) {
@@ -17,7 +17,7 @@ export function markExamAsUndeleted(userId, examUuid) {
 }
 
 function getSchoolFromArpaAndCheckAccessRights(url, userAccountId) {
-  return jsUtils.getJsonAsync(url).then(result => {
+  return getJsonAsync(url).then(result => {
     const examUuid = result.examUuid
     return examHandling.userCanAccessExam(userAccountId, examUuid)
   })

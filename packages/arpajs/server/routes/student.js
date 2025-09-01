@@ -3,7 +3,6 @@
 import { Router } from 'express'
 const router = Router()
 import * as token from '../crypt/token'
-import { expressUtils } from '@digabi/js-utils'
 import * as studentDb from '../db/student-data'
 import { isConvertibleToMex } from '../exam/json-to-xml/mex-checker'
 import * as examDb from '../db/exam-data'
@@ -11,17 +10,18 @@ import { tryXmlMasteringWithShuffle } from '../exam/xml-mastering'
 import { tryMexConversion } from '../exam/json-to-xml/mex-xml-conversions'
 import { prepareQuestions } from './grading'
 import _ from 'lodash'
+import { respondWithJsonOr404 } from '@digabi/express-utils'
 
 router.get('/answers/:answerPaperToken', token.untokenizeApId, (req, res, next) => {
   studentDb
     .getAnswerPaper(req.apId)
     .then(answerPapers => parseAnswersAndScores(req.apId, answerPapers))
-    .then(expressUtils.respondWithJsonOr404(res))
+    .then(respondWithJsonOr404(res))
     .catch(next)
 })
 
 router.get('/exam/:answerPaperToken', token.untokenizeApId, (req, res, next) => {
-  examDb.getExamContent(req.apId).then(masterIfXml).then(expressUtils.respondWithJsonOr404(res)).catch(next)
+  examDb.getExamContent(req.apId).then(masterIfXml).then(respondWithJsonOr404(res)).catch(next)
 })
 
 export async function parseAnswersAndScores(answerPaperId, answerPapers) {

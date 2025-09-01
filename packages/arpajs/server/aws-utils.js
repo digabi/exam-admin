@@ -1,17 +1,18 @@
 'use strict'
 
-import { S3 as awsS3 } from '@aws-sdk/client-s3'
+import { GetObjectCommand, S3 as awsS3 } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
 import { mockedS3 } from './aws-s3-mock'
 import config from './config/configParser'
 import stream from 'stream'
-import * as utils from '@digabi/js-utils'
 import * as cryptoUtils from '@digabi/crypto-utils'
 import path from 'path'
 import fs from 'fs'
 import { logger } from './logger'
+import { DataError } from '@digabi/express-utils'
 
 const S3 = config.runningUnitTests ? mockedS3 : awsS3
+const s3Client = new S3(config.s3Config)
 const S3forLogs = new S3(config.s3ConfigForLogs)
 const S3ForAttachments = new S3(config.s3ConfigForAttachments)
 const s3LogEncryptionPublicKey = fs.readFileSync(path.resolve(__dirname, 's3_encrypt.pub'))
@@ -20,12 +21,14 @@ if (!s3LogEncryptionPublicKey.length) {
 }
 
 async function streamFileToS3Async(s3instance, bucket, key, fileSourceStream, metadata) {
-  const startTime = process.hrtime()
+  const startTime = performance.now()
   await new Upload({
     client: s3instance,
     params: { Bucket: bucket, Key: key, Body: fileSourceStream, Metadata: metadata }
   }).done()
-  logger.info(`Uploaded ${key} to bucket ${bucket} in ${utils.hrTimeDiffAsMillis(process.hrtime(startTime))}ms.`)
+
+  const uploadTimeMilliseconds = Math.round(performance.now() - startTime)
+  logger.info(`Uploaded ${key} to bucket ${bucket} in ${uploadTimeMilliseconds}ms.`)
 }
 
 function streamLogFileToS3Async(bucket, key, fileSourceStream, metadata) {
@@ -164,9 +167,19 @@ export function streamToBuffer(readableStream) {
     readableStream.on('data', data => {
       chunks.push(data)
     })
-    readableStream.on('error', err => reject(new utils.exc.DataError(err.message, 422)))
+    readableStream.on('error', err => reject(new DataError(err.message, 422)))
     readableStream.on('end', () => {
       resolve(Buffer.concat(chunks))
     })
   })
+}
+
+export async function downloadNsaScripts() {
+  try {
+    const response = await s3Client.send(new GetObjectCommand({ Bucket: config.s3NsaScriptsBucket, Key: 'nsa.zip' }))
+    return response.Body
+  } catch (error) {
+    logger.error('Error downloading nsa scripts from S3', { error })
+    return null
+  }
 }

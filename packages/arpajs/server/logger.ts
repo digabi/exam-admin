@@ -1,3 +1,3 @@
-import { createLogger } from '@digabi/js-utils/dist-cjs/logger-utils'
+import { createLogger } from '@digabi/logger'
 
 export const logger = createLogger()

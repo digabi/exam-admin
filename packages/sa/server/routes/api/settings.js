@@ -1,7 +1,8 @@
 'use strict'
 
 import { Router } from 'express'
-import { baseUrlFromRequestHeaders, validation } from '@digabi/js-utils'
+import { isValidEmail } from '@digabi/validation'
+import { baseUrlFromRequestHeaders } from '../../utils'
 const router = Router()
 import * as auth from '../../auth/auth'
 import { ensureAuthenticated } from '../../auth/auth-session'
@@ -45,7 +46,7 @@ router.post('/update-email', ensureAuthenticated, async (req, res) => {
   const { password, newUsername } = req.body
   const { userId, userName } = req.user
 
-  if (!validation.isValidEmail(newUsername)) {
+  if (!isValidEmail(newUsername)) {
     return res.status(400).send({ validationErrors: { username: 'invalid_username' } })
   }
 
