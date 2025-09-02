@@ -1,6 +1,0 @@
-{
-  "extends": "@digabi/typescript-config/root/tsconfig.json",
-  "compilerOptions": {
-    "outDir": "./lib"
-  }
-}
