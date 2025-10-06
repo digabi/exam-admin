@@ -225,6 +225,7 @@ body {
 
     td {
       padding: 6px @examTableCellVerticalPadding;
+      font-size: 14px;
       border-bottom: 1px solid #dfdfdf;
       //vertical-align: top;
       position: relative;
@@ -266,8 +267,25 @@ body {
         }
 
         .green {
-          color: #00b15c;
+          color: @green;
           font-weight: 600;
+        }
+      }
+
+      &.findings-status {
+        .green {
+          color: @green;
+        }
+
+        .grey {
+          color: #666;
+        }
+
+        .has-findings {
+          text-decoration: none;
+          display: inline-block;
+          background: url(../img/download-icon.svg) no-repeat right center;
+          padding-right: 20px;
         }
       }
     }

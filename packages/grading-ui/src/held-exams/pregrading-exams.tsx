@@ -14,13 +14,15 @@ export const PregradingExams = ({
   roleType,
   allowedExams,
   examReviewRequired,
-  examsDeletable
+  examsDeletable,
+  findingsEnabled
 }: {
   scopeId: string
   roleType: RoleType
   allowedExams: string[]
   examReviewRequired: boolean
   examsDeletable: boolean
+  findingsEnabled: boolean
 }) => {
   const pregradingExamUrls = useContext<PregradingExamUrls>(PregradingExamUrlsContext)
   const [heldExams, setHeldExams] = useState<ExamPregradingStatus[]>([])
@@ -57,6 +59,7 @@ export const PregradingExams = ({
   const hasDeadlineDate = heldExamsWithAllowedInformation.some(
     exam => !!exam.pregradingDeadlines.intDeadline.date || !!exam.pregradingDeadlines.finalDeadline.date
   )
+
   return (
     <div id="exam-grading-tab" className="tab">
       <LoadingSpinner loading={loading} />
@@ -90,6 +93,7 @@ export const PregradingExams = ({
             </th>
             <th className="work-left">{hasDeadlineDate ? t('sa.recommended_deadline') : ''}</th>
             <th className="grading-links" colSpan={1 + (examReviewRequired ? 1 : 0) + (examsDeletable ? 1 : 0)} />
+            {findingsEnabled && <th className="findings-status">{t('sa.findings_status')}</th>}
           </tr>
         </thead>
         <tbody>
@@ -103,6 +107,8 @@ export const PregradingExams = ({
               pregradingScores={exam.pregradingScores}
               examReviewRequired={examReviewRequired}
               examsDeletable={examsDeletable}
+              findingsStatus={exam.findingsStatus}
+              findingsEnabled={findingsEnabled}
               setHeldExams={setHeldExams}
               heldExamDeletionDate={exam.heldExamDeletionDate}
               showDeleted={showDeleted}

@@ -28,6 +28,7 @@ const sv: typeof fi = {
     pre_grading_answers_graded: 'Svar bedömda',
     pre_grading_answers_finished: 'Bedömningar markerade klara',
     recommended_deadline: 'Följande utsatta dag',
+    findings_status: 'Provens avvikande observationer',
     still_to_be_finished: 'Ännu att markeras som klar',
     gradings: 'bedömningar',
     today: 'Idag',
@@ -135,7 +136,10 @@ const sv: typeof fi = {
     held_return: 'Återlämna',
     held_remove_exam: 'Radera',
     show_deleted: 'Visa raderade',
-    undelete: 'Ångra radering'
+    undelete: 'Ångra radering',
+    has_findings: 'Ladda ner rapport',
+    not_generated: 'Färdigställs inom 24 timmar',
+    no_findings: 'Inga avvikande observationer'
   },
   arpa: {
     return_to_exams: 'Till provhantering',

@@ -26,6 +26,7 @@ const fi = {
     pre_grading_answers_graded: 'Vastauksia arvosteltu',
     pre_grading_answers_finished: 'Arvosteluja merkitty valmiiksi',
     recommended_deadline: 'Seuraava määräpäivä',
+    findings_status: 'Kokeen poikkeavat havainnot',
     still_to_be_finished: 'Merkittävä valmiiksi vielä',
     gradings: 'arvostelua',
     today: 'Tänään',
@@ -133,7 +134,10 @@ const fi = {
     held_return: 'Palauta',
     held_remove_exam: 'Poista',
     show_deleted: 'Näytä poistetut',
-    undelete: 'Peruuta poisto'
+    undelete: 'Peruuta poisto',
+    has_findings: 'Lataa raportti',
+    not_generated: 'Valmistuu 24 h kuluessa',
+    no_findings: 'Ei poikkeavia havaintoja'
   },
   arpa: {
     return_to_exams: 'Kokeiden hallintaan',

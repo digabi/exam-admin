@@ -1,5 +1,7 @@
 'use strict'
 
+import { pipeline } from 'node:stream/promises'
+import { buffer } from 'node:stream/consumers'
 import _ from 'lodash'
 import * as awsUtils from '../aws-utils'
 import * as gradingDb from '../db/grading-data'
@@ -8,13 +10,42 @@ import * as examDb from '../db/exam-data'
 import * as cryptoUtils from '@digabi/crypto-utils'
 import config from '../config/configParser'
 import R from 'ramda'
-import { DataError } from '@digabi/express-utils'
 import { extractZip } from '@digabi/zip-utils'
+import { DataError } from '@digabi/express-utils'
+import { logger } from '../logger'
 
-const zipEntrySizeLimit = 300 * 1024 * 1024
+const zipEntrySizeLimit = 1024 * 1024 * 1024
 
-export async function extractAndDecryptZipContents(zipBuffer) {
-  const zipContents = await extractZipAsync(zipBuffer)
+export async function extract(fileBuffer) {
+  const { zipContents, keys } = await extractAndDecryptZipContents(fileBuffer)
+  const result = await importAnswersFromZip(keys, zipContents)
+  await extractAndImportLogs(keys, zipContents, result.examUuids, result.heldExamUuids)
+  return result
+}
+
+async function extractAndImportLogs(keys, zipContents, examUuids, heldExamUuids) {
+  const entry = zipContents['everything.log.zip.bin'] || zipContents['logs.zip.bin']
+  if (!entry) {
+    return
+  }
+
+  const logIdentifier = `exam_${examUuids.join('_')}_held_exam_${heldExamUuids.join('_')}`
+  // User defined object metadata headers have a 2KB limit. With the encryption key taking up a large chunk of the
+  // space, it's possible that this list of held_exam_uuids is too long and saving the logs might fail.
+  const metadata = { 'held-exam-uuids': JSON.stringify(heldExamUuids) }
+  try {
+    return await pipeline(
+      await entry.open(),
+      cryptoUtils.createAES256DecryptStreamWithIv(keys.key, keys.iv),
+      logStream => awsUtils.uploadLogToS3(logIdentifier, logStream, metadata)
+    )
+  } catch (error) {
+    logger.error(`Failed to upload logs to bucket S3`, { error, heldExamUuids })
+  }
+}
+
+async function extractAndDecryptZipContents(zipBuffer) {
+  const zipContents = await extractZip(zipBuffer, zipEntrySizeLimit)
   assertNotExamMeb(zipContents)
   try {
     const keys = await decryptKeys(zipContents)
@@ -25,40 +56,41 @@ export async function extractAndDecryptZipContents(zipBuffer) {
   }
 }
 
-export function decryptAnswers(keys, zipContents) {
-  return decryptUsing(keys, zipContents['answerPapers.json.bin'])
+async function decryptAnswers(keys, zipContents) {
+  const entry = zipContents['answerPapers.json.bin']
+  return decryptAES256ToBuffer(await entry.open(), keys.key, keys.iv)
 }
 
-export function decryptScreenshots(keys, zipContents) {
-  const buffer = zipContents['screenshots.zip.bin']
-  if (buffer) {
-    return decryptUsing(keys, buffer).then(extractZipAsync)
+async function decryptScreenshots(keys, zipContents) {
+  const entry = zipContents['screenshots.zip.bin']
+  if (entry) {
+    const screenshots = await decryptAES256ToBuffer(await entry.open(), keys.key, keys.iv)
+    return extractZip(screenshots, zipEntrySizeLimit)
   }
 }
 
-export function decryptAudios(keys, zipContents) {
-  const buffer = zipContents['audios.zip.bin']
-  if (buffer) {
-    return decryptUsing(keys, buffer).then(extractZipAsync)
+async function decryptAudios(keys, zipContents) {
+  const entry = zipContents['audios.zip.bin']
+  if (entry) {
+    const audios = await decryptAES256ToBuffer(await entry.open(), keys.key, keys.iv)
+    return extractZip(audios, zipEntrySizeLimit)
   }
 }
 
-export function decryptEnvironmentData(keys, zipContents) {
-  const buffer = zipContents['environment.json.bin']
-  if (buffer) {
-    return decryptUsing(keys, buffer)
+async function decryptEnvironmentData(keys, zipContents) {
+  const entry = zipContents['environment.json.bin']
+  if (entry) {
+    return decryptAES256ToBuffer(await entry.open(), keys.key, keys.iv)
   }
   return Promise.resolve([])
 }
 
-export function decryptLogs(keys, zipContents) {
-  const logs = zipContents['everything.log.zip.bin'] || zipContents['logs.zip.bin']
-  if (logs) {
-    return decryptUsing(keys, logs)
-  }
-}
+async function importAnswersFromZip(keys, zipContents) {
+  const answers = await decryptAnswers(keys, zipContents)
+  const screenshots = await decryptScreenshots(keys, zipContents)
+  const audios = await decryptAudios(keys, zipContents)
+  const environmentData = await decryptEnvironmentData(keys, zipContents).catch(_.noop)
 
-export async function importAnswersFromZip(answers, screenshots, audios, environmentData) {
   const examsWithAnswerPapers = parseAnswers(answers)
   if (!examsWithAnswerPapers.length) throw new DataError('Meb file contained no answer papers', 422)
   const answerCounts = examsWithAnswerPapers.map(e => ({ examUuid: e.examUuid, answerCount: e.answerPapers.length }))
@@ -74,7 +106,7 @@ export async function importAnswersFromZip(answers, screenshots, audios, environ
   const isPermanentlyDeleted = entry => !entry.exam
   const isNotPermanentlyDeleted = R.complement(isPermanentlyDeleted)
 
-  await gradingDb.importAnswers(examsWithAnswerPapers, screenshots, audios, environmentData)
+  const heldExamUuids = await gradingDb.importAnswers(examsWithAnswerPapers, screenshots, audios, environmentData)
 
   const [exams, deletedExams] = R.partition(e => !e.deletionDate)(
     allExams.filter(isNotPermanentlyDeleted).map(entry => entry.exam)
@@ -97,7 +129,8 @@ export async function importAnswersFromZip(answers, screenshots, audios, environ
         answerCount: answerCounts.find(a => a.examUuid === exam.examUuid)?.answerCount ?? 0
       }))
     ],
-    examUuids
+    examUuids,
+    heldExamUuids
   }
 
   function parseAnswers(answerFileContents) {
@@ -154,25 +187,21 @@ function convertLegacyJson(answers) {
   ]
 }
 
-function decryptKeys(zipContents) {
+async function decryptKeys(zipContents) {
   const keyfile = zipContents['keys.json.bin']
   if (!keyfile) {
     throw new DataError('Keys missing from zip file')
   }
-  return JSON.parse(cryptoUtils.decryptWithPrivateKeyFromBuffer(config.secrets.answersPrivateKey, keyfile).toString())
+  const buffer = await keyfile.readIntoBuffer()
+  return JSON.parse(cryptoUtils.decryptWithPrivateKeyFromBuffer(config.secrets.answersPrivateKey, buffer).toString())
 }
 
-function decryptUsing(keys, thingToDecrypt) {
-  return Promise.resolve(cryptoUtils.decryptAES256Async(thingToDecrypt, keys.key, keys.iv))
-}
-
-function extractZipAsync(zip) {
-  return extractZip(zip, zipEntrySizeLimit)
-}
-
-export function importLogs(logBuffer, examUuids) {
-  const logIdentifier = `exam_${_.first(examUuids)}`
-  return logBuffer ? awsUtils.uploadLogToS3(logIdentifier, logBuffer) : undefined
+async function decryptAES256ToBuffer(readable, key, iv) {
+  try {
+    return await pipeline(readable, cryptoUtils.createAES256DecryptStreamWithIv(key, iv), buffer)
+  } catch (error) {
+    throw new DataError('Could not decrypt stream', 400)
+  }
 }
 
 function assertNotExamMeb(zipContents) {

@@ -17,7 +17,7 @@ if [ ! -f "$db_created" ]; then
   echo "Database created"
 fi
 
-(cd "$arpajs" && ./bin/run-migrations.js)
+(cd "$arpajs" && ./bin/run-migrations.js && ./bin/create-dev-buckets.js)
 
 if [ ! -f "$demo_data_created" ]; then
   echo "Creating demo data"

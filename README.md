@@ -39,6 +39,8 @@ for full access.
 
 **Note that you cannot compile this repository on the host machine at the moment.** Certain required files are generated as part of the image build process.
 
+**Also note that removed files and directories are not removed from the target repositories.** You need to remove them manually at them moment.
+
 The initial setup contains one test having grading available. The test is not editable,
 but you can create a copy of it and make edits to the copy.
 

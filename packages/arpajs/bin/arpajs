@@ -4,7 +4,8 @@ process.on('exit', code => console.info(`Exiting with code ${code}`))
 require('source-map-support').install()
 const { logger } = require('../dist/logger')
 const config = require('../dist/config/configParser.js').default
-
+const { promisify } = require('util')
+const pgrm = require('../dist/db/local-pg-resource-management').pgrm
 const http = require('http')
 const https = require('https')
 
@@ -18,6 +19,25 @@ function startServer() {
     logger.info(`Express server listening on ${server.address().address}:${server.address().port}`)
   })
   server.keepAliveTimeout = 250000
+
+  function terminateGracefully(signal) {
+    process.on(signal, () => {
+      logger.info(`Received ${signal} exiting...`)
+      const serverCloseAsync = promisify(server.close.bind(server))
+      serverCloseAsync()
+        .then(() => pgrm.end())
+        .catch(err => {
+          logger.error('Error terminating gracefully', err)
+        })
+        .finally(() => {
+          logger.info(`Exit at ${new Date().toISOString()}`)
+          process.exit()
+        })
+    })
+  }
+
+  terminateGracefully('SIGINT')
+  terminateGracefully('SIGTERM')
 }
 
 startServer()

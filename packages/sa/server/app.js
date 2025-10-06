@@ -5,7 +5,7 @@ import path from 'path'
 import { logger } from './logger'
 import cookieParser from 'cookie-parser'
 import bodyParser from 'body-parser'
-import { setupDefaultErrorHandlers } from '@digabi/express-utils'
+import { setupDefaultErrorHandlers, extendTimeoutForUploadRouteWithLargeFiles } from '@digabi/express-utils'
 import { requestLogger } from '@digabi/logger'
 import session from 'express-session'
 import config from './config/configParser'
@@ -40,6 +40,13 @@ import examDevRouter from './routes/dev/exam'
 import { importExamHandler } from './routes/api/import-exam-handler'
 import cors from 'cors'
 import helmet from 'helmet'
+
+app.use((req, _res, next) => {
+  req.on('aborted', () => {
+    logger.warn('Request aborted by the client', { originalUrl: req.originalUrl })
+  })
+  next()
+})
 
 app.get('/health-check', (req, res) => res.sendStatus(200))
 if (config.trustProxy) {
@@ -150,7 +157,12 @@ app.use('/exam-api/grading/student/answers', proxying.proxy(`${config.examUri}/g
 app.use('/exam-api/grading/student/exam', proxying.proxy(`${config.examUri}/grading/student/exam`))
 app.use('/screenshot', proxying.proxy(`${config.examUri}/grading/screenshot`)) // Screenshots in rich text answers
 app.use('/audio', proxying.proxy(`${config.examUri}/grading/audio`)) // Audio files in audio answers
-app.use('/exam-api/grading/answers-meb', ensureAuthenticated, answersMebRouter)
+app.use(
+  '/exam-api/grading/answers-meb',
+  extendTimeoutForUploadRouteWithLargeFiles,
+  ensureAuthenticated,
+  answersMebRouter
+)
 app.use('/exam-api/grading', ensureAuthenticated, gradingRouter)
 app.use('/exam-api/composing', ensureAuthenticated, composingProxyRouter)
 app.use('/exam-api/exams', examProxyRouter)

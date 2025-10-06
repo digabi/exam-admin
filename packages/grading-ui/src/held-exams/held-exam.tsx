@@ -2,7 +2,7 @@ import classNames from 'classnames'
 import { differenceInCalendarDays } from 'date-fns'
 import React, { useContext } from 'react'
 import { localDateStringWithWeekdayAndYear } from '../common/client-utils-commonjs'
-import { Language, RoleType } from '../common/types'
+import { Language, RoleType, FindingsStatus } from '../common/types'
 import { GradingProgress } from './grading-progress'
 import { ExamPregradingStatus, PregradingExamUrls } from './types'
 import { useTranslation } from 'react-i18next'
@@ -29,6 +29,8 @@ export const HeldExam = ({
   examReviewRequired,
   examsDeletable,
   heldExamDeletionDate,
+  findingsStatus,
+  findingsEnabled,
   setHeldExams,
   showDeleted
 }: ExamPregradingStatus & {
@@ -39,6 +41,8 @@ export const HeldExam = ({
   examReviewRequired: boolean
   examsDeletable: boolean
   heldExamDeletionDate?: string
+  findingsStatus?: FindingsStatus
+  findingsEnabled: boolean
   setHeldExams: React.Dispatch<React.SetStateAction<ExamPregradingStatus[]>>
   showDeleted: boolean
 }) => {
@@ -185,6 +189,19 @@ export const HeldExam = ({
               <a className="button" onClick={onToggleDeleteAnswers}>
                 {t(heldExamDeletionDate ? 'sa.undelete' : 'sa.held_remove_exam')}
               </a>
+            </td>
+          )}
+          {findingsEnabled && (
+            <td className="findings-status">
+              {findingsStatus === 'has_findings' ? (
+                <a href={pregradingExamUrls.findings(schoolAnonCode)} className="has-findings">
+                  {t('sa.has_findings')}
+                </a>
+              ) : (
+                <span className={findingsStatus === 'not_generated' ? 'grey' : 'green'}>
+                  {t(findingsStatus === 'not_generated' ? 'sa.not_generated' : 'sa.no_findings')}
+                </span>
+              )}
             </td>
           )}
         </>

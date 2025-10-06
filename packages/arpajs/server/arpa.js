@@ -11,9 +11,11 @@ import sendAnswerEmailsRouter from './routes/send-answer-emails'
 import studentsRouter from './routes/student'
 import composingRouter from './routes/composing'
 import adminRouter from './routes/admin'
+import analysisRouter from './routes/analysis'
 import helmet from 'helmet'
 import { requestLogger } from '@digabi/logger'
 import { setupDefaultErrorHandlers } from '@digabi/express-utils'
+import { importYoExams } from './exam/public-exam-importer'
 
 const app = express()
 
@@ -39,18 +41,17 @@ app.use('/grading/send-answer-emails', sendAnswerEmailsRouter)
 app.use('/grading/student', studentsRouter)
 app.use('/composing', composingRouter)
 app.use('/admin', adminRouter)
+app.use('/analysis', analysisRouter)
 
-if (config.matriculationExamsBucket) {
-  import('./exam/public-exam-importer')
-    .then(({ importYoExams }) =>
-      app.post('/import-public-exams', (_, res) => {
-        importYoExams()
-          .then(() => res.sendStatus(200))
-          .catch(() => res.sendStatus(400))
-      })
-    )
-    .catch(error => logger.error('Failed to import public-exam-importer', { error }))
-}
+app.post('/import-public-exams', async (_, res) => {
+  try {
+    await importYoExams()
+    res.sendStatus(200)
+  } catch (err) {
+    logger.warn(err instanceof Error ? err.message : 'Unknown error', { err })
+    res.sendStatus(400)
+  }
+})
 
 const devEnv = !config.runningInCloud
 if (devEnv && config.testRestRouter) {

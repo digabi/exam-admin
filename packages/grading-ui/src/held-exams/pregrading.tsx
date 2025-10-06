@@ -17,6 +17,7 @@ export function Pregrading({
   pregradingExamUrls,
   examReviewRequired = false,
   examsDeletable = false,
+  findingsEnabled = false,
   lang
 }: {
   scopeId: string
@@ -25,6 +26,7 @@ export function Pregrading({
   pregradingExamUrls: PregradingExamUrls
   examReviewRequired: boolean
   examsDeletable: boolean
+  findingsEnabled: boolean
   lang: Language
 }) {
   return (
@@ -36,6 +38,7 @@ export function Pregrading({
           allowedExams={allowedExams}
           examReviewRequired={examReviewRequired}
           examsDeletable={examsDeletable}
+          findingsEnabled={findingsEnabled}
         />
       </PregradingExamUrlsContext.Provider>
     </I18nextProvider>

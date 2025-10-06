@@ -128,7 +128,7 @@ export function useNavigateInGrid(
           answer: GradingAnswerType | Record<string, never> | undefined
         ): answer is GradingAnswerType {
           if (!answer) return false
-          if (answer.batchGroupNumber != null) return false
+          if (answer.batchGroupNumber != null && answer.scoreValue == null) return false
           const answerNeedsAScore = answer.userCanScore && answer.scoreValue === undefined
           return answerIsNotEmpty(answer) && (!alt || answerNeedsAScore)
         }

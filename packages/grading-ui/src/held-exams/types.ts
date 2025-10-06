@@ -1,4 +1,4 @@
-import { CensorDistributionState } from '../common/types'
+import { CensorDistributionState, FindingsStatus } from '../common/types'
 
 type EventExam = {
   eventUuid: string
@@ -45,6 +45,7 @@ type ArpaPregradingStatus = {
   uuid: string
   title: string
   schoolAnonCode: string
+  findingsStatus?: FindingsStatus
   uploaded?: string
   answerPapers: number
   answers: number
@@ -76,6 +77,7 @@ export type PregradingExamUrls = {
   uploadAnswers: (schoolId: string) => string
   heldExams: (schooldId: string) => string
   grading: (schoolAnonCode: string) => string
+  findings: (schoolAnonCode: string) => string
   reviewAnswers: (schoolAnonCode: string) => string
   deleteAnswers: (schoolAnonCode: string) => string
   undeleteAnswers: (schoolAnonCode: string) => string

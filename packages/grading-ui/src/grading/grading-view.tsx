@@ -522,12 +522,14 @@ function CommonGradingView(props: {
                         gradingRole={gradingRole}
                         skipPregrading={student?.skipPregrading ?? false}
                       />
-                      <AnswerControls
-                        examAndScores={examAndScores}
-                        setExamAndScores={setExamAndScores}
-                        setLocalizedError={setLocalizedError}
-                        gradingRole={gradingRole}
-                      />
+                      {!answer.batchGroupNumber && (
+                        <AnswerControls
+                          examAndScores={examAndScores}
+                          setExamAndScores={setExamAndScores}
+                          setLocalizedError={setLocalizedError}
+                          gradingRole={gradingRole}
+                        />
+                      )}
 
                       {gradingRole === 'pregrading' && (
                         <PregradingControls

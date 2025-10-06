@@ -13,7 +13,7 @@ const s3ConfigSchema = z.object({
       secretAccessKey: z.string()
     })
     .optional(),
-  requestHandler: z.instanceof(NodeHttpHandler)
+  requestHandler: z.instanceof(NodeHttpHandler).optional()
 })
 
 const commonSchema = z
@@ -21,10 +21,10 @@ const commonSchema = z
     arpaDbUrl: z.string(),
     interface: z.string(),
     port: z.union([z.string(), z.number()]),
-    runningInJenkins: z.boolean(),
     s3ExamLogsBucket: z.string(),
     s3AttachmentsBucket: z.string(),
     s3NsaScriptsBucket: z.string(),
+    s3NsaFindingsBucket: z.string(),
     prePackagedNsaScriptZipPath: z.string(),
     useKtpUpdate: z.boolean(),
     prePackagedKtpUpdatePath: z.string(),
@@ -56,21 +56,7 @@ const secretsSchema = z
     answersPrivateKey: z.union([z.string(), z.instanceof(Buffer)]),
     answersPublicKey: z.union([z.string(), z.instanceof(Buffer)]),
     urlTokenKey: z.string(),
-    urlTokenIv: z.string(),
-    s3Credentials: z
-      .object({
-        logUploader: z.object({
-          accessKeyId: z.string(),
-          secretAccessKey: z.string()
-        }),
-        attachmentUpAndDownloader: z
-          .object({
-            accessKeyId: z.string(),
-            secretAccessKey: z.string()
-          })
-          .optional()
-      })
-      .optional()
+    urlTokenIv: z.string()
   })
   .strict()
 
@@ -80,7 +66,7 @@ const CloudConfigurationSchema = commonSchema
     emailQueue: z.string(),
     publicExamsRoleArn: z.string(),
     runningUnitTests: z.literal(false),
-    secrets: secretsSchema.extend({ s3Credentials: z.undefined() })
+    secrets: secretsSchema
   })
   .strict()
 

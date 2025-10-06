@@ -3,7 +3,8 @@ require('source-map-support').install()
 const logger = require('../dist/logger').logger
 const config = require('../dist/config/config').default
 const app = require('../dist/app').default
-
+const { promisify } = require('util')
+const pgrm = require('../dist/db/arpajs-database').default
 const http = require('http')
 const https = require('https')
 
@@ -11,6 +12,25 @@ const https = require('https')
 http.globalAgent.keepAlive = true
 https.globalAgent.keepAlive = true
 
-const server = app.listen(config.port, config.interface, function() {
+const server = app.listen(config.port, config.interface, function () {
   logger.info('Express server listening on ' + server.address().address + ':' + server.address().port)
 })
+
+function terminateGracefully(signal) {
+  process.on(signal, () => {
+    logger.info(`Received ${signal} exiting...`)
+    const serverCloseAsync = promisify(server.close.bind(server))
+    serverCloseAsync()
+      .then(() => pgrm.end())
+      .catch(err => {
+        logger.error('Error terminating gracefully', err)
+      })
+      .finally(() => {
+        logger.info(`Exit at ${new Date().toISOString()}`)
+        process.exit()
+      })
+  })
+}
+
+terminateGracefully('SIGINT')
+terminateGracefully('SIGTERM')

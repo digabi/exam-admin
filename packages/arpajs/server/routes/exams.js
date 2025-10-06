@@ -1,5 +1,6 @@
 'use strict'
 
+import { text } from 'stream/consumers'
 import { pipeline } from 'stream/promises'
 import express from 'express'
 const moduleRouter = express.Router()
@@ -7,7 +8,6 @@ import _ from 'lodash'
 import * as examDb from '../db/exam-data'
 import { logger } from '../logger'
 import * as examPacker from '../exam/exam-packer'
-import yauzl from 'yauzl-promise'
 import BPromise from 'bluebird'
 import * as awsUtils from '../aws-utils'
 import multer from 'multer'
@@ -16,6 +16,7 @@ import { importXmlTransferZip } from '../exam/xml-import'
 import { importLegacyTransferZip } from '../exam/legacy-import'
 import * as attachmentsStorage from '../exam/attachments/attachments-storage'
 import * as attachmentStream from '../exam/attachments/attachment-stream'
+import * as findingsStream from '../exam/findings/findings-stream'
 import { uuidValidator } from './uuid-validator'
 import bodyParser from 'body-parser'
 import { upsertAttachmentForExam } from '../db/exam-data'
@@ -33,7 +34,7 @@ import {
   respondWithJsonOr404,
   respondWithZip
 } from '@digabi/express-utils'
-import { createZipName } from '@digabi/zip-utils'
+import { createZipName, extractZip } from '@digabi/zip-utils'
 const jsonMaxSizeInBytes = 500 * 1024
 
 moduleRouter.get('/status/:userId', (req, res, next) => {
@@ -102,6 +103,28 @@ moduleRouter.delete('/held-exam/:heldExamUuid', uuidValidator('heldExamUuid'), (
 
 moduleRouter.get('/held-exam/:heldExamUuid/exam', uuidValidator('heldExamUuid'), (req, res, next) => {
   examDb.getHeldExam(req.params.heldExamUuid).then(respondWithJsonOr404(res)).catch(next)
+})
+
+moduleRouter.get('/held-exam/:heldExamUuid/findings', uuidValidator('heldExamUuid'), async (req, res, next) => {
+  try {
+    const { contents, filename } = await findingsStream.retrieveNsaFindingsAsStream(req.params.heldExamUuid)
+
+    res.setHeader('Content-Disposition', `attachment; filename=${filename}`)
+    res.setHeader('Content-Type', 'application/pdf')
+    await pipeline(contents, res).catch(err => {
+      if (err?.code !== 'ERR_STREAM_PREMATURE_CLOSE' && err?.code !== 'ECONNRESET') throw err
+    })
+  } catch (err) {
+    if (err instanceof DataError) {
+      return next(err)
+    }
+
+    if (err.code === 'TimeoutError') {
+      return res.headersSent ? res.end() : res.sendStatus(504)
+    }
+
+    return next(err)
+  }
 })
 
 moduleRouter.get('/:examUuid/exam', uuidValidator('examUuid'), async (req, res, next) => {
@@ -255,15 +278,9 @@ moduleRouter.get('/:examUuid/attachments/{*fileName}', uuidValidator('examUuid')
       if (err?.code !== 'ERR_STREAM_PREMATURE_CLOSE' && err?.code !== 'ECONNRESET') throw err
     })
   } catch (err) {
-    if (err.status === 404) {
-      return res.sendStatus(404)
+    if (err instanceof DataError) {
+      return next(err)
     }
-
-    logger.warn('Error in /:examUuid/attachments/{*fileName}', {
-      error: err,
-      examUuid: req.params.examUuid,
-      fileName: req.params.fileName.join('/')
-    })
 
     if (err.code === 'TimeoutError') {
       return res.headersSent ? res.end() : res.sendStatus(504)
@@ -287,19 +304,16 @@ export async function extractZipFileExamContent(zipFileBuffer) {
   let extractedExamContent
 
   try {
-    const zipFile = await yauzl.fromBuffer(zipFileBuffer)
-    for await (const entry of zipFile) {
-      if (['exam.xml', 'exam-content.json'].includes(entry.filename)) {
-        const examContentReadStream = await entry.openReadStream()
-        const content = await readStreamToString(examContentReadStream)
-        if (extractedExamContent) {
-          throw new Error('Zip contains both xml and json content: not supported')
-        }
-        extractedExamContent = {
-          type: entry.filename === 'exam.xml' ? 'xml' : 'json',
-          content
-        }
-      }
+    const zipContents = await extractZip(zipFileBuffer)
+    const xml = zipContents['exam.xml']
+    const json = zipContents['exam-content.json']
+    if (xml && json) {
+      throw new Error('Zip contains both xml and json content: not supported')
+    }
+    if (xml) {
+      extractedExamContent = { type: 'xml', content: await text(await xml.open()) }
+    } else {
+      extractedExamContent = { type: 'json', content: await text(await json.open()) }
     }
   } catch (err) {
     throw new DataError(`Could not unpack zip file: ${err}`, 422)
@@ -310,17 +324,6 @@ export async function extractZipFileExamContent(zipFileBuffer) {
   }
 
   return extractedExamContent
-}
-
-function readStreamToString(readStream) {
-  return new Promise((resolve, reject) => {
-    let readBuilder = ''
-    readStream.on('data', data => (readBuilder += data.toString()))
-    readStream.on('error', err => reject(new DataError(err.message, 422)))
-    readStream.on('end', () => {
-      resolve(readBuilder)
-    })
-  })
 }
 
 moduleRouter.post(

@@ -1,6 +1,5 @@
 'use strict'
 
-import yauzl from 'yauzl-promise'
 import * as examDb from '../../db/exam-data'
 import * as attachmentDb from '../../db/attachment-data'
 import * as awsUtils from '../../aws-utils'
@@ -10,7 +9,8 @@ import fileType from 'file-type'
 import { logger } from '../../logger'
 import { readAttachmentMetadata } from './attachment-metadata'
 import { abittiImportExamMaxFileSize, DataError } from '@digabi/express-utils'
-import { extractZipWithMetadata } from '@digabi/zip-utils'
+import { extractZip, extractZipWithMetadata } from '@digabi/zip-utils'
+import { Readable } from 'stream'
 
 const FILTERED_FILES = ['__MACOSX', '.DS_Store', 'Thumbs.db']
 
@@ -22,56 +22,43 @@ export async function readZipAndUploadAttachmentsToS3(
   isXmlExam = false,
   masteredAttachmentList = []
 ) {
-  const zipFile = await yauzl.fromBuffer(zipFileBuffer)
-  let attachmentEntries = []
-  for await (const entry of zipFile) {
-    if (entry.filename === 'attachments.zip') {
-      const attachmentsZipReadStream = await entry.openReadStream()
-      attachmentEntries = await readAttachmentsZipAndUploadToS3(
-        attachmentsZipReadStream,
-        examUuid,
-        isXmlExam,
-        masteredAttachmentList
-      )
-    }
-  }
-  return attachmentEntries
+  const zipContents = await extractZip(zipFileBuffer)
+  const attachmentsZip = zipContents['attachments.zip']
+  if (!attachmentsZip) return []
+
+  return await readAttachmentsZipAndUploadToS3(
+    await attachmentsZip.readIntoBuffer(),
+    examUuid,
+    isXmlExam,
+    masteredAttachmentList
+  )
 }
 
-async function readAttachmentsZipAndUploadToS3(readStream, examUuid, isXmlExam, masteredAttachmentList) {
+async function readAttachmentsZipAndUploadToS3(attachmentsZip, examUuid, isXmlExam, masteredAttachmentList) {
   let attachmentEntries = []
-  const zipBuffer = await awsUtils.streamToBuffer(readStream)
-  const attachmentsZipFile = await yauzl.fromBuffer(zipBuffer)
-  for await (const attachmentFileEntry of attachmentsZipFile) {
-    if (
-      attachmentIsSupported(attachmentFileEntry) &&
-      attachmentInXmlExam(isXmlExam, masteredAttachmentList, attachmentFileEntry)
-    ) {
-      if (attachmentFileEntry.uncompressedSize > abittiImportExamMaxFileSize) {
+  const zipContents = await extractZipWithMetadata(attachmentsZip)
+  for (const [name, file] of Object.entries(zipContents)) {
+    if (attachmentIsSupported(name, file) && attachmentInXmlExam(isXmlExam, masteredAttachmentList, name)) {
+      if (file.uncompressedSize > abittiImportExamMaxFileSize) {
         throw new DataError(
-          `Zip entry was too large: ${attachmentFileEntry.uncompressedSize} max allowed: ${abittiImportExamMaxFileSize}`
+          `Zip entry was too large: ${file.uncompressedSize} max allowed: ${abittiImportExamMaxFileSize}`
         )
       }
 
-      await examDb.ensureAttachmentFitsWithinLimits(examUuid, attachmentFileEntry.uncompressedSize)
+      await examDb.ensureAttachmentFitsWithinLimits(examUuid, file.uncompressedSize)
 
       const [metadata, storageKey] = await Promise.all([
-        readAttachmentMetadata(attachmentFileEntry.filename, await attachmentFileEntry.openReadStream()),
-        awsUtils.uploadAttachmentFileStreamToS3(
-          examUuid,
-          attachmentFileEntry.filename,
-          await attachmentFileEntry.openReadStream()
-        )
+        readAttachmentMetadata(name, await file.open()),
+        awsUtils.uploadAttachmentFileStreamToS3(examUuid, name, await file.open())
       ])
 
       const attachmentEntry = {
-        ...attachmentFileEntry,
         examUuid,
-        displayName: attachmentFileEntry.filename,
-        size: attachmentFileEntry.uncompressedSize,
+        displayName: name,
+        size: file.uncompressedSize,
         storageKey,
         metadata,
-        mimeType: mime.getType(attachmentFileEntry.filename) ?? DEFAULT_MIME_TYPE
+        mimeType: mime.getType(name) ?? DEFAULT_MIME_TYPE
       }
 
       attachmentEntries.push(attachmentEntry)
@@ -80,15 +67,13 @@ async function readAttachmentsZipAndUploadToS3(readStream, examUuid, isXmlExam, 
   return attachmentEntries
 }
 
-function attachmentIsSupported(entry) {
-  return (
-    !FILTERED_FILES.includes(entry.filename.split('/')[0]) && entry.filename[0] !== '.' && entry.uncompressedSize > 0
-  )
+function attachmentIsSupported(name, file) {
+  return !FILTERED_FILES.includes(name.split('/')[0]) && name[0] !== '.' && file.uncompressedSize > 0
 }
 
-function attachmentInXmlExam(isXmlExam, masteredAttachmentList, attachment) {
+function attachmentInXmlExam(isXmlExam, masteredAttachmentList, attachmentName) {
   if (isXmlExam) {
-    return masteredAttachmentList.some(masteredAttachment => masteredAttachment.filename === attachment.filename)
+    return masteredAttachmentList.some(masteredAttachment => masteredAttachment.filename === attachmentName)
   } else {
     return true
   }
@@ -99,8 +84,8 @@ export async function convertAttachmentZipBufferToAttachmentsAndUploadToS3(examU
   const filesToBeStored = Object.keys(filesWithMetadata).filter(
     key => !FILTERED_FILES.includes(key.split('/')[0]) && key[0] !== '.' && filesWithMetadata[key].uncompressedSize > 0
   )
-  return BPromise.map(filesToBeStored, filename =>
-    storeFileInS3AndDb(examUuid, filename, filesWithMetadata[filename].contents)
+  return BPromise.map(filesToBeStored, async filename =>
+    storeFileInS3AndDb(examUuid, filename, await filesWithMetadata[filename].readIntoBuffer())
   )
 }
 
@@ -112,7 +97,7 @@ export async function storeFileInS3AndDb(examUuid, displayName, buffer) {
     throw new DataError('Missing displayName')
   }
 
-  const attachmentFileStream = awsUtils.bufferToStream(buffer)
+  const attachmentFileStream = Readable.from(buffer, { objectMode: false })
   const metadata = await readAttachmentMetadata(displayName, attachmentFileStream)
 
   try {

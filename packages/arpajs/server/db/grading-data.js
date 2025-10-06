@@ -11,6 +11,7 @@ import { getUnixTime } from 'date-fns'
 import { objectPropertiesToCamel } from '@digabi/database-utils'
 import { DataError } from '@digabi/express-utils'
 import { containsInvalidImgTags, sanitizeAnswerContent } from '@digabi/answer-utils'
+import { isAbitti2KtpVersion } from '../utils/ktp-version-utils'
 
 export function importAnswers(examsWithAnswerPapers, screenshots, audios, serverEnvironmentData) {
   return using(pgrm.getTransaction(), async tx => {
@@ -45,6 +46,8 @@ export function importAnswers(examsWithAnswerPapers, screenshots, audios, server
     if (audioMapping.length) {
       await uploadAudiosInTx(tx, audios, [].concat(...audioMapping))
     }
+
+    return attachmentMappings.map(x => x.heldExamUuid)
   })
 }
 
@@ -63,7 +66,11 @@ function importAnswerPapersForSingleExam(tx, serverEnvironmentId) {
     if (serverEnvironmentId) {
       await mapServerEnvironmentToHeldExam(tx, serverEnvironmentId, result.heldExamUuid)
     }
-    return { screenshotMapping: result.screenshotMapping, audioMapping: result.audioMapping }
+    return {
+      heldExamUuid: result.heldExamUuid,
+      screenshotMapping: result.screenshotMapping,
+      audioMapping: result.audioMapping
+    }
   }
 }
 
@@ -75,9 +82,10 @@ function mapServerEnvironmentToHeldExam(tx, serverEnvironmentId, heldExamUuid) {
 }
 
 export async function uploadAnswersInTx(tx, examUuid, examType, ktpVersion, answerPapers) {
+  const findingsInitialStatus = isAbitti2KtpVersion(ktpVersion) ? 'not_generated' : 'no_findings'
   const result = await tx.queryAsync(
-    'insert into held_exam (exam_uuid, held_exam_type, held_exam_ktp_version) select exam_uuid, $2 as held_exam_type, $3 as held_exam_ktp_version from exam where exam_uuid = $1 returning held_exam_uuid',
-    [examUuid, examType, ktpVersion]
+    'insert into held_exam (exam_uuid, held_exam_type, held_exam_ktp_version, held_exam_nsa_findings_status) select exam_uuid, $2 as held_exam_type, $3 as held_exam_ktp_version, $4 as held_exam_nsa_findings_status from exam where exam_uuid = $1 returning held_exam_uuid',
+    [examUuid, examType, ktpVersion, findingsInitialStatus]
   )
 
   if (result.rows.length === 1) {
@@ -229,7 +237,7 @@ function addAudioAnswersWithConnection(answers, answerPaperId, connection) {
 function uploadScreenshotsInTx(tx, screenshotFiles, screenshotMapping) {
   return BPromise.mapSeries(_.keys(screenshotFiles), insertScreenshot)
 
-  function insertScreenshot(filename) {
+  async function insertScreenshot(filename) {
     const uuid = filename.replace('.png', '')
     const findResult = screenshotMapping.find(x => x.uuid === filename)
     const answerPaperId = findResult ? findResult.answerPaperId : null
@@ -237,19 +245,19 @@ function uploadScreenshotsInTx(tx, screenshotFiles, screenshotMapping) {
     // language=PostgreSQL
     return tx.queryAsync(
       `insert into screenshots (screenshot_uuid, answer_paper_id, content) values ($1, $2, $3) on conflict do nothing`,
-      [uuid, answerPaperId, screenshotFiles[filename]]
+      [uuid, answerPaperId, await screenshotFiles[filename].readIntoBuffer()]
     )
   }
 }
 
 function uploadAudiosInTx(tx, audioFiles, audioMapping) {
   return BPromise.mapSeries(_.keys(audioFiles), insertAudio)
-  function insertAudio(filename) {
+  async function insertAudio(filename) {
     const findResult = audioMapping.find(x => x.id === filename)
     const answerPaperId = findResult ? findResult.answerPaperId : null
     return tx.queryAsync(
       `insert into audio (audio_id, answer_paper_id, content) values ($1, $2, $3) on conflict do nothing`,
-      [filename, answerPaperId, audioFiles[filename]]
+      [filename, answerPaperId, await audioFiles[filename].readIntoBuffer()]
     )
   }
 }

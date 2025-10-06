@@ -1,18 +1,17 @@
 'use strict'
 
-import { GetObjectCommand, S3 as awsS3 } from '@aws-sdk/client-s3'
+import { GetObjectCommand, S3 } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
-import { mockedS3 } from './aws-s3-mock'
 import config from './config/configParser'
-import stream from 'stream'
+import { Readable } from 'stream'
+import { buffer } from 'stream/consumers'
+import { pipeline } from 'stream/promises'
 import * as cryptoUtils from '@digabi/crypto-utils'
 import path from 'path'
 import fs from 'fs'
 import { logger } from './logger'
-import { DataError } from '@digabi/express-utils'
 
-const S3 = config.runningUnitTests ? mockedS3 : awsS3
-const s3Client = new S3(config.s3Config)
+export const s3Client = new S3(config.s3Config)
 const S3forLogs = new S3(config.s3ConfigForLogs)
 const S3ForAttachments = new S3(config.s3ConfigForAttachments)
 const s3LogEncryptionPublicKey = fs.readFileSync(path.resolve(__dirname, 's3_encrypt.pub'))
@@ -31,13 +30,6 @@ async function streamFileToS3Async(s3instance, bucket, key, fileSourceStream, me
   logger.info(`Uploaded ${key} to bucket ${bucket} in ${uploadTimeMilliseconds}ms.`)
 }
 
-function streamLogFileToS3Async(bucket, key, fileSourceStream, metadata) {
-  return streamFileToS3Async(S3forLogs, bucket, key, fileSourceStream, metadata).catch(e => {
-    logger.warn(`Failed to upload ${key} to bucket ${bucket}, error = ${e}`)
-    return undefined
-  })
-}
-
 function streamAttachmentFileToS3Async(bucket, key, fileSourceStream, metadata) {
   return streamFileToS3Async(S3ForAttachments, bucket, key, fileSourceStream, metadata).then(() => key)
 }
@@ -53,10 +45,12 @@ export function copyAttachment(storageKey, newStorageKey) {
     Key: newStorageKey
   })
 }
-export function uploadLogToS3(logIdentitier, logFileBuffer) {
-  if (logFileBuffer.length === 0) {
-    logger.warn('Aborted uploading empty log. Log identifier', logIdentitier)
-    return undefined
+
+export function uploadLogToS3(logIdentitier, logStream, metadata) {
+  const s3Key = createS3Logfilename(logIdentitier)
+
+  if (s3LogEncryptionPublicKey.length === 0) {
+    return streamFileToS3Async(S3forLogs, config.s3ExamLogsBucket, s3Key, logStream, metadata)
   }
 
   const keyIv = cryptoUtils.generateKeyAndIv()
@@ -66,26 +60,22 @@ export function uploadLogToS3(logIdentitier, logFileBuffer) {
     iv: keyIv.iv.toString('base64')
   })
 
-  const maybeEncryptedSymmetricKey = s3LogEncryptionPublicKey.length
-    ? cryptoUtils.encryptWithPublicKey(s3LogEncryptionPublicKey, keyIvJson)
-    : undefined
-
-  const maybeCryptedStreamFromBuffer = maybeEncryptedSymmetricKey
-    ? cryptBufferWithSymmetricKeyReturningStream(logFileBuffer, keyIv.key, keyIv.iv)
-    : logFileBuffer
-
-  return streamLogFileToS3Async(
-    config.s3ExamLogsBucket,
-    createS3Logfilename(logIdentitier),
-    maybeCryptedStreamFromBuffer,
-    {
-      encryptedSymmetricKey: maybeEncryptedSymmetricKey
-    }
-  ) // S3 metadata keys are always lowercase
+  const encryptedSymmetricKey = cryptoUtils.encryptWithPublicKey(s3LogEncryptionPublicKey, keyIvJson)
+  return pipeline(logStream, cryptoUtils.createAES256EncryptStreamWithIv(keyIv.key, keyIv.iv), encryptedStream =>
+    streamFileToS3Async(S3forLogs, config.s3ExamLogsBucket, createS3Logfilename(logIdentitier), encryptedStream, {
+      ...metadata,
+      encryptedSymmetricKey // S3 metadata keys are always lowercase
+    })
+  )
 }
 
 function createS3Logfilename(logIdentifier) {
-  return `${logIdentifier}_${new Date().getTime()}.log.zip${s3LogEncryptionPublicKey.length ? '.bin' : ''}`
+  // S3 keys have a max length of 1024 bytes
+  const truncatedKey = Buffer.from(logIdentifier, 'utf-8')
+    .subarray(0, 1024 - 32)
+    .toString('utf-8')
+    .replace(/�$/, '')
+  return `${truncatedKey}_${new Date().getTime()}.log.zip${s3LogEncryptionPublicKey.length ? '.bin' : ''}`
 }
 
 export function uploadAttachmentsZipBufferToS3(examUuid, fileContentBuffer) {
@@ -121,7 +111,7 @@ function uploadFileBufferToS3(s3Bucket, filename, fileContentBuffer) {
   if (!fileContentBuffer) {
     throw new Error('No file contents provided')
   }
-  const fileSourceStream = bufferToStream(fileContentBuffer)
+  const fileSourceStream = Readable.from(fileContentBuffer)
   return streamAttachmentFileToS3Async(s3Bucket, filename, fileSourceStream, {})
 }
 
@@ -148,38 +138,22 @@ export function deleteAttachmentBuffersFromS3(keys) {
 }
 
 function downloadBufferFromS3(bucket, key) {
-  return streamAttachmentFileFromS3Async(bucket, key).then(objectFromS3 => streamToBuffer(objectFromS3.Body))
+  return streamAttachmentFileFromS3Async(bucket, key).then(objectFromS3 => buffer(objectFromS3.Body))
 }
 
-function cryptBufferWithSymmetricKeyReturningStream(buffer, symmetricKey, iv) {
-  return bufferToStream(buffer).pipe(cryptoUtils.createAES256EncryptStreamWithIv(symmetricKey, iv))
-}
-
-export function bufferToStream(buffer) {
-  const passThroughStream = new stream.PassThrough()
-  passThroughStream.end(buffer)
-  return passThroughStream
-}
-
-export function streamToBuffer(readableStream) {
-  return new Promise((resolve, reject) => {
-    const chunks = []
-    readableStream.on('data', data => {
-      chunks.push(data)
-    })
-    readableStream.on('error', err => reject(new DataError(err.message, 422)))
-    readableStream.on('end', () => {
-      resolve(Buffer.concat(chunks))
-    })
-  })
-}
-
-export async function downloadNsaScripts() {
+export async function downloadNsaScripts(filename) {
   try {
-    const response = await s3Client.send(new GetObjectCommand({ Bucket: config.s3NsaScriptsBucket, Key: 'nsa.zip' }))
+    const response = await s3Client.send(new GetObjectCommand({ Bucket: config.s3NsaScriptsBucket, Key: filename }))
     return response.Body
   } catch (error) {
     logger.error('Error downloading nsa scripts from S3', { error })
     return null
   }
+}
+
+export async function downloadNsaFindings(heldExamUuid) {
+  const response = await s3Client.send(
+    new GetObjectCommand({ Bucket: config.s3NsaFindingsBucket, Key: `${heldExamUuid}-findings.pdf` })
+  )
+  return response.Body
 }

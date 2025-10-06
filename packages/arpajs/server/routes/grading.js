@@ -15,7 +15,13 @@ import { getGradingAccessDeniedForAnswer } from '../db/grading-data'
 import { getToken } from '../db/student-data'
 import { getAnswerLength } from '../db/answer-data'
 import { parseAnswersAndScores, masterIfXml } from './student'
-import { DataError, respondWith204, respondWith204Or400, respondWithJsonOr404 } from '@digabi/express-utils'
+import {
+  DataError,
+  respondWith204,
+  respondWith204Or400,
+  respondWithJsonOr404,
+  extendTimeoutForUploadRouteWithLargeFiles
+} from '@digabi/express-utils'
 const defaultJsonParser = bodyParser.json() // Has 100kB default limit
 
 const multerConfigsForAnswerUpload = {
@@ -29,34 +35,28 @@ const answerUploadMiddleware = (req, res, next) => {
   )
 }
 
-async function extract(fileBuffer) {
-  const { zipContents, keys } = await answersExtractor.extractAndDecryptZipContents(fileBuffer)
-  const answers = await answersExtractor.decryptAnswers(keys, zipContents)
-  const screenshots = await answersExtractor.decryptScreenshots(keys, zipContents)
-  const audios = await answersExtractor.decryptAudios(keys, zipContents)
-  const environmentData = await answersExtractor.decryptEnvironmentData(keys, zipContents).catch(_.noop)
-  const result = await answersExtractor.importAnswersFromZip(answers, screenshots, audios, environmentData)
-  const logs = await answersExtractor.decryptLogs(keys, zipContents)
-  await answersExtractor.importLogs(logs, result.examUuids)
-  return result
-}
-
-moduleRouter.post('/answers-meb', answerUploadMiddleware, async (req, res) => {
-  const result = await extract(req.file.buffer)
-  const deletedExams = result.deletedExams.map(exam => ({ ...exam, isDeleted: true }))
-  res.json([
-    {
-      gradingSchoolId: '',
-      answerCountsByExam: result.exams.concat(deletedExams).map(exam => ({
-        examUuid: exam.examUuid,
-        examTitle: exam.title,
-        answerCount: exam.answerCount,
-        isDuplicate: exam.isDuplicate,
-        isDeleted: exam.isDeleted
-      }))
-    }
-  ])
-})
+moduleRouter.post(
+  '/answers-meb',
+  extendTimeoutForUploadRouteWithLargeFiles,
+  answerUploadMiddleware,
+  async (req, res) => {
+    logger.info('Incoming answers meb', { size: req.file.buffer.length })
+    const result = await answersExtractor.extract(req.file.buffer)
+    const deletedExams = result.deletedExams.map(exam => ({ ...exam, isDeleted: true }))
+    res.json([
+      {
+        gradingSchoolId: '',
+        answerCountsByExam: result.exams.concat(deletedExams).map(exam => ({
+          examUuid: exam.examUuid,
+          examTitle: exam.title,
+          answerCount: exam.answerCount,
+          isDuplicate: exam.isDuplicate,
+          isDeleted: exam.isDeleted
+        }))
+      }
+    ])
+  }
+)
 
 moduleRouter.post('/scores/:answerId', defaultJsonParser, validateScore, answerCanBeModified, (req, res, next) => {
   logger.info(`/grading/scores/${req.params.answerId}`, JSON.stringify(req.body))
@@ -322,7 +322,8 @@ function validateComment(req, res, next) {
 
 function validateMetadata(req, res, next) {
   let isValid =
-    !_.isNaN(parseInt(req.params.answerId, 10)) && (_.isPlainObject(req.body.metadata) || req.body.metadata === null)
+    !_.isNaN(parseInt(req.params.answerId, 10)) &&
+    ((_.isPlainObject(req.body.metadata) && req.body.metadata.annotations !== undefined) || req.body.metadata === null)
   if (!isValid) return res.status(404).end()
   else return next()
 }
@@ -330,6 +331,7 @@ function validateMetadata(req, res, next) {
 async function validateAnnotations(req, res, next) {
   try {
     const characterCount = await getAnswerLength(req.params.answerId)
+
     const invalidAnnotations = req.body.metadata?.annotations.filter(
       a => a.type === 'text' && a.startIndex + a.length > characterCount
     )

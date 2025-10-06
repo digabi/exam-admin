@@ -29,6 +29,7 @@ drop table if exists oauth_transaction_details;
 drop table if exists schemaversion;
 drop table if exists imported_public_exam;
 drop type if exists exam_type;
+drop type if exists nsa_findings_status;
 
 create table student
 (

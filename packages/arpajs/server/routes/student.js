@@ -82,7 +82,7 @@ function parseScoresAndMetadata(exam, answerPaper) {
             score,
             comment: answer.comment,
             annotations: answer.metadata
-              ? answer.metadata.annotations.map(a => ({ ...a, message: a.message || '' }))
+              ? answer.metadata.annotations?.map(a => ({ ...a, message: a.message || '' }))
               : []
           }
         }

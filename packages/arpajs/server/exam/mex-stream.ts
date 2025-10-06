@@ -70,11 +70,12 @@ export const streamXmlMeb = async (examUuid: string, noShuffle: boolean, res: Re
 }
 
 async function getNsaScripts(examUuid: string): Promise<Readable> {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  if (await examDb.useS3NsaScripts(examUuid)) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
+  const customNsaScriptFilename: string | null | undefined = await examDb.getCustomNsaScriptFilename(examUuid)
+  if (customNsaScriptFilename) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const scripts: Readable | null | undefined = await downloadNsaScripts()
-    return scripts ?? prepackagedNsaScripts()
+    const scripts = await downloadNsaScripts(customNsaScriptFilename)
+    return scripts instanceof Readable ? scripts : prepackagedNsaScripts()
   } else {
     return prepackagedNsaScripts()
   }

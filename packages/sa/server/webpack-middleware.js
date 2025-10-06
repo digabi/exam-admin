@@ -3,10 +3,9 @@ import * as path from 'path'
 import { logger } from './logger'
 
 const isDev = process.env.NODE_ENV !== 'production'
-const isCI = !!process.env.BUILD_NUMBER
 
 export default function webpackAssets() {
-  if (!isDev || isCI) {
+  if (!isDev) {
     logger.info('Serving prebuilt webpack assets')
     return express.static(path.resolve(__dirname, '../public/dist'))
   }

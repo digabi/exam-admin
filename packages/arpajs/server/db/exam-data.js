@@ -139,7 +139,7 @@ export const getExams = userId =>
     [userId]
   )
 
-export const getHeldExam = heldEexamUuid =>
+export const getHeldExam = heldExamUuid =>
   pgrm
     .queryRowsAsync(
       ` select
@@ -151,11 +151,12 @@ export const getHeldExam = heldEexamUuid =>
           answer_emails_sent as "answerEmailsSent",
           password,
           accessible,
-          content_valid as "contentValid"
+          content_valid as "contentValid",
+          held_exam_nsa_findings_status as "findingsStatus"
         from held_exam
           natural join exam
         where held_exam_uuid = $1`,
-      [heldEexamUuid]
+      [heldExamUuid]
     )
     .then(R.head)
 
@@ -579,7 +580,8 @@ export const getGradingStatusForExams = async userAccountId => {
           manual_scored_count,
           pregrading_finished_count,
           creation_date,
-          held_exam_deletion_date
+          held_exam_deletion_date,
+          held_exam_nsa_findings_status
         from
           ( select
               uuid,
@@ -611,7 +613,8 @@ export const getGradingStatusForExams = async userAccountId => {
               held_exam_uuid,
               title,
               creation_date,
-              held_exam_deletion_date
+              held_exam_deletion_date,
+              held_exam_nsa_findings_status
             from exam
               natural join held_exam
             where exam.user_account_id = ${userAccountId} ) as titles
@@ -627,6 +630,7 @@ export const getGradingStatusForExams = async userAccountId => {
       answerPapers: record.ap_count,
       answers: record.answer_count,
       heldExamDeletionDate: record.held_exam_deletion_date,
+      findingsStatus: record.held_exam_nsa_findings_status,
       eventDate: record.uploaded,
       schoolAnonCode: record.uuid,
       examCode: '',
@@ -811,9 +815,9 @@ export const updateGradingStructure = async (examUuid, gradingStructure) => {
   })
 }
 
-export const useS3NsaScripts = async examUuid => {
+export const getCustomNsaScriptFilename = async examUuid => {
   const rows = await pgrm.queryRowsAsync(
-    SQL`SELECT user_account_use_s3_nsa_scripts from user_account natural join exam where exam_uuid = ${examUuid}`
+    SQL`SELECT user_account_custom_nsa_script_filename from user_account natural join exam where exam_uuid = ${examUuid}`
   )
-  return rows[0].user_account_use_s3_nsa_scripts ?? false
+  return rows[0]?.user_account_custom_nsa_script_filename
 }

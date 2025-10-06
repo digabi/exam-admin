@@ -50,3 +50,5 @@ export type UserDetailsAPI = {
 export type Language = 'fi' | 'sv'
 
 export type CensorDistributionState = 'preview' | 'distribution'
+
+export type FindingsStatus = 'not_generated' | 'no_findings' | 'has_findings'
