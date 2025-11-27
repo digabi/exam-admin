@@ -4,7 +4,6 @@ export const fi = {
     email: 'Sähköpostiosoite',
     password: 'Salasana',
     wrong_credentials: 'Unohditko salasanasi? Katso ohje alta.',
-    wrong_credentials_oauth: 'Tarkista sähköpostiosoite ja salasana',
     login: 'Kirjaudu',
     login_header: 'Kirjaudu palveluun',
     logout: 'Kirjaudu ulos',
@@ -68,9 +67,6 @@ export const fi = {
     },
     settings: {
       title: 'Asetukset',
-      authorized_applications: 'Valtuutetut sovellukset',
-      remove_authorization: 'Poista',
-      no_authorized_apps: 'Ei valtuutuksia',
       update_username: {
         change_email_address: 'Vaihda sähköpostiosoite',
         new_email_address: 'Uusi sähköpostiosoite',
@@ -241,17 +237,5 @@ export const fi = {
     digabi_terms: 'Käyttöehdot ja tietosuojaseloste',
     copy: '©',
     office_hours: '(ark. 9-15)'
-  },
-  oauth: {
-    consent:
-      '<p>Haluatko myöntää verkkopalvelulle <strong>"{{clientName}}"</strong> pääsyn tunnuksellesi (<strong>{{username}}</strong>)?</p>',
-    consent_scopes: 'Haetut käyttöoikeudet:',
-    consent_notice: 'Hyväksy tämä pyyntö vain luotettavilta verkkopalveluilta.',
-    consent_error: 'Virhe käyttöoikeuden käsittelyssä.',
-    allow: 'Hyväksy',
-    deny: 'Estä',
-    scopes: {
-      'exam:write': 'Verkkopalvelu voi lisätä tilillesi kokeita.'
-    }
   }
 }

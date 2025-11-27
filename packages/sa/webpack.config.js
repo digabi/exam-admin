@@ -33,8 +33,6 @@ module.exports = function (env, argv) {
       answers: jsSource('answers/answers-main.tsx'),
       'print-results': jsSource('answers/print-results.tsx'),
       index: jsSource('index.js'),
-      'oauth-consent': jsSource('oauth-consent.js'),
-      'oauth-login': jsSource('oauth-login.js'),
       'editor.worker': 'monaco-editor/esm/vs/editor/editor.worker.js',
       'json.worker': 'monaco-editor/esm/vs/language/json/json.worker',
       'css.worker': 'monaco-editor/esm/vs/language/css/css.worker',

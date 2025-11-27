@@ -1,7 +1,7 @@
 'use strict'
 
 import Promise from 'bluebird'
-import config from '../config/configParser'
+import { config } from '../config'
 
 export function ensureAuthenticatedWithFallback(fallback) {
   return (req, res, next) => checkAuth(req, res, next, fallback)
@@ -12,7 +12,7 @@ export function ensureAuthenticated(req, res, next) {
 }
 
 export function isSuperuser(req) {
-  return req?.user?.userName === config.superUserUsername
+  return req?.user?.userName === config().superUserUsername
 }
 
 export function ensureSuperuser(req, res, next) {

@@ -1,11 +1,11 @@
 'use strict'
 
-import config from '../../config/configParser'
+import { config } from '../../config'
 import { getJsonAsync } from '@digabi/fetch'
 import * as examHandling from '../../db/exam-handling'
 
 export function getHeldExams(userId) {
-  return getJsonAsync(`${config.examUri}/grading/status/${userId}`)
+  return getJsonAsync(`${config().examUri}/grading/status/${userId}`)
 }
 
 export function markExamAsDeleted(userId, examUuid) {
@@ -24,11 +24,11 @@ function getSchoolFromArpaAndCheckAccessRights(url, userAccountId) {
 }
 
 export function checkUserHasAccessToAnswer(userAccountId, answerId) {
-  const url = `${config.examUri}/grading/answerId/${answerId}/examUuid`
+  const url = `${config().examUri}/grading/answerId/${answerId}/examUuid`
   return getSchoolFromArpaAndCheckAccessRights(url, userAccountId)
 }
 
 export function checkUserHasAccessToAnswerPaper(userAccountId, answerPaperId) {
-  const url = `${config.examUri}/grading/answerPaperId/${answerPaperId}/examUuid`
+  const url = `${config().examUri}/grading/answerPaperId/${answerPaperId}/examUuid`
   return getSchoolFromArpaAndCheckAccessRights(url, userAccountId)
 }

@@ -4,5 +4,5 @@ module.exports = {
   spec: ['test/**/*.js', 'test/**/*.ts'],
   reporter: process.env.CI ? 'mocha-ctrf-json-reporter' : 'spec',
   loader: 'ts-node/esm',
-  require: ['ts-node/register', 'tsconfig-paths/register', 'test/config.js']
+  require: ['ts-node/register', 'test/setup.ts']
 }

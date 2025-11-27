@@ -1,11 +1,10 @@
 import express from 'express'
 import * as path from 'path'
+import { config } from './config'
 import { logger } from './logger'
 
-const isDev = process.env.NODE_ENV !== 'production'
-
 export default function webpackAssets() {
-  if (!isDev) {
+  if (!config().useWebpackDevMiddleware) {
     logger.info('Serving prebuilt webpack assets')
     return express.static(path.resolve(__dirname, '../public/dist'))
   }

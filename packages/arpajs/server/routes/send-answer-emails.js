@@ -7,7 +7,7 @@ import bodyParser from 'body-parser'
 import * as token from '../crypt/token'
 import * as studentDb from '../db/student-data'
 import { sendEmail } from '../email'
-import config from '../config/configParser'
+import { config } from '../config'
 import { AppError, respondWithJsonOrThrow } from '@digabi/express-utils'
 import { isValidEmail } from '@digabi/validation'
 
@@ -37,7 +37,7 @@ router.post('/:heldExamUuid', (req, res, next) => {
 })
 
 function sendAnswerEmail(examTitle, address, firstNames, urlWithtoken) {
-  const mail = config.answerLinkMail(address, examTitle, firstNames, urlWithtoken)
+  const mail = config().emailTemplates.answerLinkMail(address, examTitle, firstNames, urlWithtoken)
   return sendEmail(mail)
 }
 

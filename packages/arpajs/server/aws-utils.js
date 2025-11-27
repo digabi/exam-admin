@@ -2,7 +2,7 @@
 
 import { GetObjectCommand, S3 } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
-import config from './config/configParser'
+import { config } from './config'
 import { Readable } from 'stream'
 import { buffer } from 'stream/consumers'
 import { pipeline } from 'stream/promises'
@@ -11,9 +11,10 @@ import path from 'path'
 import fs from 'fs'
 import { logger } from './logger'
 
-export const s3Client = new S3(config.s3Config)
-const S3forLogs = new S3(config.s3ConfigForLogs)
-const S3ForAttachments = new S3(config.s3ConfigForAttachments)
+export const s3Client = new S3(config().s3Config)
+const S3forLogs = new S3(config().s3ConfigForLogs)
+const S3ForAttachments = new S3(config().s3ConfigForAttachments)
+const S3ForFindings = new S3(config().s3ConfigForFindings)
 const s3LogEncryptionPublicKey = fs.readFileSync(path.resolve(__dirname, 's3_encrypt.pub'))
 if (!s3LogEncryptionPublicKey.length) {
   logger.error('No encryption key found, not encrypting logs')
@@ -40,8 +41,8 @@ function streamAttachmentFileFromS3Async(bucket, key) {
 
 export function copyAttachment(storageKey, newStorageKey) {
   return S3ForAttachments.copyObject({
-    Bucket: config.s3AttachmentsBucket,
-    CopySource: `/${config.s3AttachmentsBucket}/${encodeURIComponent(storageKey)}`,
+    Bucket: config().s3AttachmentsBucket,
+    CopySource: `/${config().s3AttachmentsBucket}/${encodeURIComponent(storageKey)}`,
     Key: newStorageKey
   })
 }
@@ -50,7 +51,7 @@ export function uploadLogToS3(logIdentitier, logStream, metadata) {
   const s3Key = createS3Logfilename(logIdentitier)
 
   if (s3LogEncryptionPublicKey.length === 0) {
-    return streamFileToS3Async(S3forLogs, config.s3ExamLogsBucket, s3Key, logStream, metadata)
+    return streamFileToS3Async(S3forLogs, config().s3ExamLogsBucket, s3Key, logStream, metadata)
   }
 
   const keyIv = cryptoUtils.generateKeyAndIv()
@@ -62,7 +63,7 @@ export function uploadLogToS3(logIdentitier, logStream, metadata) {
 
   const encryptedSymmetricKey = cryptoUtils.encryptWithPublicKey(s3LogEncryptionPublicKey, keyIvJson)
   return pipeline(logStream, cryptoUtils.createAES256EncryptStreamWithIv(keyIv.key, keyIv.iv), encryptedStream =>
-    streamFileToS3Async(S3forLogs, config.s3ExamLogsBucket, createS3Logfilename(logIdentitier), encryptedStream, {
+    streamFileToS3Async(S3forLogs, config().s3ExamLogsBucket, createS3Logfilename(logIdentitier), encryptedStream, {
       ...metadata,
       encryptedSymmetricKey // S3 metadata keys are always lowercase
     })
@@ -80,7 +81,7 @@ function createS3Logfilename(logIdentifier) {
 
 export function uploadAttachmentsZipBufferToS3(examUuid, fileContentBuffer) {
   return uploadFileBufferToS3(
-    config.s3AttachmentsBucket,
+    config().s3AttachmentsBucket,
     createS3AttachmentsFilename(examUuid, '.zip'),
     fileContentBuffer
   )
@@ -95,12 +96,16 @@ export function makeAttachmentFileName(examUuid, filename) {
 }
 
 export function uploadAttachmentFileBufferToS3(examUuid, filename, fileContentBuffer) {
-  return uploadFileBufferToS3(config.s3AttachmentsBucket, makeAttachmentFileName(examUuid, filename), fileContentBuffer)
+  return uploadFileBufferToS3(
+    config().s3AttachmentsBucket,
+    makeAttachmentFileName(examUuid, filename),
+    fileContentBuffer
+  )
 }
 
 export async function uploadAttachmentFileStreamToS3(examUuid, filename, fileContentStream) {
   return await streamAttachmentFileToS3Async(
-    config.s3AttachmentsBucket,
+    config().s3AttachmentsBucket,
     makeAttachmentFileName(examUuid, filename),
     fileContentStream,
     {}
@@ -116,21 +121,21 @@ function uploadFileBufferToS3(s3Bucket, filename, fileContentBuffer) {
 }
 
 export async function getAttachmentAsStreamFromS3(key) {
-  const response = await S3ForAttachments.getObject({ Bucket: config.s3AttachmentsBucket, Key: key })
+  const response = await S3ForAttachments.getObject({ Bucket: config().s3AttachmentsBucket, Key: key })
   return response.Body
 }
 
 export function downloadAttachmentsBufferFromS3(key) {
-  return downloadBufferFromS3(config.s3AttachmentsBucket, key)
+  return downloadBufferFromS3(config().s3AttachmentsBucket, key)
 }
 
 export function deleteAttachmentBufferFromS3(key) {
-  return S3ForAttachments.deleteObject({ Bucket: config.s3AttachmentsBucket, Key: key })
+  return S3ForAttachments.deleteObject({ Bucket: config().s3AttachmentsBucket, Key: key })
 }
 
 export function deleteAttachmentBuffersFromS3(keys) {
   return S3ForAttachments.deleteObjects({
-    Bucket: config.s3AttachmentsBucket,
+    Bucket: config().s3AttachmentsBucket,
     Delete: {
       Objects: keys.map(key => ({ Key: key }))
     }
@@ -143,7 +148,7 @@ function downloadBufferFromS3(bucket, key) {
 
 export async function downloadNsaScripts(filename) {
   try {
-    const response = await s3Client.send(new GetObjectCommand({ Bucket: config.s3NsaScriptsBucket, Key: filename }))
+    const response = await s3Client.send(new GetObjectCommand({ Bucket: config().s3NsaScriptsBucket, Key: filename }))
     return response.Body
   } catch (error) {
     logger.error('Error downloading nsa scripts from S3', { error })
@@ -152,8 +157,15 @@ export async function downloadNsaScripts(filename) {
 }
 
 export async function downloadNsaFindings(heldExamUuid) {
-  const response = await s3Client.send(
-    new GetObjectCommand({ Bucket: config.s3NsaFindingsBucket, Key: `${heldExamUuid}-findings.pdf` })
-  )
-  return response.Body
+  if (config().runningInCloud) {
+    const response = await S3ForFindings.send(
+      new GetObjectCommand({ Bucket: config().s3NsaFindingsBucket, Key: `reports/${heldExamUuid}-findings.pdf` })
+    )
+    return response.Body
+  } else {
+    const response = await S3ForFindings.send(
+      new GetObjectCommand({ Bucket: config().s3NsaFindingsBucket, Key: `${heldExamUuid}-findings.pdf` })
+    )
+    return response.Body
+  }
 }

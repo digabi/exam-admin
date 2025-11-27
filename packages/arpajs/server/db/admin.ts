@@ -20,11 +20,42 @@ export async function moveExamsFromUsername(oldUsername: string, newUsername: st
   )
 }
 
+export async function moveSingleExamFromUsername(oldUsername: string, newUsername: string, title: string) {
+  await assertUsernameExists(oldUsername)
+  await assertUsernameExists(newUsername)
+  await assertExamExists(oldUsername, title)
+  return pgrm.queryRowsAsync(
+    SQL`UPDATE exam
+      SET user_account_id = (
+        SELECT user_account_id FROM user_account WHERE user_account_username = ${newUsername}
+      ) 
+      WHERE exam_uuid IN (
+        SELECT exam_uuid 
+        FROM exam
+        NATURAL JOIN user_account
+        WHERE user_account_username = ${oldUsername} AND title = ${title}
+        ORDER BY creation_date DESC
+        LIMIT 1
+      )
+      returning exam_uuid`
+  )
+}
+
 export async function assertUsernameExists(username: string) {
   const result = await pgrm.queryRowsAsync(SQL`SELECT 1 FROM user_account WHERE user_account_username = ${username}`)
   if (result.length !== 1) {
     logger.info('Username not found', { username })
     throw new Error('Username not found')
+  }
+}
+
+async function assertExamExists(username: string, title: string) {
+  const result = await pgrm.queryRowsAsync(
+    SQL`SELECT 1 FROM user_account NATURAL JOIN exam WHERE user_account_username = ${username} AND title = ${title}`
+  )
+  if (result.length === 0) {
+    logger.info('Exam not found', { username, title, result })
+    throw new Error('Exam not found')
   }
 }
 

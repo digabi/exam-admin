@@ -1,36 +1,46 @@
 #!/usr/bin/env node
 require('source-map-support').install()
-const logger = require('../dist/logger').logger
-const config = require('../dist/config/config').default
-const app = require('../dist/app').default
 const { promisify } = require('util')
-const pgrm = require('../dist/db/arpajs-database').default
-const http = require('http')
-const https = require('https')
+const { loadConfig } = require('../dist/config')
+const logger = require('../dist/logger').logger
 
-// Enable Keep-Alive by default for better performance.
-http.globalAgent.keepAlive = true
-https.globalAgent.keepAlive = true
+loadConfig()
+  .then(config => {
+    const app = require('../dist/app').default
+    const pgrm = require('../dist/db/arpajs-database').default
+    const http = require('http')
+    const https = require('https')
 
-const server = app.listen(config.port, config.interface, function () {
-  logger.info('Express server listening on ' + server.address().address + ':' + server.address().port)
-})
+    // Enable Keep-Alive by default for better performance.
+    http.globalAgent.keepAlive = true
+    https.globalAgent.keepAlive = true
 
-function terminateGracefully(signal) {
-  process.on(signal, () => {
-    logger.info(`Received ${signal} exiting...`)
-    const serverCloseAsync = promisify(server.close.bind(server))
-    serverCloseAsync()
-      .then(() => pgrm.end())
-      .catch(err => {
-        logger.error('Error terminating gracefully', err)
+    const server = app.listen(config.port, config.interface, () => {
+      logger.info(`Express server listening on ${server.address().address}:${server.address().port}`)
+    })
+
+    function terminateGracefully(signal) {
+      process.on(signal, () => {
+        logger.info(`Received ${signal} exiting...`)
+        const serverCloseAsync = promisify(server.close.bind(server))
+        serverCloseAsync()
+          .then(() => pgrm.end())
+          .catch(err => {
+            logger.error('Error terminating gracefully', err)
+          })
+          .finally(() => {
+            logger.info(`Exit at ${new Date().toISOString()}`)
+            process.exit()
+          })
       })
-      .finally(() => {
-        logger.info(`Exit at ${new Date().toISOString()}`)
-        process.exit()
-      })
+    }
+
+    terminateGracefully('SIGINT')
+    terminateGracefully('SIGTERM')
+
+    logger.log('info', `Running at node ${JSON.stringify(process.versions)}`)
+    return
   })
-}
-
-terminateGracefully('SIGINT')
-terminateGracefully('SIGTERM')
+  .catch(error => {
+    logger.error('Error while loading app configuration. Shutting down', { error })
+  })

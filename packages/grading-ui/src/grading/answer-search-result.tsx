@@ -1,6 +1,6 @@
 import { debounce } from 'lodash'
 import React, { Dispatch, SetStateAction, useCallback, useContext, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { getScoreRegExp } from '../common/score-regexp'
 import { postJson } from '../common/utils'
 import { ExpandableText } from './ExpandableText'

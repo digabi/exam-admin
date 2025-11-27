@@ -6,7 +6,6 @@ export const sv: typeof fi = {
     email: 'E-post',
     password: 'Lösenord',
     wrong_credentials: 'Har du glömt lösenordet? Se anvisningarna nedan.',
-    wrong_credentials_oauth: 'Kontrollera e-postadressen och lösenordet',
     login: 'Logga in',
     login_header: 'Logga in till tjänsten',
     logout: 'Logga ut',
@@ -71,10 +70,6 @@ export const sv: typeof fi = {
     },
     settings: {
       title: 'Inställningar',
-      authorized_applications: 'Applikationer med tillåtelse',
-      remove_authorization: 'Avlägsna',
-      no_authorized_apps: 'Inga applikationer med tillåtelse',
-
       update_username: {
         change_email_address: 'Byt e-postadress',
         new_email_address: 'Ny e-postadress',
@@ -245,17 +240,5 @@ export const sv: typeof fi = {
     digabi_terms: 'Licensavtal och dataskyddsbeskrivning',
     copy: '©',
     office_hours: '(vard. 9-15)'
-  },
-  oauth: {
-    consent:
-      '<p>Vill du ge webbtjänsten <strong>{{clientName}}</strong> tillgång till ditt konto (<strong>{{username}}</strong>)?</p>',
-    consent_scopes: 'Begärda användarrättigheter:',
-    consent_notice: 'Godkänn denna begäran endast om den kommer från en pålitlig webbtjänst.',
-    consent_error: 'Fel i hanteringen av användarrättigheter.',
-    allow: 'Godkänn',
-    deny: 'Avböj',
-    scopes: {
-      'exam:write': 'Webbtjänsten kan lägga till prov på ditt konto'
-    }
   }
 }

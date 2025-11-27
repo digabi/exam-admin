@@ -9,12 +9,13 @@ import _ from 'lodash'
 
 import {
   changeUserName,
-  moveExamsFromUsername,
+  moveSingleExamFromUsername,
   assertUsernameExists,
   ktpVersionsByWeek,
   ktpTypesByWeek,
   deleteExams,
-  deleteExamsFromUser
+  deleteExamsFromUser,
+  moveExamsFromUsername
 } from '../db/admin'
 import { sendCsv } from '@digabi/express-utils'
 
@@ -61,6 +62,18 @@ router.post('/move-exams/:fromUsername/:toUsername', async (req, res) => {
     const { fromUsername, toUsername } = req.params
     logger.audit(`Moving exams from ${fromUsername} to ${toUsername} ...`)
     const result = await moveExamsFromUsername(fromUsername, toUsername)
+    res.status(200).end(`${result.length} koetta siirretty`)
+  } catch (error) {
+    logger.warn(error.toString())
+    res.status(400).end(error.toString())
+  }
+})
+
+router.post('/move-single-exam/:fromUsername/:toUsername/:exam', async (req, res) => {
+  try {
+    const { fromUsername, toUsername, exam } = req.params
+    logger.audit(`Moving exam ${exam} from ${fromUsername} to ${toUsername} ...`)
+    const result = await moveSingleExamFromUsername(fromUsername, toUsername, exam)
     res.status(200).end(`${result.length} koetta siirretty`)
   } catch (error) {
     logger.warn(error.toString())

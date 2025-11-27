@@ -21,7 +21,7 @@ export function initRichTextEditor(
     {
       ignoreSaveObject: true,
       locale: t.rich_text_editor_locale as 'FI' | 'SV',
-      screenshotSaver: async ({ data, type }: { data: Buffer; type: string }) => {
+      screenshotSaver: async ({ data, type }: { data: File | Uint8Array<ArrayBuffer>; type: string }) => {
         const blob = data instanceof Blob ? data : new Blob([data], { type })
         const file = new File([blob], `Screenshot ${new Date().toLocaleString('fi')}.${type.split('/')[1]}`)
         try {
@@ -63,7 +63,7 @@ function handleSaveError(err: unknown) {
 function renderMathSvg(doc: Element) {
   const baseUrl = ''
   doc.querySelectorAll('e\\:formula').forEach(el => {
-    const latex = trimLatex(el.textContent!)
+    const latex = trimLatex(el.textContent)
     el.insertAdjacentHTML(
       'beforebegin',
       `<img alt="${latex}" src="${`${baseUrl}/math.svg?latex=${encodeURIComponent(latex)}`}" ${attrStr(

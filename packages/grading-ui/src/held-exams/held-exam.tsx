@@ -12,6 +12,7 @@ import { deleteJson, postJson } from '../common/utils'
 export const HeldExam = ({
   canBePregraded,
   eventDate,
+  uploaded,
   title,
   schoolAnonCode,
   answerPapers,
@@ -51,6 +52,11 @@ export const HeldExam = ({
   const isPrincipal = activeRole === 'PRINCIPAL'
   const lang = i18n.language as Language
   const pregradableAnswerCount = answers - autogradedScores
+
+  const reportGenerationFailed =
+    findingsStatus === 'not_generated' &&
+    uploaded &&
+    new Date().getTime() - new Date(uploaded).getTime() > 24 * 60 * 60 * 1000 // 24 hours
 
   const answersLeftUntilTarget = (target: number) =>
     Math.ceil(target * pregradableAnswerCount - pregradingFinishedCount)
@@ -198,8 +204,15 @@ export const HeldExam = ({
                   {t('sa.has_findings')}
                 </a>
               ) : (
-                <span className={findingsStatus === 'not_generated' ? 'grey' : 'green'}>
-                  {t(findingsStatus === 'not_generated' ? 'sa.not_generated' : 'sa.no_findings')}
+                <span
+                  className={findingsStatus === 'not_generated' ? (reportGenerationFailed ? 'red' : 'grey') : 'green'}>
+                  {t(
+                    findingsStatus === 'not_generated'
+                      ? reportGenerationFailed
+                        ? 'sa.not_generated_failed'
+                        : 'sa.not_generated'
+                      : 'sa.no_findings'
+                  )}
                 </span>
               )}
             </td>

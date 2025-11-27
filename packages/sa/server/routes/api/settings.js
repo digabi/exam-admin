@@ -9,10 +9,8 @@ import { ensureAuthenticated } from '../../auth/auth-session'
 import pgrm from '../../db/arpajs-database'
 import * as email from '../../email'
 import { using } from 'bluebird'
-import { removeAuthorizedClientFromUser } from '../../auth/oauth'
-import { queryAuthorizedClients } from '../../auth/oauth-model'
 import SQL from 'sql-template-strings'
-import config from '../../config/configParser'
+import { config } from '../../config'
 
 router.get('/exam-language', async (req, res) => {
   if (!req.user) {
@@ -95,18 +93,8 @@ router.get('/update-email', async (req, res) => {
 const sendUpdateEmail = (req, to, token) => {
   const baseUrl = baseUrlFromRequestHeaders(req)
   const confirmationUrl = `${baseUrl}/kurko-api/settings/update-email?token=${encodeURIComponent(token)}`
-  const mail = config.updateEmail(to, confirmationUrl)
+  const mail = config().emailTemplates.updateEmail(to, confirmationUrl)
   return email.send(mail)
 }
-
-router.get('/authorized-apps', ensureAuthenticated, async (req, res) => {
-  res.send(await queryAuthorizedClients(req.user.userId))
-})
-
-router.delete('/authorized-apps/:clientId', ensureAuthenticated, async (req, res) => {
-  await removeAuthorizedClientFromUser(req.params.clientId, req.user.userId)
-  res.status(204)
-  res.end()
-})
 
 export default router

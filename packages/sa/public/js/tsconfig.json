@@ -1,6 +1,7 @@
 {
   "extends": "@digabi/typescript-config/public/tsconfig.json",
   "compilerOptions": {
-    "target": "ES2018"
+    "target": "ES2018",
+    "typeRoots": ["../../typings", "../../node_modules/@types"]
   }
 }

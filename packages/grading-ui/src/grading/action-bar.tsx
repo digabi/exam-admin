@@ -1,6 +1,7 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { GradingExam } from './types'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router'
 
 interface BaseProps {
   exam: GradingExam
@@ -11,7 +12,6 @@ interface BaseProps {
   schoolExamAnonCode?: string
   studentCode?: string
   displayNumber?: string
-  navigate: (url: string) => void
   setShowAllPregradingScores?: Dispatch<SetStateAction<boolean>>
   setShowAnswerSearchUI: Dispatch<SetStateAction<boolean>>
   showAnswerSearchUI: boolean
@@ -45,7 +45,6 @@ export function ActionBar(props: ActionBarProps) {
     schoolExamAnonCode,
     studentCode,
     displayNumber,
-    navigate,
     setShowAllPregradingScores,
     setShowAnswerSearchUI,
     showAnswerSearchUI,
@@ -56,6 +55,7 @@ export function ActionBar(props: ActionBarProps) {
     returnToEventsUrl
   } = props
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const examsWithNoHvp = ['A_E', 'DC', 'IC', 'QC']
   const hvpContentUrl = examsWithNoHvp.includes(examCode) ? null : gradingInstructionsUrl
 
@@ -78,7 +78,7 @@ export function ActionBar(props: ActionBarProps) {
       <span className="back-and-title">
         <div className="goBack">
           {isInGrading ? (
-            <ReturnToGridLink navigate={navigate} returnToGridUrl={returnToGridUrl} />
+            <ReturnToGridLink navigate={url => navigate(url)} returnToGridUrl={returnToGridUrl} />
           ) : (
             <a className="returnToEvents" href={returnToEventsUrl}>
               {t('arpa.return_to_exams')}
@@ -263,11 +263,11 @@ export function ExamCopyActionBar(props: {
     <div id="actionBar">
       <span className="back-and-title">
         <div className="goBack">
-          <ReturnToGridLink {...props} />
+          <ReturnToGridLink navigate={props.navigate} returnToGridUrl={props.returnToGridUrl} />
         </div>
       </span>
       <div id="action-buttons">
-        <DocumentLinks {...props} />
+        <DocumentLinks examContentUrl={props.examContentUrl} attachmentContentUrl={props.attachmentContentUrl} />
       </div>
     </div>
   )
@@ -275,6 +275,7 @@ export function ExamCopyActionBar(props: {
 
 function ReturnToGridLink(props: { navigate: (url: string) => void; returnToGridUrl: string }) {
   const { t } = useTranslation()
+
   return (
     <a
       className="returnToGrid"

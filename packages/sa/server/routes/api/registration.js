@@ -8,7 +8,7 @@ import { isValidEmail } from '@digabi/validation'
 import { baseUrlFromRequestHeaders } from '../../utils'
 
 import * as email from '../../email'
-import config from '../../config/configParser'
+import { config } from '../../config'
 
 router.post('/', (req, res) => {
   const email = req.body.email
@@ -26,7 +26,7 @@ router.post('/', (req, res) => {
 })
 
 function sendRegistrationEmail(baseUrl, token, address) {
-  const mail = config.registrationMail(address, `${tokenUrl(baseUrl, token)}?setLng=fin`)
+  const mail = config().emailTemplates.registrationMail(address, `${tokenUrl(baseUrl, token)}?setLng=fin`)
   return email.send(mail)
 
   function tokenUrl(baseUrl, token) {

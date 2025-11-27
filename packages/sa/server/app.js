@@ -8,7 +8,7 @@ import bodyParser from 'body-parser'
 import { setupDefaultErrorHandlers, extendTimeoutForUploadRouteWithLargeFiles } from '@digabi/express-utils'
 import { requestLogger } from '@digabi/logger'
 import session from 'express-session'
-import config from './config/configParser'
+import { config } from './config'
 import * as proxying from './proxying'
 import { mathSvgResponse as mathSvgHandler } from 'rich-text-editor/server/mathSvg'
 import URI from 'urijs'
@@ -37,8 +37,6 @@ import settingsRouter from './routes/api/settings'
 import userDevRouter from './routes/dev/users'
 import registrationDevRouter from './routes/dev/registration'
 import examDevRouter from './routes/dev/exam'
-import { importExamHandler } from './routes/api/import-exam-handler'
-import cors from 'cors'
 import helmet from 'helmet'
 
 app.use((req, _res, next) => {
@@ -49,27 +47,27 @@ app.use((req, _res, next) => {
 })
 
 app.get('/health-check', (req, res) => res.sendStatus(200))
-if (config.trustProxy) {
-  app.set('trust proxy', config.trustProxy)
+if (config().trustProxy) {
+  app.set('trust proxy', config().trustProxy)
 } else {
   app.enable('trust proxy')
 }
 
-app.get('/root-page', (req, res) => res.redirect(config.rootPage))
+app.get('/root-page', (req, res) => res.redirect(config().rootPage))
 
 app.get('/kayttoehdot', (req, res) =>
-  config.termsOfServicePage ? res.redirect(config.termsOfServicePage.fi) : res.sendStatus(404)
+  config().termsOfServicePage ? res.redirect(config().termsOfServicePage.fi) : res.sendStatus(404)
 )
 
 app.get('/licensavtal', (req, res) =>
-  config.termsOfServicePage ? res.redirect(config.termsOfServicePage.sv) : res.sendStatus(404)
+  config().termsOfServicePage ? res.redirect(config().termsOfServicePage.sv) : res.sendStatus(404)
 )
 
 passportSetup()
 app.use(compress())
 app.use(
   helmet.contentSecurityPolicy(
-    config.runningInCloud
+    config().runningInCloud
       ? {}
       : {
           directives: {
@@ -104,18 +102,6 @@ app.use(requestLogger(logger, { getRemoteUser: req => req.user?.userName }))
 
 app.get('/math.svg', mathSvgHandler)
 
-// The OAuth API needs to be included before the express-session is initialized
-// in order to not return the session cookie to the calling application.
-if (config.oauth.enabled) {
-  import('./auth/oauth')
-    .then(oauth => {
-      app.options('/resource/exam', cors())
-      app.post('/resource/exam', oauth.allowOAuthTokenWithScope('exam:write'), importExamHandler)
-      return
-    })
-    .catch(error => logger.error('Failed to import oauth,', error))
-}
-
 app.use(
   session({
     store: new pgSession({
@@ -124,13 +110,13 @@ app.use(
       pruneSessionInterval: 60
     }),
     name: 'kurkoSession',
-    secret: config.secrets.sessionSecret,
+    secret: config().sessionSecret,
     rolling: true,
     resave: false, // connect-pg-simple recommended value
     saveUninitialized: false,
     cookie: {
-      secure: config.runningInCloud,
-      maxAge: config.sessionTimeout
+      secure: config().runningInCloud,
+      maxAge: config().sessionTimeout
     },
     httpOnly: true,
     sameSite: true
@@ -153,10 +139,10 @@ app.get('/', (req, res) => {
   res.send(markup(isSuperuser(req)))
 })
 app.get('/admin', ensureSuperuser, sendFile('admin.html'))
-app.use('/exam-api/grading/student/answers', proxying.proxy(`${config.examUri}/grading/student/answers`))
-app.use('/exam-api/grading/student/exam', proxying.proxy(`${config.examUri}/grading/student/exam`))
-app.use('/screenshot', proxying.proxy(`${config.examUri}/grading/screenshot`)) // Screenshots in rich text answers
-app.use('/audio', proxying.proxy(`${config.examUri}/grading/audio`)) // Audio files in audio answers
+app.use('/exam-api/grading/student/answers', proxying.proxy(`${config().examUri}/grading/student/answers`))
+app.use('/exam-api/grading/student/exam', proxying.proxy(`${config().examUri}/grading/student/exam`))
+app.use('/screenshot', proxying.proxy(`${config().examUri}/grading/screenshot`)) // Screenshots in rich text answers
+app.use('/audio', proxying.proxy(`${config().examUri}/grading/audio`)) // Audio files in audio answers
 app.use(
   '/exam-api/grading/answers-meb',
   extendTimeoutForUploadRouteWithLargeFiles,
@@ -172,22 +158,6 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use(cookieParser())
 
-// The bodyParser.urlencoded needs to be initialized before the OAuth authorization, consent and token routes
-if (config.oauth.enabled) {
-  import('./auth/oauth')
-    .then(oauth => {
-      app.get('/oauth/login', sendFile('oauth-login.html'))
-      app.get('/oauth/authorize', oauth.authorization)
-      app.get('/oauth/consent', sendFile('oauth-consent.html'))
-
-      app.get('/oauth/consent/:transactionId', ensureAuthenticated, oauth.getTransactionDetails)
-      app.post('/oauth/consent', oauth.decision)
-      app.post('/oauth/token', oauth.allowClientOrigin, oauth.token)
-      return
-    })
-    .catch(error => logger.error('Failed to import oauth,', error))
-}
-
 app.post('/redirectSink', redirectSink)
 app.use('/school', schoolRouter)
 app.use('/registration', userPageRouter)
@@ -201,12 +171,12 @@ app.use(
   '/admin-api/impersonate',
   ensureAuthenticated,
   ensureSuperuser,
-  proxying.proxy(`${config.examUri}/admin/impersonate/${config.superUserUsername}`)
+  proxying.proxy(`${config().examUri}/admin/impersonate/${config().superUserUsername}`)
 )
-app.use('/admin-api', ensureAuthenticated, ensureSuperuser, proxying.proxy(`${config.examUri}/admin`))
-app.use('/digabi2', proxying.proxy(`${config.examUri}/digabi2`))
+app.use('/admin-api', ensureAuthenticated, ensureSuperuser, proxying.proxy(`${config().examUri}/admin`))
+app.use('/digabi2', proxying.proxy(`${config().examUri}/digabi2`))
 
-if (!config.runningInCloud) {
+if (!config().runningInCloud) {
   logger.warn('Enabling dev routes')
   app.use('/kurko-dev/users', userDevRouter)
   app.use('/kurko-dev/registration', registrationDevRouter)
@@ -222,7 +192,7 @@ function allowCrossDomain(req, res, next) {
   next()
 }
 
-setupDefaultErrorHandlers(app, config.stackTracesOnErrorResponses, logger)
+setupDefaultErrorHandlers(app, config().stackTracesOnErrorResponses, logger)
 
 function redirectSink(req, res) {
   const redirectURI = req.body.redirectUri

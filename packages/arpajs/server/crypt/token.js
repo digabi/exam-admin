@@ -3,11 +3,11 @@
 import CryptoJS from 'crypto-js'
 import { logger } from '../logger'
 import URLSafeBase64 from 'urlsafe-base64'
-import config from '../config/configParser'
+import { config } from '../config'
 import crypto from 'crypto'
 
-const key = CryptoJS.enc.Hex.parse(config.secrets.urlTokenKey)
-const iv = CryptoJS.enc.Hex.parse(config.secrets.urlTokenIv)
+const key = CryptoJS.enc.Hex.parse(config().urlTokenKey)
+const iv = CryptoJS.enc.Hex.parse(config().urlTokenIv)
 
 function encrypt(str) {
   const encrypted = CryptoJS.AES.encrypt(str, key, { iv: iv })
@@ -19,8 +19,8 @@ function encrypt(str) {
 function decrypt(ciphertext) {
   const decipher = crypto.createDecipheriv(
     'aes-256-cbc',
-    Buffer.from(config.secrets.urlTokenKey, 'hex'),
-    Buffer.from(config.secrets.urlTokenIv, 'hex')
+    Buffer.from(config().urlTokenKey, 'hex'),
+    Buffer.from(config().urlTokenIv, 'hex')
   )
 
   let decrypted = decipher.update(ciphertext, 'base64', 'utf8')

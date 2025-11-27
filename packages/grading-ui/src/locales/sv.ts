@@ -139,6 +139,7 @@ const sv: typeof fi = {
     undelete: 'Ångra radering',
     has_findings: 'Ladda ner rapport',
     not_generated: 'Färdigställs inom 24 timmar',
+    not_generated_failed: 'Skapandet av rapporten misslyckades',
     no_findings: 'Inga avvikande observationer'
   },
   arpa: {

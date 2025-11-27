@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { StudentAnonIdentifier } from './student-anon-identifier'
 import { ExamCopyLink } from './exam-copy-link'
 import { AutogradedScores } from './autograded-scores'

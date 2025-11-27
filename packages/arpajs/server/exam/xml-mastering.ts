@@ -1,7 +1,7 @@
 import { logger } from '../logger'
 import { masterExam, MasteringOptions, MasteringResult, migrateExam, parseExam } from '@digabi/exam-engine-mastering'
 import { ExamContent } from '@digabi/json-exam-utils'
-import config from '../config/configParser'
+import { config } from '../config'
 import { DataError } from '@digabi/express-utils'
 
 export type AttachmentsMetadata = { [key: string]: { duration?: number; width?: number; height?: number } | null }
@@ -93,7 +93,7 @@ export const tryXmlMastering = async (
   noShuffle: boolean,
   attachmentMetadata?: AttachmentsMetadata
 ) => {
-  const shuffleSecret = noShuffle ? undefined : config.secrets.multiChoiceShuffleSecret
+  const shuffleSecret = noShuffle ? undefined : config().multiChoiceShuffleSecret
   try {
     const masteringOptions = { multiChoiceShuffleSecret: shuffleSecret, groupChoiceAnswers: true }
     const { masteringResult, migratedXml } = await callExamMastering(

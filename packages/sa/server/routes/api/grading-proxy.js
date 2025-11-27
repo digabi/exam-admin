@@ -3,7 +3,7 @@
 import express from 'express'
 import { getJsonAsync } from '@digabi/fetch'
 const router = express.Router()
-import config from '../../config/configParser'
+import { config } from '../../config'
 import * as exam from '../../db/exam-handling'
 import * as proxying from '../../proxying'
 import * as examBl from './exam-bl'
@@ -17,7 +17,7 @@ router.get(['/:heldExamUuid/student-answers-return', '/:heldExamUuid/student-ans
       if (!canAccess) {
         return res.status(404).end()
       }
-      return proxying.proxy(`${config.examUri}/grading`)(req, res, next)
+      return proxying.proxy(`${config().examUri}/grading`)(req, res, next)
     })
     .catch(next)
 })
@@ -43,7 +43,7 @@ router.get('/results/:heldExamUuid/:studentUuid', (req, res, next) => {
         return res.status(403).end()
       }
       return getJsonAsync(
-        `${config.examUri}/grading/results/${req.params.heldExamUuid}/${req.params.studentUuid}`
+        `${config().examUri}/grading/results/${req.params.heldExamUuid}/${req.params.studentUuid}`
       ).then(({ token }) => res.redirect(`/answers/${token}`))
     })
     .catch(next)
@@ -57,7 +57,7 @@ router.get('/results/:heldExamUuid/', (req, res, next) => {
       if (!canAccess) {
         return res.status(404).end()
       }
-      return proxying.proxy(`${config.examUri}/grading`)(req, res, next)
+      return proxying.proxy(`${config().examUri}/grading`)(req, res, next)
     })
     .catch(next)
 })
@@ -79,7 +79,7 @@ function checkAnswerPaperAccessAndProxyRequest(req, res, next) {
       if (!canAccess) {
         return res.status(403).end()
       }
-      return proxying.proxy(`${config.examUri}/grading`)(req, res, next)
+      return proxying.proxy(`${config().examUri}/grading`)(req, res, next)
     })
     .catch(next)
 }
@@ -91,7 +91,7 @@ function checkAnswerAccessAndProxyRequest(req, res, next) {
       if (!canAccess) {
         return res.status(403).end()
       }
-      return proxying.proxy(`${config.examUri}/grading`)(req, res, next)
+      return proxying.proxy(`${config().examUri}/grading`)(req, res, next)
     })
     .catch(next)
 }

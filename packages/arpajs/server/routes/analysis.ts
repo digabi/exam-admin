@@ -18,9 +18,9 @@ async function heldExamsHandler(req: express.Request, res: express.Response) {
   res.json(await getHeldExamStudents(ids.data))
 }
 
-const heldExamUuidsSchema = z.pipeline(
+const heldExamUuidsSchema = z.pipe(
   z.string().transform(s => s.split(',')),
-  z.array(z.string().uuid()).min(1)
+  z.array(z.uuid()).min(1)
 )
 
 export type ExamStudent = {

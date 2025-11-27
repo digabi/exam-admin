@@ -137,6 +137,7 @@ const fi = {
     undelete: 'Peruuta poisto',
     has_findings: 'Lataa raportti',
     not_generated: 'Valmistuu 24 h kuluessa',
+    not_generated_failed: 'Raportin luonti epäonnistui',
     no_findings: 'Ei poikkeavia havaintoja'
   },
   arpa: {

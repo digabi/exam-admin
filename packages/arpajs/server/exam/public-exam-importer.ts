@@ -5,20 +5,20 @@ import { s3Client } from '../aws-utils'
 import { extractZipFileExamContent } from '../routes/exams'
 import { isExamImported, setExamAsSkipped, setExamImported } from '../db/public-exam-data'
 import { logger } from '../logger'
-import config from '../config/configParser'
+import { config } from '../config'
 import { AssumeRoleCommand, STSClient } from '@aws-sdk/client-sts'
 import { importXmlTransferZip } from './xml-import'
 
-const bucket = config.matriculationExamsBucket
+const bucket = config().matriculationExamsBucket
 
 async function getS3Client() {
-  if (!config.runningInCloud) {
+  if (!config().runningInCloud) {
     return s3Client
   }
 
   const client = new STSClient({ region: 'eu-north-1' })
   const assumeRoleCommand = new AssumeRoleCommand({
-    RoleArn: config.publicExamsRoleArn,
+    RoleArn: config().publicExamsRoleArn,
     RoleSessionName: 's3_cross_region_session'
   })
   const response = await client.send(assumeRoleCommand)

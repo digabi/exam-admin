@@ -2,17 +2,13 @@ import * as Bacon from 'baconjs'
 import _ from 'lodash'
 import examSettingsTabT from '../templates/exam-settings-tab.hbs'
 import emailT from '../templates/exam-settings-email.hbs'
-import oauthClientsT from '../templates/exam-settings-oauth-clients.hbs'
 import { validateEmail } from './sa-utils'
 import i18n from 'i18next'
-import * as L from 'partial.lenses'
 import $ from 'jquery'
-import { scopesToI18n } from './oauth-scopes'
 
 export function init(ajaxReq, $root) {
   $root.html(examSettingsTabT())
   const $email = $root.find('#update-username-form')
-  const $oauthClients = $root.find('#oauth-clients')
   $email.html(emailT({ done: false }))
 
   initExamLanguageSettings()
@@ -88,21 +84,6 @@ export function init(ajaxReq, $root) {
     }
   })
 
-  const initAuthorizations = () => {
-    ajaxReq.getJson('/kurko-api/settings/authorized-apps').onValue(clients => {
-      $oauthClients
-        .find('tbody')
-        .html(oauthClientsT({ clients: L.modify([L.elems, 'scopes'], scopesToI18n, clients) }))
-        .localize()
-      $oauthClients.asEventStream('click', '.js-remove-authorization').onValue(e => {
-        e.preventDefault()
-        const url = `/kurko-api/settings/authorized-apps/${$(e.target).attr('data-client-id')}`
-        ajaxReq.deleteJson(url).onValue(() => initAuthorizations())
-      })
-    })
-  }
-
-  initAuthorizations()
   async function initExamLanguageSettings() {
     const result = await fetch('/kurko-api/settings/exam-language')
     const { defaultExamLanguage } = await result.json()

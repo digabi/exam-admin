@@ -12,7 +12,7 @@ export function saveOnVisualEditorUpdateWithCallback(
     wrapImagWithImageTag(examRoot)
     examRoot.querySelectorAll('span:not([class], [mathquill-command-id])').forEach(span => {
       if (span.querySelectorAll('*').length == 0) {
-        span.parentNode?.replaceChild(document.createTextNode(span.textContent!), span)
+        span.parentNode?.replaceChild(document.createTextNode(span.textContent), span)
       }
     })
     examRoot.querySelectorAll('i[style]').forEach(styled => styled.removeAttribute('style'))

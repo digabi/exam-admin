@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Routes, Route, BrowserRouter } from 'react-router-dom'
+import { Routes, Route, BrowserRouter } from 'react-router'
 import GradingView from './grading-view'
 import { PageBanner, useLanguage } from '../page-banner/page-banner'
 import * as i18n from '../i18n'

@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction, useContext } from 'react'
 import { MaxScore, ScoreTableProps, UnfinishedGradedAnswer } from './types'
 import classNames from 'classnames'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router'
 import { GradingStudentRow } from './grading-student-row'
 import { PregradingStudentRow } from './pregrading-student-row'
 import { getJson } from '../common/utils'

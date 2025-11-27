@@ -4,7 +4,7 @@ import express from 'express'
 const router = express.Router()
 import * as proxying from '../../proxying'
 import { baseUrlFromRequestHeaders } from '../../utils'
-import config from '../../config/configParser'
+import { config } from '../../config'
 import * as exam from '../../db/exam-handling'
 
 router.post('/', (req, res, next) => {
@@ -18,7 +18,7 @@ router.post('/', (req, res, next) => {
       }
       return proxying
         .POST(
-          `${config.examUri}/grading/send-answer-emails/${heldExamUuid}`,
+          `${config().examUri}/grading/send-answer-emails/${heldExamUuid}`,
           { answersPageBaseUrl: `${baseUrlFromRequestHeaders(req)}/answers/` },
           next
         )

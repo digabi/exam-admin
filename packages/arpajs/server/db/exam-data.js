@@ -10,7 +10,7 @@ import SQL from 'sql-template-strings'
 const { using } = BPromise
 import { pgrm } from './local-pg-resource-management'
 
-import config from '../config/configParser'
+import { config } from '../config'
 import { parseExam } from '@digabi/exam-engine-mastering'
 import { tryXmlMasteringWithShuffle } from '../exam/xml-mastering'
 import { validateExamContentFields } from '../exam/validator/validator'
@@ -254,7 +254,7 @@ export const updateExamContent = (examUuid, content, examLanguage) => {
 }
 
 export const createExamWithContent = async (examLanguage, content, userId) =>
-  insertExamContent(examLanguage, content, await generatePassphraseAsync(config.passphraseWordList), userId)
+  insertExamContent(examLanguage, content, await generatePassphraseAsync(config().passphraseWordList), userId)
 
 const insertExamContent = (examLanguage, content, passphrase, userId) => {
   const contentValid = validateExamContentFields(content).valid
@@ -272,7 +272,7 @@ const insertExamContent = (examLanguage, content, passphrase, userId) => {
 export const createExamWithXmlContent = async (content, userId, examTitle, contentValid, examDetails) =>
   insertXmlExamContent(
     content,
-    await generatePassphraseAsync(config.passphraseWordList),
+    await generatePassphraseAsync(config().passphraseWordList),
     userId,
     examTitle,
     contentValid,
@@ -733,7 +733,7 @@ export const ensureAttachmentFitsWithinLimits = (examUuid, newAttachmentLength) 
       ` select (coalesce(sum(size), 0) + $1::int) < $2::int as "attachmentFits"
         from attachment
         where exam_uuid = $3`,
-      [newAttachmentLength, config.attachmentsLimitInBytes, examUuid]
+      [newAttachmentLength, config().attachmentsLimitInBytes, examUuid]
     )
     .then(rows => {
       if (!L.get([0, 'attachmentFits'], rows)) {

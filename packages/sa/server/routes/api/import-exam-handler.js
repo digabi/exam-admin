@@ -4,7 +4,7 @@ import {
   fileUploadMiddleware
 } from '@digabi/express-utils'
 import { postFormAsync } from '@digabi/fetch'
-import config from '../../config/configParser'
+import { config } from '../../config'
 import * as _ from 'lodash'
 import { logger } from '../../logger'
 
@@ -24,7 +24,7 @@ export const importExamHandler = [
         },
         userId
       }
-      return postFormAsync(`${config.examUri}/exams/import-exam`, formdata)
+      return postFormAsync(`${config().examUri}/exams/import-exam`, formdata)
     }
 
     return uploadZipToArpa(req.file, req.user.userId)

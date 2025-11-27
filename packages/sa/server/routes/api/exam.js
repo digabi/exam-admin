@@ -2,7 +2,7 @@
 
 import express from 'express'
 const router = express.Router()
-import config from '../../config/configParser'
+import { config } from '../../config'
 import * as exam from '../../db/exam-handling'
 import * as examBl from './exam-bl'
 import { getJsonAsync, postJsonAsync } from '@digabi/fetch'
@@ -17,31 +17,31 @@ router.get('/held-exams', ensureAuthenticated, (req, res, next) =>
 )
 
 router.get('/exam-events', (req, res, next) =>
-  getJsonAsync(`${config.examUri}/exams/status/${req.user.userId}`)
+  getJsonAsync(`${config().examUri}/exams/status/${req.user.userId}`)
     .then(exams => res.json({ exams }))
     .catch(next)
 )
 
 router.get('/questions', (req, res, next) =>
-  getJsonAsync(`${config.examUri}/exams/questions/${req.user.userId}`)
+  getJsonAsync(`${config().examUri}/exams/questions/${req.user.userId}`)
     .then(exams => res.json(exams))
     .catch(next)
 )
 
 router.get('/public-questions', (req, res, next) =>
-  getJsonAsync(`${config.examUri}/exams/public-questions?${new URLSearchParams(req.query).toString()}`)
+  getJsonAsync(`${config().examUri}/exams/public-questions?${new URLSearchParams(req.query).toString()}`)
     .then(exams => res.json(exams))
     .catch(next)
 )
 
 router.get('/public-questions/filters', (req, res, next) =>
-  getJsonAsync(`${config.examUri}/exams/public-questions/filters`)
+  getJsonAsync(`${config().examUri}/exams/public-questions/filters`)
     .then(filters => res.json(filters))
     .catch(next)
 )
 
 router.post('/password/:examUuid', (req, res, next) =>
-  postJsonAsync(`${config.examUri}/exams/password/${req.params.examUuid}/${req.user.userId}`, req.body)
+  postJsonAsync(`${config().examUri}/exams/password/${req.params.examUuid}/${req.user.userId}`, req.body)
     .then(() => res.sendStatus(204))
     .catch(next)
 )
@@ -70,7 +70,7 @@ router.delete('/exam-event/:examUuid', (req, res, next) => {
 router.post('/import-exam', importExamHandler)
 
 router.get('/copy-exam/:examUuid', (req, res, next) =>
-  getJsonAsync(`${config.examUri}/exams/copy-exam/${req.params.examUuid}/${req.user.userId}`)
+  getJsonAsync(`${config().examUri}/exams/copy-exam/${req.params.examUuid}/${req.user.userId}`)
     .then(exam => res.json(exam))
     .catch(next)
 )

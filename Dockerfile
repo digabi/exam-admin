@@ -17,8 +17,11 @@ RUN touch packages/arpajs/server/s3_encrypt.pub
 RUN touch packages/sa/public/img/logo.svg
 RUN touch packages/sa/public/img/bertta-icon.svg
 
-COPY templates/arpajs_config.ts ./packages/arpajs/server/config/config.ts
-COPY templates/sa_config.ts ./packages/sa/server/config/config.ts
+COPY templates/arpajs_dev_env.ts ./packages/arpajs/server/config/env/development.ts
+COPY templates/arpajs_env_map.ts ./packages/arpajs/server/config/env/env-map.ts
+COPY templates/sa_dev_env.ts ./packages/sa/server/config/env/development.ts
+COPY templates/sa_env_map.ts ./packages/sa/server/config/env/env-map.ts
+
 COPY templates/sa_client_config.ts ./packages/sa/public/js/config.ts
 COPY templates/nsa-scripts.zip ./packages/arpajs/server/nsa-scripts.zip
 RUN echo 'export const fiOverrides = {}' > ./packages/sa/public/locales/fi_overrides.ts

@@ -35,6 +35,15 @@ async function submitMoveExams(e) {
   void updateOutput(this, res)
 }
 
+async function submitMoveSingleExam(e) {
+  e.preventDefault()
+  const res = await fetch(
+    `/admin-api/move-single-exam/${this.elements.from.value}/${this.elements.to.value}/${this.elements.exam.value}`,
+    POST
+  )
+  void updateOutput(this, res)
+}
+
 async function submitPruneExams(e) {
   e.preventDefault()
   loading(this)
@@ -50,5 +59,6 @@ window.onload = function () {
   document.getElementById('token-form').addEventListener('submit', submitToken)
   document.getElementById('change-username-form').addEventListener('submit', submitChangeUsername)
   document.getElementById('move-exams-form').addEventListener('submit', submitMoveExams)
+  document.getElementById('move-single-exam-form').addEventListener('submit', submitMoveSingleExam)
   document.getElementById('prune-exams-for-user').addEventListener('submit', submitPruneExams)
 }

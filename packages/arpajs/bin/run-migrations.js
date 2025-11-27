@@ -1,8 +1,10 @@
 #!/usr/bin/env node
-const { runMigrations } = require('../dist/db/local-pg-resource-management')
-
 async function run() {
   try {
+    const { loadConfig } = require('../dist/config')
+    await loadConfig()
+
+    const { runMigrations } = require('../dist/db/local-pg-resource-management')
     await runMigrations(false)
     process.exit(0)
   } catch (e) {

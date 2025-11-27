@@ -1,6 +1,6 @@
 import { SQS } from '@aws-sdk/client-sqs'
 import BPromise from 'bluebird'
-import config from './config/configParser'
+import { config } from './config'
 import nodemailer from 'nodemailer'
 import { logger } from './logger'
 
@@ -14,7 +14,7 @@ async function sendToSqs(mail) {
   } = await bufferTransport.sendMail(mail)
   // The SQS queue expects a raw message base64-encoded + envelope object (for logging only) in the attributes
   await sqs.sendMessage({
-    QueueUrl: config.emailQueue,
+    QueueUrl: config().emailQueue,
     MessageBody: message.toString('base64'),
     MessageAttributes: {
       from: {
@@ -30,7 +30,7 @@ async function sendToSqs(mail) {
 }
 
 export function send(mail) {
-  if (config.runningInCloud) {
+  if (config().runningInCloud) {
     return BPromise.resolve(sendToSqs(mail))
   } else {
     return BPromise.resolve(logger.info(`Mock email sent:\n${JSON.stringify(mail)}`))

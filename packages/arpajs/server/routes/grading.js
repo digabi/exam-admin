@@ -24,9 +24,14 @@ import {
 } from '@digabi/express-utils'
 const defaultJsonParser = bodyParser.json() // Has 100kB default limit
 
+// It is unclear how big the zip files can get, but use 2 GB for now.
+// Memory usage is dependent on the actual zip file, but it is
+// something around 1.5 times the size of the file.
+// When changing value, also make sure containers have enough memory.
+// You will also need to adjust the file 'server/exam/answers-extractor.js'
 const multerConfigsForAnswerUpload = {
   inMemory: true,
-  limits: { fileSize: 1024 * 1024 * 1024 }
+  limits: { fileSize: 1024 * 1024 * 1024 * 2 }
 }
 const answerUpload = multer(multerConfigsForAnswerUpload).single('examUpload')
 const answerUploadMiddleware = (req, res, next) => {

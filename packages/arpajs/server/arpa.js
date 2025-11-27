@@ -1,7 +1,7 @@
 'use strict'
 
 import express from 'express'
-import config from './config/configParser'
+import { config } from './config'
 import { logger } from './logger'
 import screenshotRouter from './routes/screenshot'
 import audioRouter from './routes/audio'
@@ -22,7 +22,7 @@ const app = express()
 app.use(helmet())
 
 app.get('/health-check', (req, res) => res.sendStatus(200))
-if (config.runningInCloud) {
+if (config().runningInCloud) {
   app.set('trust proxy', 1) // one hop (private ALB)
 }
 
@@ -53,12 +53,12 @@ app.post('/import-public-exams', async (_, res) => {
   }
 })
 
-const devEnv = !config.runningInCloud
-if (devEnv && config.testRestRouter) {
+const devEnv = !config().runningInCloud
+if (devEnv && config().testRestRouter) {
   logger.warn('enabling dev route')
-  import(`./routes/dev${config.testRestRouter}`)
-    .then(imported => app.use(config.testRestRouter, imported.default))
-    .catch(error => logger.error(`Failed to import ${config.testRestRouter}`, { error }))
+  import(`./routes/dev${config().testRestRouter}`)
+    .then(imported => app.use(config().testRestRouter, imported.default))
+    .catch(error => logger.error(`Failed to import ${config().testRestRouter}`, { error }))
 }
 
 setupDefaultErrorHandlers(app, devEnv, logger)

@@ -5,7 +5,7 @@ import { AutogradedScores } from './autograded-scores'
 import { TotalScore } from './total-score'
 import React from 'react'
 import { GradingAnswerType, GradingExamAndScores, GradingStudent, SetStudentEdited } from './types'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { GridScoreCell } from './grid-score-cell'
 import { useTranslation } from 'react-i18next'
 

@@ -16,7 +16,7 @@ import {
   UnfinishedGradedAnswer
 } from './types'
 import { ActionBar } from './action-bar'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router'
 import Answer from './answer'
 import ErrorDialog from './error-dialog'
 import '../../less/grading.less'
@@ -425,7 +425,6 @@ function CommonGradingView(props: {
               schoolExamAnonCode={schoolExamAnonCode}
               studentCode={studentCode}
               displayNumber={displayNumber}
-              navigate={navigate}
               setShowAnswerSearchUI={setShowAnswerSearchUI}
               showAnswerSearchUI={showAnswerSearchUI}
               examContentUrl={gradingUrls.examContent(

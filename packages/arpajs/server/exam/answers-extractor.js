@@ -8,13 +8,16 @@ import * as gradingDb from '../db/grading-data'
 import BPromise from 'bluebird'
 import * as examDb from '../db/exam-data'
 import * as cryptoUtils from '@digabi/crypto-utils'
-import config from '../config/configParser'
+import { config } from '../config'
 import R from 'ramda'
 import { extractZip } from '@digabi/zip-utils'
 import { DataError } from '@digabi/express-utils'
 import { logger } from '../logger'
+import { pgrm } from '../db/local-pg-resource-management'
+import { isAbitti2KtpVersion } from '../utils/ktp-version-utils'
+import SQL from 'sql-template-strings'
 
-const zipEntrySizeLimit = 1024 * 1024 * 1024
+const zipEntrySizeLimit = 1024 * 1024 * 1024 * 2
 
 export async function extract(fileBuffer) {
   const { zipContents, keys } = await extractAndDecryptZipContents(fileBuffer)
@@ -29,18 +32,50 @@ async function extractAndImportLogs(keys, zipContents, examUuids, heldExamUuids)
     return
   }
 
+  const prefix = await getLogPrefix(heldExamUuids)
   const logIdentifier = `exam_${examUuids.join('_')}_held_exam_${heldExamUuids.join('_')}`
-  // User defined object metadata headers have a 2KB limit. With the encryption key taking up a large chunk of the
-  // space, it's possible that this list of held_exam_uuids is too long and saving the logs might fail.
-  const metadata = { 'held-exam-uuids': JSON.stringify(heldExamUuids) }
+  const prefixedLogIdentifier = prefix ? `${prefix}-${logIdentifier}` : logIdentifier
+  // User-defined object metadata headers have a 2KB limit. With the encryption key taking up a large chunk of the
+  // space, it sometimes exceeds this limit when the number of held exams is large.
+  // This is a temporary solution to this problem where we truncate the held exam uuids to a maximum of 30.
+  const metadata = { 'held-exam-uuids': JSON.stringify(heldExamUuids.slice(0, 30)) }
   try {
     return await pipeline(
       await entry.open(),
       cryptoUtils.createAES256DecryptStreamWithIv(keys.key, keys.iv),
-      logStream => awsUtils.uploadLogToS3(logIdentifier, logStream, metadata)
+      logStream => awsUtils.uploadLogToS3(prefixedLogIdentifier, logStream, metadata)
     )
   } catch (error) {
-    logger.error(`Failed to upload logs to bucket S3`, { error, heldExamUuids })
+    logger.warn(`Failed to upload logs to bucket S3`, { error, heldExamUuids, alarmThreshold: 2 })
+  }
+}
+
+async function getLogPrefix(heldExamUuids) {
+  if (!heldExamUuids || heldExamUuids.length === 0) {
+    return null
+  }
+
+  try {
+    const heldExams = await pgrm.queryRowsAsync(
+      SQL`SELECT held_exam_ktp_version 
+          FROM held_exam 
+          WHERE held_exam_uuid = ANY(${heldExamUuids}::uuid[])`
+    )
+
+    if (heldExams.length === 0) {
+      logger.warn('No held exams found for prefix generation', { heldExamUuids })
+      return null
+    }
+
+    // Determine abitti version: if there's any abitti2 exam, flag it as abitti2
+    const hasAbitti2 = heldExams.some(he => isAbitti2KtpVersion(he.held_exam_ktp_version))
+    const abittiVersion = hasAbitti2 ? '2' : '1'
+
+    const dateStr = new Date().toISOString().split('T')[0] // date in yyyy-mm-dd format
+    return `abitti${abittiVersion}-${dateStr}`
+  } catch (error) {
+    logger.error('Failed to generate log prefix', { error, heldExamUuids })
+    return null
   }
 }
 
@@ -193,7 +228,7 @@ async function decryptKeys(zipContents) {
     throw new DataError('Keys missing from zip file')
   }
   const buffer = await keyfile.readIntoBuffer()
-  return JSON.parse(cryptoUtils.decryptWithPrivateKeyFromBuffer(config.secrets.answersPrivateKey, buffer).toString())
+  return JSON.parse(cryptoUtils.decryptWithPrivateKeyFromBuffer(config().answersPrivateKey, buffer).toString())
 }
 
 async function decryptAES256ToBuffer(readable, key, iv) {

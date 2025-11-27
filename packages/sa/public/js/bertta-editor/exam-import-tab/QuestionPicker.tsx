@@ -138,16 +138,18 @@ export const QuestionPicker = (props: {
 
   function addAttachments(attachmentNames: string[], examUuid: string): Promise<Attachment[]> {
     return Promise.all(
-      attachmentNames.map(attachmentName => {
+      attachmentNames.map(async attachmentName => {
         const missingAttachment = { displayName: attachmentName, missing: true } as Attachment
         if (!attachmentName) return missingAttachment
-        return doReq<Attachment>(
-          'POST',
-          `${attachmentsUrl}/copyFrom/${examUuid}/${encodeURIComponent(attachmentName)}`
-        ).catch((err: ResponseError) => {
-          if (err.status == 404) return missingAttachment
+        try {
+          return await doReq<Attachment>(
+            'POST',
+            `${attachmentsUrl}/copyFrom/${examUuid}/${encodeURIComponent(attachmentName)}`
+          )
+        } catch (err) {
+          if ((err as ResponseError).status == 404) return missingAttachment
           throw err
-        })
+        }
       })
     )
   }

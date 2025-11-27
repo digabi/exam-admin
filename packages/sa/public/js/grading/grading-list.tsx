@@ -29,7 +29,7 @@ function GradingList() {
           lang={lang}
           examReviewRequired={true}
           examsDeletable={true}
-          findingsEnabled={false}
+          findingsEnabled={true}
         />
         <div id="footer" className="footer">
           <Footer />

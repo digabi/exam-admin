@@ -1,6 +1,6 @@
 import fs from 'fs'
-import config from '../config/configParser'
-const answersPrivateKey = config.secrets.answersPrivateKey as string
+import { config } from '../config'
+const answersPrivateKey = config().answersPrivateKey
 import * as examDb from '../db/exam-data'
 import { Attachment, createMex } from '@digabi/exam-engine-mastering'
 import { Response } from 'express'
@@ -49,8 +49,8 @@ export const streamXmlMeb = async (examUuid: string, noShuffle: boolean, res: Re
   )
 
   const nsaScripts = await getNsaScripts(examUuid)
-  const ktpUpdate = config.useKtpUpdate ? fs.createReadStream(config.prePackagedKtpUpdatePath) : undefined
-  const koeUpdate = config.useKoeUpdate ? fs.createReadStream(config.prePackagedKoeUpdatePath) : undefined
+  const ktpUpdate = config().useKtpUpdate ? fs.createReadStream(config().prePackagedKtpUpdatePath) : undefined
+  const koeUpdate = config().useKoeUpdate ? fs.createReadStream(config().prePackagedKoeUpdatePath) : undefined
 
   const filename = createZipName('exam_', exam.title, 'mex')
   res.set('Content-disposition', `attachment; filename=${filename}`)
@@ -82,5 +82,5 @@ async function getNsaScripts(examUuid: string): Promise<Readable> {
 }
 
 function prepackagedNsaScripts() {
-  return fs.createReadStream(config.prePackagedNsaScriptZipPath)
+  return fs.createReadStream(config().prePackagedNsaScriptZipPath)
 }
