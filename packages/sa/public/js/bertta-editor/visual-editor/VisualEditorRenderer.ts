@@ -231,7 +231,7 @@ ${isTopLevel ? addSubQuestion(t) : ''}
 
 const attachmentToolbar = (t: Translations) => `<footer class="sticky-items removed">
   <button class="answer-button" data-type="button-open-attachments"><i class="fa fa-paperclip" aria-hidden="true"></i> ${t.attachment}</button>
-  <button class="answer-button" data-type="button-text"><i class="fa fa-file-text" aria-hidden="true"></i> teksti</button>
+  <button class="answer-button" data-type="button-text"><i class="fa fa-file-text" aria-hidden="true"></i> ${t.add_text}</button>
 </footer>`
 
 export const choiceAnswerOption = (t: Translations) =>
