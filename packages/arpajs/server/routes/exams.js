@@ -107,14 +107,18 @@ moduleRouter.get('/held-exam/:heldExamUuid/exam', uuidValidator('heldExamUuid'),
 
 moduleRouter.get('/held-exam/:heldExamUuid/findings', uuidValidator('heldExamUuid'), async (req, res, next) => {
   try {
-    const { contents, filename } = await findingsStream.retrieveNsaFindingsAsStream(req.params.heldExamUuid)
+    const { contents, filename, contentType } = await findingsStream.retrieveNsaFindingsAsStream(
+      req.params.heldExamUuid
+    )
 
-    const asciiFallback = String(filename)
-      .replace(/[\r\n"]/g, '_')
-      .replace(/[^\x20-\x7E]/g, '_')
-    const encodedUtf8 = encodeURIComponent(String(filename))
-    res.setHeader('Content-Disposition', `attachment; filename="${asciiFallback}"; filename*=UTF-8''${encodedUtf8}`)
-    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Type', contentType)
+    if (contentType === 'application/pdf') {
+      const asciiFallback = String(filename)
+        .replace(/[\r\n"]/g, '_')
+        .replace(/[^\x20-\x7E]/g, '_')
+      const encodedUtf8 = encodeURIComponent(String(filename))
+      res.setHeader('Content-Disposition', `attachment; filename="${asciiFallback}"; filename*=UTF-8''${encodedUtf8}`)
+    }
     await pipeline(contents, res).catch(err => {
       if (err?.code !== 'ERR_STREAM_PREMATURE_CLOSE' && err?.code !== 'ECONNRESET') throw err
     })

@@ -387,7 +387,9 @@ function CommonGradingView(props: {
       answer={answer}
       setExamAndScores={setExamAndScores}
       setLocalizedError={setLocalizedError}
-      canBeCommented={gradingRole === 'censoring' ? exam.canBeCommented : !!exam.canBePregraded}
+      canBeCommented={
+        gradingRole === 'censoring' ? exam.canBeCommented && answer.batchGroupNumber === null : !!exam.canBePregraded
+      }
       postCommentUrl={gradingUrls.postComment(gradingRole, answer.answerId)}
     />
   )

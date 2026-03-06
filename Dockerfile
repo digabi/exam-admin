@@ -1,4 +1,4 @@
-FROM node:22-slim
+FROM node:24-slim
 
 RUN apt-get update
 RUN apt-get install -y python3 python3-pip zip postgresql
@@ -17,6 +17,7 @@ RUN touch packages/arpajs/server/s3_encrypt.pub
 RUN touch packages/sa/public/img/logo.svg
 RUN touch packages/sa/public/img/bertta-icon.svg
 
+RUN mkdir -p ./packages/arpajs/server/config/env
 COPY templates/arpajs_dev_env.ts ./packages/arpajs/server/config/env/development.ts
 COPY templates/arpajs_env_map.ts ./packages/arpajs/server/config/env/env-map.ts
 COPY templates/sa_dev_env.ts ./packages/sa/server/config/env/development.ts

@@ -104,7 +104,7 @@ export function AnswerComment({
               className="scoreComment"
               tabIndex={-1}
               defaultValue={answer.comment}
-              autoFocus
+              autoFocus={newComment}
               disabled={!canBeCommented}
               onInput={e => {
                 setSaved(false)

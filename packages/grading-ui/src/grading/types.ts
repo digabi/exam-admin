@@ -119,6 +119,7 @@ export type GradingAnswerType = {
   inspectionState: InspectionState
   isProductive: boolean
   batchGroupNumber?: number
+  batchChecksum?: string
 }
 export type Annotations = {
   pregrading: Annotation[]

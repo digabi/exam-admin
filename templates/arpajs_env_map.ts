@@ -1,8 +1,9 @@
 import { developmentConfig } from './development'
 
-import type { UnresolvedConfig, Config } from '../config-types'
+import type { UnresolvedConfig } from '../config-types'
 
 export type AsyncAppEnv = 'development'
+export type SyncAppEnv = 'development'
 
 export const asyncEnvMap: Record<AsyncAppEnv, UnresolvedConfig> = {
   development: developmentConfig

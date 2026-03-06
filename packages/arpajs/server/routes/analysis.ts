@@ -31,6 +31,8 @@ export type ExamStudent = {
   studentUuid: string
   studentFirstNames: string
   studentLastName: string
+  ktpVersion: string
+  examAccountUsername: string
 }
 
 function getHeldExamStudents(ids: string[]): Promise<ExamStudent[]> {
@@ -44,11 +46,15 @@ function getHeldExamStudents(ids: string[]): Promise<ExamStudent[]> {
   exam.title AS "examTitle",
   student.student_uuid AS "studentUuid",
   student.first_names AS "studentFirstNames",
-  student.last_name AS "studentLastName"
+  student.last_name AS "studentLastName",
+  answer_paper.external_computer_allowed AS "externalComputerAllowed",
+  held_exam.held_exam_ktp_version AS "ktpVersion",
+  user_account.user_account_username AS "examAccountUsername"
 FROM held_exam
 NATURAL JOIN exam
 NATURAL JOIN answer_paper
 NATURAL JOIN student
+NATURAL JOIN user_account
 WHERE held_exam_uuid = ANY(${ids}::uuid[])`
   )
 }

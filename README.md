@@ -38,6 +38,7 @@ the repository to build all containers (it will take some time to finish)
 for full access.
 
 **Note that you cannot compile this repository on the host machine at the moment.** Certain required files are generated as part of the image build process.
+Therefore, do not install any dependencies locally.
 
 **Also note that removed files and directories are not removed from the target repositories.** You need to remove them manually at them moment.
 

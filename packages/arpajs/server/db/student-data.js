@@ -178,6 +178,9 @@ export function getAudio(audioId) {
 }
 
 export function addStudentWithTx(tx, student) {
+  student.firstNames = student.firstNames.substring(0, 100)
+  student.lastName = student.lastName.substring(0, 100)
+
   // language=PostgreSQL
   return tx
     .queryAsync(

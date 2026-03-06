@@ -61,7 +61,7 @@ type DevelopmentConfiguration = CommonConfiguration & {
   emailQueue: undefined
   runningUnitTests: boolean
   publicExamsRoleArn: undefined
-  testRestRouter: string
+  testRestRouter?: string
 }
 
 export type UnresolvedConfig = CloudConfiguration | DevelopmentConfiguration

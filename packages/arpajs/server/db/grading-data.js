@@ -82,7 +82,8 @@ function mapServerEnvironmentToHeldExam(tx, serverEnvironmentId, heldExamUuid) {
 }
 
 export async function uploadAnswersInTx(tx, examUuid, examType, ktpVersion, answerPapers) {
-  const findingsInitialStatus = isAbitti2KtpVersion(ktpVersion) ? 'not_generated' : 'no_findings'
+  const isAbitti2 = isAbitti2KtpVersion(ktpVersion)
+  const findingsInitialStatus = isAbitti2 ? 'not_generated' : 'no_findings'
   const result = await tx.queryAsync(
     'insert into held_exam (exam_uuid, held_exam_type, held_exam_ktp_version, held_exam_nsa_findings_status) select exam_uuid, $2 as held_exam_type, $3 as held_exam_ktp_version, $4 as held_exam_nsa_findings_status from exam where exam_uuid = $1 returning held_exam_uuid',
     [examUuid, examType, ktpVersion, findingsInitialStatus]
@@ -91,7 +92,7 @@ export async function uploadAnswersInTx(tx, examUuid, examType, ktpVersion, answ
   if (result.rows.length === 1) {
     const { heldExamUuid } = _.first(result.rows.map(objectPropertiesToCamel))
     const attachmentMappings = await BPromise.mapSeries(answerPapers, ap =>
-      addASinglePaperAndConnectedStudent(ap, heldExamUuid)
+      addASinglePaperAndConnectedStudent(ap, heldExamUuid, isAbitti2)
     )
     const screenshotMapping = attachmentMappings.map(x => x.screenshotMapping)
     const audioMapping = attachmentMappings.map(x => x.audioMapping)
@@ -105,13 +106,13 @@ export async function uploadAnswersInTx(tx, examUuid, examType, ktpVersion, answ
     return undefined
   }
 
-  async function addASinglePaperAndConnectedStudent(ap, heldExamUuid) {
+  async function addASinglePaperAndConnectedStudent(ap, heldExamUuid, isAbitti2) {
     const studentUuid = await addStudent(tx, ap.student)
     const answerPaperId = await addAnswerPaperWithConnection(
       studentUuid,
       heldExamUuid,
       ap.examStarted,
-      ap.allowExternalComputer,
+      isAbitti2 ? ap.isAllowedToUseBrowser : ap.allowExternalComputer,
       tx
     )
 

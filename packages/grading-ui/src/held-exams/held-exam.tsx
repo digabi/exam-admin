@@ -200,7 +200,11 @@ export const HeldExam = ({
           {findingsEnabled && (
             <td className="findings-status">
               {findingsStatus === 'has_findings' ? (
-                <a href={pregradingExamUrls.findings(schoolAnonCode)} className="has-findings">
+                <a
+                  target="_blank"
+                  href={pregradingExamUrls.findings(schoolAnonCode)}
+                  className="has-findings"
+                  rel="noreferrer">
                   {t('sa.has_findings')}
                 </a>
               ) : (
