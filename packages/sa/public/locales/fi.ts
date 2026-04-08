@@ -12,6 +12,25 @@ export const fi = {
     grading_tab: 'Koesuoritukset',
     settings_tab: 'Tilin asetukset',
     teachers_tab: 'Opettajat',
+    ytl_connection_tab: 'YTL-yhteys',
+    ytl_connection: {
+      title: 'YTL-yhteyden avaaminen palvelinryhmälle',
+      description:
+        'Yhteys avataan harjoituskokeiden ajaksi YTL:n ja jokaisen koepalvelinryhmän välille. Sen kautta tuodaan mm. harjoituskokeen valvontatietoja Oma Abittiin.',
+      generate_pin: 'Luo uusi PIN-koodi',
+      instruction_1:
+        'Varmista, että haluamasi palvelimet ovat päällä ja mahdollisesti jo valmiiksi yhdistettyinä ryhmäksi.',
+      instruction_2: 'Mene valvojan näkymään millä tahansa palvelinryhmän koepalvelimella.',
+      instruction_3:
+        'Avaa valvojan näkymässä välilehti "Avaa YTL-yhteys", valitse "Harjoituskoetta varten" ja paina "Avaa yhteys".',
+      instruction_4: 'Syötä yllä näkyvä koodi.',
+      instruction_change_pin: 'Koodia voi vaihtaa tarvittaessa painamalla "Luo uusi PIN-koodi".',
+      active_connections: 'Avoimet yhteydet',
+      no_connections: 'Ei avoimia yhteyksiä.',
+      connected: 'Yhdistetty',
+      connected_by: 'Yhdistäjä',
+      disconnect_connection: 'Katkaise yhteys'
+    },
     create_exam_mex: 'Luo uusi koe',
     copy_exam: 'Kopioi koe',
     create_old_exam_description: 'Vanhalla editorilla laadittua koetta ei voi ladata koetilan palvelimelle.',

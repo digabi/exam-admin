@@ -1,0 +1,123 @@
+.ktp-pin-section {
+  padding-bottom: 32px;
+}
+
+.ktp-pin-description {
+  margin-bottom: 16px;
+}
+
+.ktp-pin-display {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 9px 0;
+  margin-bottom: 16px;
+}
+
+.ktp-pin-code {
+  font-size: 30px;
+  font-weight: 800;
+  color: #505050;
+  letter-spacing: 0.3em;
+}
+
+.ktp-pin-expiry {
+  font-size: 18px;
+  color: #595959;
+}
+
+.ktp-generate-btn {
+  .sa-button();
+  height: 40px;
+  line-height: 40px;
+  margin-bottom: 16px;
+
+  &.ktp-generate-btn-outline {
+    background: white;
+    color: #204d99;
+    border: 1px solid #204d99;
+    box-shadow: none;
+
+    &:hover {
+      background: #f2f5f8;
+    }
+  }
+}
+
+.ktp-instructions {
+  font-size: 16px;
+  line-height: 24px;
+
+  ol {
+    padding-left: 24px;
+    margin-bottom: 16px;
+  }
+
+  ul {
+    padding-left: 24px;
+    list-style-type: disc;
+  }
+
+  li {
+    margin-bottom: 0;
+  }
+
+  p {
+    margin-bottom: 0;
+  }
+}
+
+.ktp-connections-section {
+  padding-bottom: 32px;
+
+  h2 {
+    margin-bottom: 16px;
+  }
+}
+
+.ktp-no-connections {
+  font-size: 14px;
+  color: #595959;
+}
+
+.ktp-connections-list {
+  .ktp-connections-header {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    padding: 12px 16px;
+    height: 48px;
+    box-sizing: border-box;
+    background: #f2f5f8;
+    border-bottom: 1px solid #d8d8d8;
+    font-size: 14px;
+  }
+
+  .ktp-connection-row {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    padding: 6px 16px;
+    height: 40px;
+    box-sizing: border-box;
+    background: white;
+    border-bottom: 1px solid #d8d8d8;
+  }
+
+  .ktp-connection-cell {
+    width: 200px;
+    flex-shrink: 0;
+  }
+
+  .ktp-connection-cell-flexible {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .ktp-connection-delete-button {
+    background: none;
+    border: none;
+    color: @clickable-color;
+    box-shadow: none;
+  }
+}

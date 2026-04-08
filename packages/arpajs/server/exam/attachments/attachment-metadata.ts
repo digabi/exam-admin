@@ -33,7 +33,7 @@ async function readAudioMetadataFromStream(readable: Readable) {
 
 async function readVideoMetadataFromStream(readable: Readable): Promise<{ width: number; height: number }> {
   const ffprobe = exec(`${ffprobePath} -show_streams -print_format json -`)
-  const [result] = await Promise.all([ffprobe, pipeline(readable, ffprobe.stdin!).catch(ignoreEPIPE)])
+  const [result] = await Promise.all([ffprobe, pipeline(readable, ffprobe.stdin).catch(ignoreEPIPE)])
   const output = JSON.parse(result.stdout!.toString()) as { streams: { width: number; height: number }[] }
   const { width, height } = output.streams[0]
 

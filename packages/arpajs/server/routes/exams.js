@@ -191,6 +191,8 @@ const attachmentUploadMiddleware = (req, res, next) => {
   attachmentUpload(req, res, err => {
     if (err && _.includes(err.message, 'File too large')) {
       return res.status(413).send('Attachment too big')
+    } else if (err && _.includes(err.message, 'Request aborted')) {
+      return res.sendStatus(499) // Nonstandard but nginx uses this for "client closed connection"
     } else {
       return next(err)
     }

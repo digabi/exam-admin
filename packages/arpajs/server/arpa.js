@@ -12,6 +12,7 @@ import studentsRouter from './routes/student'
 import composingRouter from './routes/composing'
 import adminRouter from './routes/admin'
 import analysisRouter from './routes/analysis'
+import ytlConnectionRouter from './routes/ytl-connection'
 import helmet from 'helmet'
 import { requestLogger } from '@digabi/logger'
 import { setupDefaultErrorHandlers } from '@digabi/express-utils'
@@ -42,6 +43,7 @@ app.use('/grading/student', studentsRouter)
 app.use('/composing', composingRouter)
 app.use('/admin', adminRouter)
 app.use('/analysis', analysisRouter)
+app.use('/ytl-connection', ytlConnectionRouter)
 
 app.post('/import-public-exams', async (_, res) => {
   try {

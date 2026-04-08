@@ -13,7 +13,7 @@ export default function webpackAssets() {
   const webpackConfig = require(path.resolve(__dirname, '../webpack.config')) // force dynamic module lookup
   const compiler = require('webpack')(webpackConfig())
   return require('webpack-dev-middleware')(compiler, {
-    publicPath: '/', // relative to mount path
+    publicPath: '/dist/', // relative to mount path
     stats: 'minimal'
   })
 }

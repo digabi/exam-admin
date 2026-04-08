@@ -86,7 +86,7 @@ export async function userCanAccessExam(userId, examUuid) {
   try {
     const query = getExamByIdAndUser(userId, examUuid)
     return await isResultExactlyOneRow(query)
-  } catch (e) {
+  } catch {
     return false
   }
 }
@@ -104,7 +104,7 @@ export async function userCanAccessHeldExam(userId, heldExamUuid) {
     const { examUuid } = await getJsonAsync(`${config().examUri}/exams/held-exam/${heldExamUuid}`)
     const query = getExamByIdAndUser(userId, examUuid)
     return await isResultExactlyOneRow(query)
-  } catch (e) {
+  } catch {
     return false
   }
 }

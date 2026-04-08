@@ -16,9 +16,12 @@ export async function retrieveNsaFindingsAsStream(heldExamUuid: string) {
     throw new DataError('No findings available', 404)
   }
 
-  const { body, format } = await awsUtils.downloadNsaFindings(heldExamUuid)
+  const { body, format } = (await awsUtils.downloadNsaFindings(heldExamUuid)) as {
+    body: stream.Readable
+    format: string
+  }
   return {
-    contents: body as stream.Readable,
+    contents: body,
     filename: `${heldExam.title}.${format}`,
     contentType: format === 'html' ? 'text/html; charset=UTF-8' : 'application/pdf'
   }

@@ -14,6 +14,24 @@ export const sv: typeof fi = {
     grading_tab: 'Provprestationer',
     settings_tab: 'Kontoinställningar',
     teachers_tab: 'Lärare',
+    ytl_connection_tab: 'SEN-förbindelsen',
+    ytl_connection: {
+      title: 'Öppnande av SEN-förbindelse för servergrupp',
+      description:
+        'Förbindelsen öppnas mellan SEN och varje provservergrupp för den tid då övningsproven förrättas. Bl.a. övervakningsuppgifter förflyttas över förbindelsen till Mitt Abitti.',
+      generate_pin: 'Skapa ny PIN-kod',
+      instruction_1: 'Se till att de önskade servrarna är igång och eventuellt redan kopplade ihop till en grupp.',
+      instruction_2: 'Gå till övervakarvyn på en av provservrarna i servergruppen.',
+      instruction_3:
+        'Öppna fliken "Öppna SEN-förbindelsen" i övervakarvyn, välj "För övningsprov" och tryck "Öppna förbindelsen".',
+      instruction_4: 'Ange koden som visas ovan.',
+      instruction_change_pin: 'Koden kan vid behov bytas genom att trycka "Skapa ny PIN-kod".',
+      active_connections: 'Aktiva anslutningar',
+      no_connections: 'Inga aktiva anslutningar.',
+      connected: 'Ansluten',
+      connected_by: 'Ansluten av',
+      disconnect_connection: 'Bryt förbindelsen'
+    },
     create_exam_mex: 'Skapa nytt prov',
     copy_exam: 'Kopiera prov',
     create_old_exam_description:

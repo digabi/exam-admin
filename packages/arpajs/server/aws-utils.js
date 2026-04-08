@@ -158,15 +158,17 @@ export async function downloadNsaScripts(filename) {
 
 export async function downloadNsaFindings(heldExamUuid) {
   const prefix = config().runningInCloud ? 'reports/' : ''
-  for (const ext of ['html', 'pdf']) {
-    try {
-      const response = await S3ForFindings.send(
-        new GetObjectCommand({ Bucket: config().s3NsaFindingsBucket, Key: `${prefix}${heldExamUuid}-findings.${ext}` })
-      )
-      return { body: response.Body, format: ext }
-    } catch (err) {
-      if (err?.name !== 'NoSuchKey') throw err
-    }
+  const getFindings = async ext => {
+    const key = `${prefix}${heldExamUuid}-findings.${ext}`
+    logger.info(`Downloading NSA findings from S3`, { key })
+    const response = await S3ForFindings.send(new GetObjectCommand({ Bucket: config().s3NsaFindingsBucket, Key: key }))
+    return { body: response.Body, format: ext }
   }
-  throw Object.assign(new Error('Findings not found in S3'), { name: 'NoSuchKey' })
+
+  try {
+    return await getFindings('html')
+  } catch (htmlErr) {
+    logger.info(htmlErr)
+    return await getFindings('pdf')
+  }
 }

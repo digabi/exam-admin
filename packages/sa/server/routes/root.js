@@ -21,6 +21,10 @@ router.get('/settings', (req, res) => {
   sendIndex(res)
 })
 
+router.get('/ytl-connection', authSession.ensureAuthenticatedWithFallback(sendIndex), (req, res) => {
+  sendIndex(res)
+})
+
 router.get('/bertta/:examId', authSession.ensureAuthenticatedWithFallback(sendIndex), (req, res) => {
   res.sendFile('/public/bertta.html', { root: `${__dirname}/../..` })
 })

@@ -34,6 +34,9 @@ import sendAnswerEmailsRouter from './routes/api/send-answer-emails'
 import examRouter from './routes/api/exam'
 import registrationRouter from './routes/api/registration'
 import settingsRouter from './routes/api/settings'
+import ytlConnectionRouter from './routes/api/ytl-connection/session-routes'
+import ytlApiRouter, { verifyYtlApiKey } from './routes/api/ytl-connection/api-routes'
+import ytlConnectionPublicRouter from './routes/api/ytl-connection/public-routes'
 import userDevRouter from './routes/dev/users'
 import registrationDevRouter from './routes/dev/registration'
 import examDevRouter from './routes/dev/exam'
@@ -167,6 +170,16 @@ app.use('/kurko-api/send-answer-emails', ensureAuthenticated, sendAnswerEmailsRo
 app.use('/kurko-api/exam', ensureAuthenticated, examRouter)
 app.use('/kurko-api/registration', registrationRouter)
 app.use('/kurko-api/settings', settingsRouter)
+
+// Public (no auth needed — digabi2 calls this to exchange PIN for API key)
+app.use(ytlConnectionPublicRouter)
+
+// Session-authenticated UI routes
+app.use('/kurko-api/ytl-connection', ytlConnectionRouter)
+
+// API-key-protected routes (digabi2 calls with x-ktp-api-key header)
+app.use('/ytl-connection', verifyYtlApiKey, ytlApiRouter)
+
 app.use(
   '/admin-api/impersonate',
   ensureAuthenticated,

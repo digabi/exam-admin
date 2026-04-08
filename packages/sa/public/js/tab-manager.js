@@ -9,6 +9,7 @@ const DEFAULT_TAB = 'exams'
 const examsPath = 'exams'
 const teachersPath = 'teachers'
 const settingsPath = 'settings'
+const ytlConnectionPath = 'ytl-connection'
 
 let myTabs
 
@@ -27,8 +28,9 @@ export function init(updatesE, config) {
     const examsClicked = $('#exams-link').asEventStream('click').doAction(goToTab(examsPath))
     const teachersClicked = $('#teachers-link').asEventStream('click').doAction(goToTab(teachersPath))
     const settingsClicked = $('#settings-link').asEventStream('click').doAction(goToTab(settingsPath))
+    const ytlConnectionClicked = $('#ytl-connection-link').asEventStream('click').doAction(goToTab(ytlConnectionPath))
 
-    Bacon.mergeAll(examsClicked, teachersClicked, settingsClicked)
+    Bacon.mergeAll(examsClicked, teachersClicked, settingsClicked, ytlConnectionClicked)
       .doAction(preventDefault)
       .merge($(window).asEventStream('popstate'))
       .merge(updatesE)

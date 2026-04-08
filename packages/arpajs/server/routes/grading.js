@@ -8,7 +8,6 @@ import * as studentDb from '../db/student-data'
 import * as gradingDb from '../db/grading-data'
 import * as answersExtractor from '../exam/answers-extractor'
 import { logger } from '../logger'
-import multer from 'multer'
 import bodyParser from 'body-parser'
 import * as L from 'partial.lenses'
 import { getGradingAccessDeniedForAnswer } from '../db/grading-data'
@@ -20,30 +19,29 @@ import {
   respondWith204,
   respondWith204Or400,
   respondWithJsonOr404,
-  extendTimeoutForUploadRouteWithLargeFiles
+  extendTimeoutForUploadRouteWithLargeFiles,
+  fileUploadMiddleware
 } from '@digabi/express-utils'
 const defaultJsonParser = bodyParser.json() // Has 100kB default limit
-
-// It is unclear how big the zip files can get, but use 2 GB for now.
-// Memory usage is dependent on the actual zip file, but it is
-// something around 1.5 times the size of the file.
-// When changing value, also make sure containers have enough memory.
-// You will also need to adjust the file 'server/exam/answers-extractor.js'
-const multerConfigsForAnswerUpload = {
-  inMemory: true,
-  limits: { fileSize: 1024 * 1024 * 1024 * 2 }
-}
-const answerUpload = multer(multerConfigsForAnswerUpload).single('examUpload')
-const answerUploadMiddleware = (req, res, next) => {
-  answerUpload(req, res, err =>
-    err && _.includes(err.message, 'File too large') ? res.status(413).send('Answer file was too big') : next(err)
-  )
-}
 
 moduleRouter.post(
   '/answers-meb',
   extendTimeoutForUploadRouteWithLargeFiles,
-  answerUploadMiddleware,
+  fileUploadMiddleware(
+    'examUpload',
+    // It is unclear how big the zip files can get, but use 2 GB for now.
+    // Memory usage is dependent on the actual zip file, but it is something
+    // around 1.5 times the size of the file. When changing value, also make
+    // sure containers have enough memory. You will also need to adjust the
+    // file 'server/exam/answers-extractor.js'
+    2 *
+      1024 * // Kilobyte
+      1024 * // Megabyte
+      1024, // Gigabyte
+    413,
+    'Sent answer file was too large',
+    { inMemory: true }
+  ),
   async (req, res) => {
     logger.info('Incoming answers meb', { size: req.file.buffer.length })
     const result = await answersExtractor.extract(req.file.buffer)
