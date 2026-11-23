@@ -9,14 +9,6 @@ const examUuid = document.location.pathname
   .pop()
 
 const berttaContainer = document.getElementById('bertta')
-window.onerror = function (message, source, lineno, colno, error) {
-  fetch(`/exam-api/composing/${examUuid}/error`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json; charset=UTF-8' },
-    body: JSON.stringify({ message, source, lineno, colno, error: error.stack, userAgent: navigator.userAgent })
-  })
-  return false
-}
 init()
 
 async function init() {

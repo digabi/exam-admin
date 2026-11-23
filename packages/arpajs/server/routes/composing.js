@@ -6,7 +6,6 @@ import * as examDb from '../db/exam-data'
 import * as attachmentDb from '../db/attachment-data'
 import { migrateXmlToLatestSchemaVersion } from '../exam/xml-mastering'
 import bodyParser from 'body-parser'
-import { logger } from '../logger'
 import { DataError, respondWith204, respondWithJsonOr404 } from '@digabi/express-utils'
 import { validateExamContentJSONFormat } from '../exam/validator/validator'
 const defaultJsonParser = bodyParser.json() // Has 100kB default limit
@@ -44,16 +43,6 @@ moduleRouter.post('/:examUuid/exam-content', examContentJsonParser, async (req, 
     await examDb.updateExamContent(req.params.examUuid, content, examLanguage)
     respondWith204(res)()
   }
-})
-
-moduleRouter.post('/:examUuid/error', examContentJsonParser, (req, res) => {
-  const { message, source, error, userAgent } = req.body
-  logger.warn(
-    `${source} - ${message}
-${error?.split('\n').slice(0, 4).join('\n')}
-${userAgent}`
-  )
-  res.end()
 })
 
 moduleRouter.post('/exam', defaultJsonParser, (req, res, next) => {

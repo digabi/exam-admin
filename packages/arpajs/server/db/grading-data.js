@@ -7,7 +7,6 @@ import { pgrm } from '../db/local-pg-resource-management'
 import * as studentDb from './student-data'
 import { logger } from '../logger'
 import { SQL } from 'sql-template-strings'
-import { getUnixTime } from 'date-fns'
 import { objectPropertiesToCamel } from '@digabi/database-utils'
 import { DataError } from '@digabi/express-utils'
 import { containsInvalidImgTags, sanitizeAnswerContent } from '@digabi/answer-utils'
@@ -546,14 +545,17 @@ export function updateGradingText(answerPaperId, gradingText) {
   )
 }
 
-export async function setMultipleAnswerPregradingFinishedAt(answerIds, pregradingFinishedAt = new Date()) {
+export async function setMultipleAnswerPregradingFinishedAt(answerIds, heldExamUuid) {
   await pgrm.queryAsync(
-    SQL`UPDATE answer SET pregrading_finished_at = to_timestamp(${getUnixTime(pregradingFinishedAt)}) WHERE answer_id = ANY(${answerIds}::INTEGER[])`
+    SQL`UPDATE answer SET pregrading_finished_at = now() 
+        WHERE answer_id = ANY(${answerIds}::INTEGER[]) AND 
+              answer_paper_id IN (SELECT answer_paper_id FROM answer_paper WHERE held_exam_uuid = ${heldExamUuid})`
   )
 
   const pregradingRows = await pgrm.queryRowsAsync(
-    'SELECT * FROM score NATURAL JOIN answer NATURAL JOIN answer_paper WHERE answer_id = ANY($1::INTEGER[])',
-    [answerIds]
+    SQL`SELECT * FROM score NATURAL JOIN answer NATURAL JOIN answer_paper 
+        WHERE answer_id = ANY(${answerIds}::INTEGER[]) AND 
+              held_exam_uuid = ${heldExamUuid}`
   )
 
   return pregradingRows.map(row => ({

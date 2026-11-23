@@ -73,13 +73,14 @@ moduleRouter.post('/scores/:answerId', defaultJsonParser, validateScore, answerC
 })
 
 moduleRouter.post('/scores/:heldExamUuid/mark-grading-finished', defaultJsonParser, async (req, res) => {
+  const { heldExamUuid } = req.params
   const { answerIds } = req.body
   if (!answerIds || answerIds.length === 0) {
     logger.warn('No answerIds provided for marking grading finished')
     return res.status(400).end()
   }
-  logger.info('Marking grading finished', answerIds)
-  const answerPregradingData = await gradingDb.setMultipleAnswerPregradingFinishedAt(answerIds)
+  logger.info('Marking grading finished', JSON.stringify(answerIds))
+  const answerPregradingData = await gradingDb.setMultipleAnswerPregradingFinishedAt(answerIds, heldExamUuid)
   res.send(answerPregradingData)
 })
 
