@@ -1,8 +1,8 @@
-import i18next from 'i18next'
+import i18next, { type i18n as I18n } from 'i18next'
 import fi from './fi'
 import sv from './sv'
 
-const i18n = (lang: 'fi' | 'sv') =>
+const i18n = (lang: 'fi' | 'sv'): I18n =>
   i18next.createInstance(
     {
       lng: (lang || localStorage.getItem('gradingLang')) ?? 'fi',

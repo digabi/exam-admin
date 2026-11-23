@@ -2,7 +2,7 @@ import classNames from 'classnames'
 import React, { useRef } from 'react'
 import { CensoringState, GradingAnswerType, XOR } from './types'
 
-import { getScoreRegExp } from '../common/score-regexp'
+import { getScoreMaxLength, getScoreRegExp } from '../common/score-regexp'
 import { useAnimateMarkingReady, useDebouncedScoreChange, useLocalScoreState, useScrollIntoViewOnFocus } from './hooks'
 
 type CommonScoreCellProps = {
@@ -50,6 +50,7 @@ export function ScoreCell({
   const inputRef = useRef<HTMLInputElement>(null)
 
   const answerScorePattern = getScoreRegExp(maxScore)
+  const scoreMaxLength = getScoreMaxLength(maxScore)
 
   const isReadOnly = !answer.userCanScore || !!readOnlyOverride
 
@@ -85,9 +86,10 @@ export function ScoreCell({
           selected: isSelected,
           justFinished,
           savingScore: isSavingScore,
-          notSaved: isNotSaved
+          notSaved: isNotSaved,
+          wideScore: scoreMaxLength > 2
         })}
-        maxLength={2}
+        maxLength={scoreMaxLength}
         data-answer-id={answerId}
         type="text"
         inputMode="numeric"

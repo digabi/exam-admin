@@ -5,20 +5,24 @@ import { LoadingSpinner } from '../common/loading-spinner'
 import { useTranslation } from 'react-i18next'
 import { PregradingExamUrls } from './types'
 import { PregradingExamUrlsContext } from './pregrading'
+import { MinutesImportStatus } from '../common/types'
 
 export const AnswersUploadPanel = ({
   schoolId,
   isPrincipal,
+  answersUploadable,
   loadHeldExams
 }: {
   schoolId: string
   isPrincipal: boolean
+  answersUploadable: boolean
   loadHeldExams: (schoolId: string) => Promise<void>
 }) => {
   const pregradingExamUrls = useContext<PregradingExamUrls>(PregradingExamUrlsContext)
   const uploadRef = useRef<HTMLInputElement>(null)
   const [uploadError, setUploadError] = useState<UploadErrorKey | null>(null)
-  const [uploadResult, setUploadResult] = useState<SchoolWithAnswer[]>([])
+  const [answerPackageUploadStatistics, setAnswerPackageUploadStatistics] =
+    useState<AnswerPackageUploadStatistics | null>(null)
   const [uploading, setUploading] = useState<boolean>(false)
   const [get] = useAxiosGet()
   const { t } = useTranslation()
@@ -31,36 +35,36 @@ export const AnswersUploadPanel = ({
     uploadRef.current?.click()
   }
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || file.name.trim() === '') return
     setUploading(true)
     setUploadError(null)
-    setUploadResult([])
+    setAnswerPackageUploadStatistics(null)
 
     const formData = new FormData()
     formData.append('examUpload', file)
-    axios
-      .post<SchoolWithAnswer[]>(pregradingExamUrls.uploadAnswers(schoolId), formData, {
-        headers: {
-          enctype: 'multipart/form-data'
+    try {
+      const response = await axios.post<AnswerPackageUploadStatistics>(
+        pregradingExamUrls.uploadAnswers(schoolId),
+        formData,
+        {
+          headers: {
+            enctype: 'multipart/form-data'
+          }
         }
-      })
-      .then(async response => {
-        setUploadResult(response.data)
-        await loadHeldExams(schoolId)
-        await loadUnmappedStudents(schoolId)
-        return
-      })
-      .catch((error: AxiosError) => {
-        setUploadError(getUploadErrorMessageKey(error))
-      })
-      .finally(() => {
-        if (uploadRef.current) {
-          uploadRef.current.value = ''
-        }
-        setUploading(false)
-      })
+      )
+      setAnswerPackageUploadStatistics(response.data)
+      await loadHeldExams(schoolId)
+      await loadUnmappedStudents(schoolId)
+    } catch (error) {
+      setUploadError(getUploadErrorMessageKey(error as AxiosError))
+    } finally {
+      if (uploadRef.current) {
+        uploadRef.current.value = ''
+      }
+      setUploading(false)
+    }
   }
 
   async function loadUnmappedStudents(schoolId: string) {
@@ -71,38 +75,48 @@ export const AnswersUploadPanel = ({
     }
   }
 
+  const schoolWithAnswers = answerPackageUploadStatistics?.schoolWithAnswers ?? []
+  const minutesErrorMsg = getMinutesErrorMessageKey(answerPackageUploadStatistics?.minutesImportStatus)
+
   return (
     <div id="answers-upload-main-panel">
-      <div id="answers-upload">
-        <LoadingSpinner loading={uploading} />
-        <form id="answers-upload-panel" name="answers-upload" method="POST" action="">
-          <p className="import-answers-instructions">{t('sa.import_answers_instructions')}</p>
-          <div className="answers-upload-button-wrapper">
-            <label htmlFor="examUpload">
-              <button className="upload-button" disabled={uploading} onClick={e => handleClick(e)} tabIndex={0}>
-                {t('sa.import_answers')}
-              </button>
-            </label>
-            {uploading && (
-              <div className="upload-takes-long-container">
-                <span className="upload-spinner"></span>
-                <span className="notification-text">{t('sa.answer_upload_takes_time')}</span>
-              </div>
+      {answersUploadable && (
+        <div id="answers-upload">
+          <LoadingSpinner loading={uploading} />
+          <form id="answers-upload-panel" name="answers-upload" method="POST" action="">
+            <p className="import-answers-instructions">{t('sa.import_answers_instructions')}</p>
+            <div className="answers-upload-button-wrapper">
+              <label htmlFor="examUpload">
+                <button className="upload-button" disabled={uploading} onClick={e => handleClick(e)} tabIndex={0}>
+                  {t('sa.import_answers')}
+                </button>
+              </label>
+              {uploading && (
+                <div className="upload-takes-long-container">
+                  <span className="upload-spinner"></span>
+                  <span className="notification-text">{t('sa.answer_upload_takes_time')}</span>
+                </div>
+              )}
+            </div>
+            <input
+              id="examUpload"
+              className="upload-input"
+              ref={uploadRef}
+              type="file"
+              name="examUpload"
+              accept=".meb"
+              onChange={e => void handleFile(e)}
+            />
+            {uploadError && <div className="upload-error error-notice">{t(uploadError)}</div>}
+            {schoolWithAnswers.length > 0 && (
+              <>
+                {minutesErrorMsg && <div className="js-minutes-import-error error-notice">{t(minutesErrorMsg)}</div>}
+                <UploadNotification schools={schoolWithAnswers} />
+              </>
             )}
-          </div>
-          <input
-            id="examUpload"
-            className="upload-input"
-            ref={uploadRef}
-            type="file"
-            name="examUpload"
-            accept=".meb"
-            onChange={e => handleFile(e)}
-          />
-          {uploadError && <div className="upload-error error-notice">{t(uploadError)}</div>}
-          {uploadResult.length > 0 && <UploadNotification schools={uploadResult} />}
-        </form>
-      </div>
+          </form>
+        </div>
+      )}
       {unmappedStudents.length > 0 && <UnMappedStudents students={unmappedStudents} />}
     </div>
   )
@@ -118,6 +132,11 @@ type SchoolWithAnswer = {
     isDeleted?: boolean
     isDuplicate?: boolean
   }[]
+}
+
+type AnswerPackageUploadStatistics = {
+  schoolWithAnswers?: SchoolWithAnswer[]
+  minutesImportStatus?: MinutesImportStatus
 }
 
 type UnMappedStudent = {
@@ -154,6 +173,17 @@ function getUploadErrorMessageKey(error: AxiosError): UploadErrorKey {
       return 'sa.errors.invalid_file'
     default:
       return 'sa.errors.answer_upload_failed'
+  }
+}
+
+function getMinutesErrorMessageKey(status?: MinutesImportStatus) {
+  switch (status) {
+    case 'failed':
+      return 'sa.errors.minutes_import_failed'
+    case 'empty':
+      return 'sa.errors.minutes_import_empty'
+    default:
+      return null
   }
 }
 

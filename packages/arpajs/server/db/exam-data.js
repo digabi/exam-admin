@@ -53,7 +53,7 @@ export const getExamContent = apId =>
 
 export const getAccountForExamUuid = examUuid =>
   pgrm.queryRowsAsync(
-    SQL` SELECT * from user_account 
+    SQL` SELECT * from user_account
       natural join exam
       where exam_uuid = ${examUuid}`
   )
@@ -151,8 +151,7 @@ export const getHeldExam = heldExamUuid =>
           answer_emails_sent as "answerEmailsSent",
           password,
           accessible,
-          content_valid as "contentValid",
-          held_exam_nsa_findings_status as "findingsStatus"
+          content_valid as "contentValid"
         from held_exam
           natural join exam
         where held_exam_uuid = $1`,
@@ -570,55 +569,39 @@ export const updateXmlExamPassword = (examUuid, userId, password) =>
 export const getGradingStatusForExams = async userAccountId => {
   const result = await pgrm.queryRowsAsync(
     // language=PostgreSQL
-    SQL`select
-          stats.uuid as uuid,
-          title,
-          uploaded,
-          ap_count,
-          answer_count,
-          total_scored_count,
-          manual_scored_count,
-          pregrading_finished_count,
-          creation_date,
-          held_exam_deletion_date,
-          held_exam_nsa_findings_status
-        from
-          ( select
-              uuid,
-              max(created)                as uploaded,
-              count(distinct apid) :: int as ap_count,
-              count(aid) :: int           as answer_count,
-              count(sval) :: int          as total_scored_count,
-              count(case when atype = 'text' or atype = 'richText' or atype = 'audio'
-                then sval
-                    else null end) :: int as manual_scored_count,
-            count(finished) filter (where finished is not null) :: int as pregrading_finished_count
-            from (select
-                    ap.held_exam_uuid           as uuid,
-                    ap.created                  as created,
-                    ap.answer_paper_id          as apid,
-                    a.answer_id                 as aid,
-                    s.score_value               as sval,
-                    a.answer_content ->> 'type' as atype,
-                    a.pregrading_finished_at    as finished
-                  from answer_paper ap
-                    natural join held_exam
-                    natural join exam
-                    natural left join answer a
-                    natural left join score s
-                  where exam.user_account_id = ${userAccountId}
-                    and deletion_date IS NULL) exam_answers
-            group by uuid ) stats,
-          ( select
-              held_exam_uuid,
-              title,
-              creation_date,
-              held_exam_deletion_date,
-              held_exam_nsa_findings_status
-            from exam
-              natural join held_exam
-            where exam.user_account_id = ${userAccountId} ) as titles
-        where titles.held_exam_uuid = stats.uuid`
+    SQL`SELECT
+    he.held_exam_uuid                AS uuid,
+    e.title,
+    stats.uploaded,
+    stats.ap_count,
+    stats.answer_count,
+    stats.total_scored_count,
+    stats.manual_scored_count,
+    stats.pregrading_finished_count,
+    e.creation_date,
+    he.held_exam_deletion_date,
+    he.minutes_session_id IS NOT NULL AS has_minutes
+  FROM exam e
+  JOIN held_exam he ON he.exam_uuid = e.exam_uuid
+  CROSS JOIN LATERAL (
+    SELECT
+      max(ap.created)                          AS uploaded,
+      count(DISTINCT ap.answer_paper_id)::int  AS ap_count,
+      count(a.answer_id)::int                  AS answer_count,
+      count(s.score_value)::int                AS total_scored_count,
+      count(CASE WHEN a.answer_content ->> 'type' IN ('text', 'richText', 'audio')
+                 THEN s.score_value END)::int  AS manual_scored_count,
+      count(a.pregrading_finished_at)
+        FILTER (WHERE a.pregrading_finished_at IS NOT NULL)::int
+                                               AS pregrading_finished_count
+    FROM answer_paper ap
+      LEFT JOIN answer a  ON a.answer_paper_id = ap.answer_paper_id
+      LEFT JOIN score s   ON s.answer_id = a.answer_id
+    WHERE ap.held_exam_uuid = he.held_exam_uuid
+  ) stats
+  WHERE e.user_account_id = ${userAccountId}
+    AND e.deletion_date IS NULL
+    AND stats.ap_count > 0`
   )
 
   const exams = result.map(record => {
@@ -630,7 +613,7 @@ export const getGradingStatusForExams = async userAccountId => {
       answerPapers: record.ap_count,
       answers: record.answer_count,
       heldExamDeletionDate: record.held_exam_deletion_date,
-      findingsStatus: record.held_exam_nsa_findings_status,
+      hasMinutes: record.has_minutes,
       eventDate: record.uploaded,
       schoolAnonCode: record.uuid,
       examCode: '',

@@ -1,13 +1,16 @@
 'use strict'
 
 import express from 'express'
-const router = express.Router()
+import z from 'zod'
 import { config } from '../../config'
 import * as exam from '../../db/exam-handling'
 import * as examBl from './exam-bl'
 import { getJsonAsync, postJsonAsync } from '@digabi/fetch'
 import { importExamHandler } from './import-exam-handler'
 import { ensureAuthenticated } from '../../auth/auth-session'
+import { isUuid } from '../../validation'
+
+const router = express.Router()
 
 router.get('/held-exams', ensureAuthenticated, (req, res, next) =>
   examBl
@@ -40,28 +43,47 @@ router.get('/public-questions/filters', (req, res, next) =>
     .catch(next)
 )
 
-router.post('/password/:examUuid', (req, res, next) =>
-  postJsonAsync(`${config().examUri}/exams/password/${req.params.examUuid}/${req.user.userId}`, req.body)
+router.post('/password/:examUuid', (req, res, next) => {
+  if (!isUuid(req.params.examUuid)) {
+    return res.sendStatus(400)
+  }
+  return postJsonAsync(`${config().examUri}/exams/password/${req.params.examUuid}/${req.user.userId}`, req.body)
     .then(() => res.sendStatus(204))
     .catch(next)
-)
+})
 
-router.post('/exam-event', (req, res, next) =>
-  exam
-    .createExamInArpa(req.user.userId, req.body.title, req.body.examLanguage, req.body.xml)
+const ExamEventBodySchema = z.object({
+  title: z.string(),
+  examLanguage: z.enum(['fi-FI', 'sv-FI']),
+  xml: z.string().optional()
+})
+
+router.post('/exam-event', (req, res, next) => {
+  const parse = ExamEventBodySchema.safeParse(req.body)
+  if (!parse.success) {
+    return res.status(400).json({ error: parse.error.issues })
+  }
+  return exam
+    .createExamInArpa(req.user.userId, parse.data.title, parse.data.examLanguage, parse.data.xml)
     .then(examUuid => res.status(201).json({ examUuid: examUuid }))
     .catch(next)
-)
+})
 
-router.post('/undelete/:examUuid', (req, res, next) =>
-  examBl
+router.post('/undelete/:examUuid', (req, res, next) => {
+  if (!isUuid(req.params.examUuid)) {
+    return res.sendStatus(400)
+  }
+  return examBl
     .markExamAsUndeleted(req.user.userId, req.params.examUuid)
     .then(examUuid => res.status(201).json({ examUuid }))
     .catch(next)
-)
+})
 
 router.delete('/exam-event/:examUuid', (req, res, next) => {
-  examBl
+  if (!isUuid(req.params.examUuid)) {
+    return res.sendStatus(400)
+  }
+  return examBl
     .markExamAsDeleted(req.user.userId, req.params.examUuid)
     .then(deleted => (deleted.length > 0 ? res.status(200).json(deleted) : res.sendStatus(404)))
     .catch(next)
@@ -69,10 +91,13 @@ router.delete('/exam-event/:examUuid', (req, res, next) => {
 
 router.post('/import-exam', importExamHandler)
 
-router.get('/copy-exam/:examUuid', (req, res, next) =>
-  getJsonAsync(`${config().examUri}/exams/copy-exam/${req.params.examUuid}/${req.user.userId}`)
+router.get('/copy-exam/:examUuid', (req, res, next) => {
+  if (!isUuid(req.params.examUuid)) {
+    return res.sendStatus(400)
+  }
+  return getJsonAsync(`${config().examUri}/exams/copy-exam/${req.params.examUuid}/${req.user.userId}`)
     .then(exam => res.json(exam))
     .catch(next)
-)
+})
 
 export default router

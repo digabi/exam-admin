@@ -2,6 +2,7 @@
 
 import Promise from 'bluebird'
 import { config } from '../config'
+import { verifyYtlApiKey } from '../routes/api/ytl-connection/api-routes'
 
 export function ensureAuthenticatedWithFallback(fallback) {
   return (req, res, next) => checkAuth(req, res, next, fallback)
@@ -32,4 +33,8 @@ function checkAuth(req, res, next, fallback) {
 
 export function endSessionAsync(req) {
   return Promise.fromNode(callback => req.session.destroy(callback))
+}
+
+export function ensureAuthenticatedOrYtlApiKey(req, res, next) {
+  return req.isAuthenticated() ? next() : verifyYtlApiKey(req, res, next)
 }

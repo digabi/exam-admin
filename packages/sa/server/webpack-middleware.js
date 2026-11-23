@@ -13,7 +13,7 @@ export default function webpackAssets() {
   const webpackConfig = require(path.resolve(__dirname, '../webpack.config')) // force dynamic module lookup
   const compiler = require('webpack')(webpackConfig())
   return require('webpack-dev-middleware')(compiler, {
-    publicPath: '/dist/', // relative to mount path
+    publicPath: '/', // Path is already /dist/, express removes the /dist/ part so / is correct here since implicitly / => /dist/ here
     stats: 'minimal'
   })
 }

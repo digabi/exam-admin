@@ -14,14 +14,12 @@ loadConfig()
 
     async function run() {
       await deleteBucket(config.s3NsaScriptsBucket)
-      await deleteBucket(config.s3NsaFindingsBucket)
       await deleteBucket(config.matriculationExamsBucket)
 
       for (const bucket of [
         config.s3ExamLogsBucket,
         config.s3AttachmentsBucket,
         config.s3NsaScriptsBucket,
-        config.s3NsaFindingsBucket,
         config.matriculationExamsBucket
       ]) {
         console.log(`Creating bucket ${bucket}`)

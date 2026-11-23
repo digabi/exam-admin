@@ -1,0 +1,1 @@
+ALTER TABLE exam ALTER COLUMN exam_code TYPE VARCHAR(5);

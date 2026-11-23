@@ -1,6 +1,7 @@
 import i18n from 'i18next'
 import jqI18next from 'jquery-i18next'
 import i18nXhr from 'i18next-xhr-backend'
+import { initReactI18next } from 'react-i18next'
 import i18nLangDetector from 'i18next-browser-languagedetector'
 import $ from 'jquery'
 import _ from 'lodash'
@@ -53,6 +54,7 @@ function getTranslationResources() {
 export function init(callback) {
   i18n
     .use(i18nXhr)
+    .use(initReactI18next)
     .use(i18nLangDetector)
     .init(i18nConfig, () => {
       jqI18next.init(i18n, $, {

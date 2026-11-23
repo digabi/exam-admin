@@ -7,7 +7,6 @@ import { pgrm } from '../db/local-pg-resource-management'
 const analysisRouter = express.Router()
 
 analysisRouter.get('/held-exams', heldExamsHandler)
-analysisRouter.post('/analysis-status', express.json(), analysisStatusHandler)
 
 export default analysisRouter
 
@@ -26,7 +25,6 @@ const heldExamUuidsSchema = z.pipe(
 export type ExamStudent = {
   examUuid: string
   heldExamUuid: string
-  nsaFindingsStatus: string
   examTitle: string
   studentUuid: string
   studentFirstNames: string
@@ -42,7 +40,6 @@ function getHeldExamStudents(ids: string[]): Promise<ExamStudent[]> {
     SQL`SELECT
   exam.exam_uuid AS "examUuid",
   held_exam.held_exam_uuid AS "heldExamUuid",
-  held_exam_nsa_findings_status AS "nsaFindingsStatus",
   exam.title AS "examTitle",
   student.student_uuid AS "studentUuid",
   student.first_names AS "studentFirstNames",
@@ -56,33 +53,5 @@ NATURAL JOIN answer_paper
 NATURAL JOIN student
 NATURAL JOIN user_account
 WHERE held_exam_uuid = ANY(${ids}::uuid[])`
-  )
-}
-
-async function analysisStatusHandler(req: express.Request, res: express.Response) {
-  const pairs = analysisStatusBodySchema.safeParse(req.body)
-  if (!pairs.success) throw new DataError('Invalid request body')
-
-  await updateAnalysisStatus(pairs.data)
-  res.sendStatus(200)
-}
-
-const analysisStatusBodySchema = z.array(z.tuple([z.string().uuid(), z.enum(['no_findings', 'has_findings'])]))
-
-async function updateAnalysisStatus(pairs: [heldExamUuid: string, nsaFindingsStatus: string][]) {
-  if (!pairs.length) return
-
-  const heldExamUuids = new Array(pairs.length)
-  const statuses = new Array(pairs.length)
-  for (let i = 0; i < pairs.length; i++) {
-    heldExamUuids[i] = pairs[i][0]
-    statuses[i] = pairs[i][1]
-  }
-
-  await pgrm.queryAsync(
-    SQL`UPDATE held_exam
-SET held_exam_nsa_findings_status = pairs.status
-FROM unnest(${heldExamUuids}::uuid[], ${statuses}::nsa_findings_status[]) AS pairs(id, status)
-WHERE held_exam_uuid = pairs.id`
   )
 }

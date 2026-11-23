@@ -1,18 +1,15 @@
-@import './variables';
+@import './variables-common.less';
 
-@SaBackground: #fafafa;
-@text-size: 18px;
-@text-color: #263d43;
-@examTableCellVerticalPadding: 1rem;
-@text-font: 'Source Sans 3', sans-serif;
+@input-text-weight: 400;
+@examTableCellHorizontalPadding: 1.25rem;
 @body-line-height: 25px;
+
+@SaBackground: @base-background-light;
 @base-secondary-button-background: #fefefe;
 @base-secondary-button-text: #6d6d6d;
 @bar-graded: hsl(218, 58%, 76%);
 @bar-finished: hsl(218 28% 39% / 1);
-@green: #6cab85;
-
-@base-brand-blue: #004dd0;
+@green: #068438;
 @base-banner-background-blue: #fafafa;
 @base-link-font-blue-hover: #032e78;
 @base-blue-button: @base-brand-blue;
@@ -21,7 +18,6 @@
 @base-disabled-text: #6d6d6d;
 @base-color-almost-black: #555555;
 @base-page-banner-text-color: @base-color-almost-black;
-@input-text-weight: 400;
 
 @clickable-color: @base-blue-button;
 @clickable-hover-color: @base-blue-button-hover;
@@ -38,7 +34,6 @@
 .button-font() {
   font-family: @text-font;
   font-weight: 400;
-  font-size: 16px;
   line-height: @body-line-height;
 }
 
@@ -84,15 +79,17 @@
   color: @base-secondary-button-text;
   border: 1px #c8c8c8 solid;
   box-shadow: 0 0 3px #ddd;
+
   &[disabled],
   &.disabled {
-    border-color: #dfdfdf;
-    color: #dfdfdf;
+    border-color: @table-border-color;
+    color: @table-border-color;
     background-color: @base-secondary-button-background;
     box-shadow: none;
+
     &:hover {
-      border-color: #dfdfdf;
-      color: #dfdfdf;
+      border-color: @table-border-color;
+      color: @table-border-color;
       background-color: @base-secondary-button-background;
       box-shadow: none;
     }

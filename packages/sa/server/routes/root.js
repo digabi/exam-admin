@@ -29,6 +29,10 @@ router.get('/bertta/:examId', authSession.ensureAuthenticatedWithFallback(sendIn
   res.sendFile('/public/bertta.html', { root: `${__dirname}/../..` })
 })
 
+router.get('/grading/minutes/:heldExamUuid', authSession.ensureAuthenticatedWithFallback(sendIndex), (req, res) => {
+  res.sendFile('/public/grading.html', { root: `${__dirname}/../..` })
+})
+
 router.get(
   '/grading/:schoolExamAnonCode{/:studentCode{/:displayNumber}}',
   authSession.ensureAuthenticatedWithFallback(sendIndex),

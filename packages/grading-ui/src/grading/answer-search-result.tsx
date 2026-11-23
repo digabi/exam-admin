@@ -1,7 +1,8 @@
+import classNames from 'classnames'
 import { debounce } from 'lodash'
 import React, { Dispatch, SetStateAction, useCallback, useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { getScoreRegExp } from '../common/score-regexp'
+import { getScoreMaxLength, getScoreRegExp } from '../common/score-regexp'
 import { postJson } from '../common/utils'
 import { ExpandableText } from './ExpandableText'
 import { postScoreUpdateState } from './post-score-utils'
@@ -161,14 +162,14 @@ export const AnswerSearchResult = ({
       <div className="search-result-details">
         <div className="search-result-details-half">
           <input
-            className="scorePoints"
+            className={classNames('scorePoints', { wideScore: getScoreMaxLength(maxScore) > 2 })}
             value={localScore}
             onFocus={() => isExpandableAnswer && setExpanded(true)}
             onChange={e => void onScoreChange(e.target.value)}
             inputMode="numeric"
             disabled={!userCanScore}
             pattern={answerScorePattern}
-            maxLength={2}
+            maxLength={getScoreMaxLength(maxScore)}
           />
           <span className="max-score">max {maxScore} p.</span>
           <Link

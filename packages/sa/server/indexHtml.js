@@ -31,7 +31,7 @@ export const markup = (isSuperuser = false) => `<!DOCTYPE html>
     <div id="tab-bar">
       <a id="exams-link" href="/school/exams" data-i18n="sa.exams_tab"></a>
       <a id="grading-link" href="/school/grading" data-i18n="sa.grading_tab"></a>
-      <a id="ytl-connection-link" href="/school/ytl-connection" data-i18n="sa.ytl_connection_tab" style="display:none"></a>
+      <a id="ytl-connection-link" href="/school/ytl-connection" data-i18n="sa.ytl_connection_tab"></a>
       <a id="settings-link" href="/school/settings" data-i18n="sa.settings_tab"></a>
       ${isSuperuser ? '<a id="admin-link" href="/admin">Admin</a>' : ''}
     </div>

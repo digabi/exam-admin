@@ -13,6 +13,7 @@ import composingRouter from './routes/composing'
 import adminRouter from './routes/admin'
 import analysisRouter from './routes/analysis'
 import ytlConnectionRouter from './routes/ytl-connection'
+import examStatisticsRouter from './routes/exam-statistics-router'
 import helmet from 'helmet'
 import { requestLogger } from '@digabi/logger'
 import { setupDefaultErrorHandlers } from '@digabi/express-utils'
@@ -23,6 +24,7 @@ const app = express()
 app.use(helmet())
 
 app.get('/health-check', (req, res) => res.sendStatus(200))
+
 if (config().runningInCloud) {
   app.set('trust proxy', 1) // one hop (private ALB)
 }
@@ -44,6 +46,7 @@ app.use('/composing', composingRouter)
 app.use('/admin', adminRouter)
 app.use('/analysis', analysisRouter)
 app.use('/ytl-connection', ytlConnectionRouter)
+app.use('/exam-statistics', examStatisticsRouter)
 
 app.post('/import-public-exams', async (_, res) => {
   try {
@@ -56,10 +59,11 @@ app.post('/import-public-exams', async (_, res) => {
 })
 
 const devEnv = !config().runningInCloud
+
 if (devEnv && config().testRestRouter) {
   logger.warn('enabling dev route')
-  import(`./routes/dev${config().testRestRouter}`)
-    .then(imported => app.use(config().testRestRouter, imported.default))
+  import(`./routes/dev${config().testRestRouter}.js`)
+    .then(imported => app.use(config().testRestRouter, imported.default?.default ?? imported.default))
     .catch(error => logger.error(`Failed to import ${config().testRestRouter}`, { error }))
 }
 

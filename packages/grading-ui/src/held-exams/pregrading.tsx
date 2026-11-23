@@ -1,7 +1,7 @@
 import React from 'react'
 import { I18nextProvider } from 'react-i18next'
 import { PregradingExams } from './pregrading-exams'
-import { Language, RoleType } from '../common/types'
+import { Language } from '../common/types'
 import i18next from '../locales/i18n'
 import { PregradingExamUrls, PregradingExamUrlsContextData } from './types'
 import '../../less/grading-exams.less'
@@ -12,21 +12,25 @@ export const PregradingExamUrlsContext = React.createContext<PregradingExamUrlsC
 
 export function Pregrading({
   scopeId,
-  roleType,
+  principal,
   allowedExams,
+  canViewAllExams = false,
+  canViewMinutes = false,
   pregradingExamUrls,
   examReviewRequired = false,
   examsDeletable = false,
-  findingsEnabled = false,
+  answersUploadable = true,
   lang
 }: {
   scopeId: string
-  roleType: RoleType
+  principal: boolean
   allowedExams: string[]
+  canViewAllExams?: boolean
+  canViewMinutes?: boolean
   pregradingExamUrls: PregradingExamUrls
   examReviewRequired: boolean
   examsDeletable: boolean
-  findingsEnabled: boolean
+  answersUploadable?: boolean
   lang: Language
 }) {
   return (
@@ -34,11 +38,13 @@ export function Pregrading({
       <PregradingExamUrlsContext.Provider value={pregradingExamUrls}>
         <PregradingExams
           scopeId={scopeId}
-          roleType={roleType}
+          principal={principal}
           allowedExams={allowedExams}
+          canViewAllExams={canViewAllExams}
+          canViewMinutes={canViewMinutes}
           examReviewRequired={examReviewRequired}
           examsDeletable={examsDeletable}
-          findingsEnabled={findingsEnabled}
+          answersUploadable={answersUploadable}
         />
       </PregradingExamUrlsContext.Provider>
     </I18nextProvider>

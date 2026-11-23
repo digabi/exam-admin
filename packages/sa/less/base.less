@@ -50,7 +50,9 @@
   display: flex;
   opacity: 0;
   max-height: 0;
-  transition: opacity 0.5s, max-height 0.5s;
+  transition:
+    opacity 0.5s,
+    max-height 0.5s;
   overflow: hidden;
 
   &--visible {
@@ -344,7 +346,7 @@ i.fa-times-circle {
   color: @sa-error-text-color;
   background: #ffeded;
   &--block {
-    padding: .5em 1em;
+    padding: 0.5em 1em;
     margin: 1em 0;
   }
 }
@@ -499,7 +501,8 @@ p {
   margin: 20px 0;
 }
 
-input[type='text'], input[type='password'],
+input[type='text'],
+input[type='password'],
 textarea {
   .text-input();
 }
@@ -620,7 +623,6 @@ button:disabled:hover {
   white-space: nowrap;
 }
 
-
 .utf-char-before(@content, @left: 0) {
   &:before {
     font-weight: 300;
@@ -635,109 +637,6 @@ body {
   font-weight: 300;
 }
 
-.footer {
-  // Sprite coordinates
-  @twitter: -5px, -5px, 35px, 35px;
-  @digabi-hover: -5px, -50px, 35px, 35px;
-  @facebook-hover: -5px, -95px, 35px, 35px;
-  @facebook: -5px, -140px, 35px, 35px;
-  @github-hover: -5px, -185px, 35px, 35px;
-  @github: -5px, -230px, 35px, 35px;
-  @twitter-hover: -5px, -275px, 35px, 35px;
-  @digabi: -5px, -320px, 35px, 35px;
-  @uutiskirje-hover: -5px, -365px, 35px, 35px;
-  @uutiskirje: -5px, -410px, 35px, 35px;
-  @vimeo-hover: -5px, -455px, 35px, 35px;
-  @vimeo: -5px, -500px, 35px, 35px;
-  @ytl-hover: -5px, -545px, 35px, 35px;
-  @ytl: -5px, -590px, 35px, 35px;
-  @updates: -5px -680px 35px 35px;
-  @updates-hover: -5px -635px 35px 35px;
-  @terms: -5px -410px 35px 35px;
-  @terms-hover: -5px -365px 35px 35px;
-
-  color: @base-brand-blue;
-  font-size: 16px;
-  font-weight: 400;
-  padding: 60px 0;
-  margin: 0 auto;
-  width: @footer-width;
-
-  img {
-    margin-right: 12px;
-  }
-  p {
-    margin-bottom: 1px;
-    margin-top: 0;
-    line-height: 22px;
-  }
-  a:hover {
-    text-decoration: none;
-  }
-  h5 {
-    margin-top: 0;
-    color: @base-color-almost-black;
-    font-size: 18px;
-    font-weight: 500;
-    margin-bottom: 12.5px;
-  }
-  a {
-    text-decoration: none;
-  }
-
-  a.with-logo {
-    .footer-img-sprite(@ytl, 'https://ylioppilastutkinto.fi/');
-    .footer-img-sprite(@digabi, 'https://digabi.fi/');
-    .footer-img-sprite(@uutiskirje, 'https://digabi.fi/digabi/uutiskirje/');
-    .footer-img-sprite(@vimeo, 'http://vimeo.com/user19863470');
-    .footer-img-sprite(@github, 'https://github.com/digabi');
-    .footer-img-sprite(@facebook, 'https://www.facebook.com/ylioppilastutkinto');
-    .footer-img-sprite(@twitter, 'https://twitter.com/YTLSEN');
-    .footer-img-sprite(@updates, 'https://www.abitti.fi/fi/paivitykset/');
-    .footer-img-sprite(@terms, '/kayttoehdot/');
-    & + a {
-      margin-left: 6px;
-    }
-  }
-  a.with-logo:hover {
-    .footer-img-sprite(@ytl-hover, 'https://ylioppilastutkinto.fi/');
-    .footer-img-sprite(@digabi-hover, 'https://digabi.fi/');
-    .footer-img-sprite(@uutiskirje-hover, 'https://digabi.fi/digabi/uutiskirje/');
-    .footer-img-sprite(@vimeo-hover, 'http://vimeo.com/user19863470');
-    .footer-img-sprite(@github-hover, 'https://github.com/digabi');
-    .footer-img-sprite(@facebook-hover, 'https://www.facebook.com/ylioppilastutkinto');
-    .footer-img-sprite(@twitter-hover, 'https://twitter.com/YTLSEN');
-    .footer-img-sprite(@updates-hover, 'https://www.abitti.fi/fi/paivitykset/');
-    .footer-img-sprite(@terms-hover, 'https://www.abitti.fi/fi/kayttoehdot/');
-  }
-
-  .footer-column {
-    vertical-align: top;
-    width: 31%;
-    min-width: 240px;
-    height: 140px;
-    display: inline-block;
-    &:not(:first-child) {
-      border-left: 1px solid @base-brand-blue;
-      padding-left: 40px;
-    }
-    &:first-child > div {
-      float: right;
-      padding-right: 40px;
-    }
-    h5 {
-      text-transform: uppercase;
-    }
-    &.wide-column {
-      width: 37%;
-      min-width: 290px;
-      p {
-        margin-bottom: 6px;
-      }
-    }
-  }
-}
-
 #exam-export .exam-table-title {
   margin-bottom: 5px;
 }
@@ -750,7 +649,7 @@ body {
   height: 20px;
 }
 .default-radio {
-  input[type="radio"] {
+  input[type='radio'] {
     margin-right: 0.25rem;
   }
 }

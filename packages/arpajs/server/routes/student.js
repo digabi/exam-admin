@@ -118,7 +118,7 @@ async function getMasteredXml(examContent) {
       const exam = await examDb.getExam(examContent.examUuid)
       const { xml } = await tryMexConversion(exam)
       return xml
-    } catch (e) {} // eslint-disable-line no-empty
+    } catch {} // eslint-disable-line no-empty
   }
 
   return null

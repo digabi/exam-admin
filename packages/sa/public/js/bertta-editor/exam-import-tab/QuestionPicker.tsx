@@ -72,6 +72,9 @@ export const QuestionPicker = (props: {
     void (async function () {
       if (!publicExams) {
         setFilterQuery(null)
+      } else if (filterQuery === null) {
+        // If the exam is public but no filter query is set we would be firing an invalid request
+        return
       }
       setIsFetching(true)
       const q = await getQuestions(examUuid)

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { Routes, Route, BrowserRouter } from 'react-router'
 import GradingView from './grading-view'
+import HeldExamMinutesView from './held-exam-minutes-view'
 import { PageBanner, useLanguage } from '../page-banner/page-banner'
 import * as i18n from '../i18n'
 import { useFetchUser } from './hooks'
@@ -17,6 +18,10 @@ function GradingRouter() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route
+          path="/school/grading/minutes/:heldExamUuid"
+          element={<HeldExamMinutesView pageBanner={pageBanner} lang={lang} />}
+        />
         <Route
           path="/school/grading/:schoolExamAnonCode/:studentCode?/:displayNumber?"
           element={<GradingView pageBanner={pageBanner} lang={lang} />}

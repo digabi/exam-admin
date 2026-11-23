@@ -9,7 +9,7 @@ export const ContactInformationSchema = z
     footerPhone: z.string(),
     footerLinks: z.array(
       z.object({
-        url: z.string(),
+        url: z.custom<(language?: string) => string>(val => typeof val === 'function'),
         titleKey: z.string().regex(keyRegExp)
       })
     )

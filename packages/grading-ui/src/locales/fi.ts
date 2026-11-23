@@ -2,7 +2,7 @@ const fi = {
   sa: {
     logout: 'Kirjaudu ulos',
     import_answers_instructions:
-      'Kokeen päätyttyä tallenna koesuoritukset koetilan palvelimelta tavalliselle USB-muistille. Kiinnitä USB-muisti omaan koneeseesi ja klikkaa "Tuo koesuoritukset".',
+      'Voit tuoda koesuoritukset a) suoraan koetilan palvelimelta YTL-yhteyttä pitkin tai b) tallentamalla koesuoritukset koetilan palvelimelta tavalliselle USB-muistille. Kiinnitä USB-muisti omaan koneeseesi ja klikkaa "Tuo koesuoritukset".',
     import_answers: 'Tuo koesuoritukset',
     answer_upload_takes_time: 'Koesuoritusten tuonti voi kestää kymmeniä sekunteja.',
     answers_uploaded: {
@@ -19,14 +19,14 @@ const fi = {
     held_exams: 'Pidetyt kokeet',
     info_text:
       'Lukion on merkittävä valmiiksi vähintään 30 % vastausten alustavasta arvostelusta ensimmäiseen määräpäivään mennessä.',
-    students: 'Kokelaita',
+    students: 'Kokelaita, vastauksia',
     held_exam_name: 'Koe',
     held_answers: 'Arvosteltavia vastauksia',
     pre_grading: 'Alustavasti arvosteltuja vastauksia',
     pre_grading_answers_graded: 'Vastauksia arvosteltu',
     pre_grading_answers_finished: 'Arvosteluja merkitty valmiiksi',
     recommended_deadline: 'Seuraava määräpäivä',
-    findings_status: 'Kokeen poikkeavat havainnot',
+    findings_status: 'Pöytäkirjat',
     still_to_be_finished: 'Merkittävä valmiiksi vielä',
     gradings: 'arvostelua',
     today: 'Tänään',
@@ -35,6 +35,25 @@ const fi = {
     nothing_to_grade: 'Ei arvosteltavaa',
     held_exam_grade: 'Arvostele',
     held_exam_submitted: 'Tarkastele vastauksia',
+    minutes: {
+      title: 'Pöytäkirja',
+      back_to_held_exams: 'Takaisin pidettyihin kokeisiin',
+      exam_date: 'Koepäivä',
+      exam_name: 'Koe',
+      student_count: 'Kokelaiden määrä',
+      exams_on_minutes: 'Kokeet tällä pöytäkirjalla',
+      no_minutes: 'Ei pöytäkirjamerkintöjä',
+      exam_student_count_one: '{{count}} kokelas',
+      exam_student_count_other: '{{count}} kokelasta',
+      time: 'Klo',
+      student_name: 'Kokelas',
+      exam: 'Koe',
+      exam_room_name: 'Koetila',
+      note: 'Merkintä',
+      filter_all_exams: 'Kaikki kokeet',
+      filter_all_rooms: 'Kaikki koetilat',
+      fetch_error: 'Pöytäkirjan haku epäonnistui.'
+    },
     errors: {
       grading_started: 'Koesuoritukset on jo tuotu.',
       exam_meb: 'Ladattu tiedosto sisältää koetehtäviä. Valitse koesuoritukset sisältävä tiedosto.',
@@ -43,9 +62,12 @@ const fi = {
       exam_structure_not_imported: 'Koesuorituksia tähän kokeeseen ei voi vielä tuoda, yritä myöhemmin uudestaan.',
       incorrect_answer_package:
         'Yrität siirtää tutkintopalveluun koesuorituksia, jotka eivät kuulu tämän tutkintokerran kokeeseen. Varmista, että koesuorituspaketti on oikea.',
-      invalid_file: 'Ladattu tiedosto ei sisällä koesuorituksia, lataus epäonnistui.',
+      invalid_file:
+        'Koesuorituspaketti on viallinen. Lataa se uudelleen koetilan palvelimelta. Jos tämä ei auta, ota yhteyttä Abitti-tukeen.',
       no_answer_papers: 'Ladattu tiedosto ei sisällä koesuorituksia.',
       answer_upload_failed: 'Koesuoritusten lataaminen epäonnistui. Yritä hetken kuluttua uudelleen.',
+      minutes_import_failed: 'Pöytäkirjojen tuonti epäonnistui. Ota yhteyttä Abitti-tukeen.',
+      minutes_import_empty: 'Pöytäkirjaan ei ole tehty merkintöjä.',
       load_error:
         '<p>Tietojen latauksessa tapahtui virhe.</p><p>Yritä päivittää sivu.</p><p>Jos ilmoitus tulee uudestaan, kirjaudu ulos palvelusta.</p>',
       answers_fetch_error: 'Virhe suorituksen hakemisessa, tarkista osoite.',
@@ -93,6 +115,8 @@ const fi = {
       free_text_search: 'Hae vastauksista',
       comment_search: 'Hae muistiinpanoista',
       search_term_placeholder: 'Hakusana...',
+      student_search_term_placeholder: 'Nimi...',
+      note_search_term_placeholder: 'Hae...',
       score_search: 'Hae pisteillä',
       add_search_term_or_score: 'Rajaa hakua vähintään hakusanalla tai pisteillä.',
       search_among_graded_by_you: 'Hae arvostelemistasi vastauksista',
@@ -131,14 +155,12 @@ const fi = {
         'Jos koesuoritusta ei tarvitse arvostella (esim. valvoja), teidän ei tarvitse tehdä mitään. Muussa tapauksessa tehkää ilmoittautumistietojen muutoshakemus YTL:n <a target="_blank" href="http://hakemukset.ylioppilastutkinto.fi/">sähköisen asiointipalvelun</a> kautta. '
     },
     held_remove_exam_title: 'Haluatko poistaa koesuoritukset?',
-    held_return: 'Palauta',
+    held_return: 'Palauta kokeet',
     held_remove_exam: 'Poista',
     show_deleted: 'Näytä poistetut',
     undelete: 'Peruuta poisto',
-    has_findings: 'Lataa raportti',
-    not_generated: 'Valmistuu 24 h kuluessa',
-    not_generated_failed: 'Raportin luonti epäonnistui',
-    no_findings: 'Ei poikkeavia havaintoja'
+    show_minutes: 'Näytä pöytäkirja',
+    no_minutes: 'Ei pöytäkirjoja'
   },
   arpa: {
     return_to_exams: 'Kokeiden hallintaan',

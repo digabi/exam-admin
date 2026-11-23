@@ -18,7 +18,7 @@ export function GradingScoreCell({ answer, gridScoreCellPassThroughProps }: Grad
 
   const isWaitingForSecondOrThird =
     ['waiting_for_second', 'waiting_for_third'].includes(censoring?.censoringState || '') &&
-    censoring?.scores[0].censorId !== user?.user?.censorId
+    censoring?.scores[0].censorId !== user?.user?.userAccountId
 
   const isWaitingForUser = censoring && user && canApproveOrReject(censoring, user)
 

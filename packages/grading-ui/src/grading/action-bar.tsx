@@ -17,7 +17,7 @@ interface BaseProps {
   showAnswerSearchUI: boolean
   examContentUrl: string
   attachmentContentUrl: string
-  gradingInstructionsUrl: string
+  gradingInstructionsUrl: string | null
   returnToGridUrl: string
   returnToEventsUrl: string
 }
@@ -35,7 +35,6 @@ type ActionBarProps = CensoringProps | PregradingProps
 export function ActionBar(props: ActionBarProps) {
   const {
     exam: {
-      examCode,
       content: { title }
     },
     gradingRole,
@@ -56,8 +55,6 @@ export function ActionBar(props: ActionBarProps) {
   } = props
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const examsWithNoHvp = ['A_E', 'DC', 'IC', 'QC']
-  const hvpContentUrl = examsWithNoHvp.includes(examCode) ? null : gradingInstructionsUrl
 
   useEffect(() => {
     togglePregradingClass()
@@ -147,8 +144,8 @@ export function ActionBar(props: ActionBarProps) {
         )}
 
         <DocumentLinks examContentUrl={examContentUrl} attachmentContentUrl={attachmentContentUrl}>
-          {hvpContentUrl && (
-            <a className="view-hvp-link " href={hvpContentUrl} target="_blank" rel="noreferrer">
+          {gradingInstructionsUrl && (
+            <a className="view-hvp-link " href={gradingInstructionsUrl} target="_blank" rel="noreferrer">
               <span>{t(gradingRole === undefined ? 'arpa.view_final_hvp' : 'arpa.view_hvp')}</span>
             </a>
           )}

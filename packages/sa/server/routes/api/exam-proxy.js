@@ -2,7 +2,7 @@
 
 import { ensureAuthenticated } from '../../auth/auth-session'
 import validator from 'validator'
-import { proxyToArpa } from '../../db/exam-handling'
+import { proxyToSameArpaPath } from '../../db/exam-handling'
 import express from 'express'
 const router = express.Router()
 import * as exam from '../../db/exam-handling'
@@ -16,14 +16,14 @@ const validateExamUuid = (req, res, next) => {
 }
 
 // public routes
-router.get('/:examUuid/attachments/{*fileName}', validateExamUuid, exam.proxyToArpa)
+router.get('/:examUuid/attachments/{*fileName}', validateExamUuid, exam.proxyToSameArpaPath)
 
 // authenticated routes
 router.use(ensureAuthenticated)
 router.post('/:examUuid/lock', exam.checkAccessForExamAndProxy)
 router.get('/:examUuid/exam', exam.checkAccessForExamAndProxy)
 router.get('/held-exam/:heldExamUuid/exam', exam.checkAccessForHeldExamAndProxy)
-router.get('/held-exam/:heldExamUuid/findings', exam.checkAccessForHeldExamAndProxy)
+router.get('/held-exam/:heldExamUuid/minutes', exam.checkAccessForHeldExamAndProxy)
 router.post('/held-exam/:heldExamUuid/undelete', exam.checkAccessForDeletedHeldExamAndProxy)
 router.get('/:examUuid/exam-meb', exam.checkAccessForExamAndProxy)
 router.get('/:examUuid/export-exam', exam.checkAccessForExamAndProxy)
@@ -32,6 +32,6 @@ router.delete('/:examUuid/attachments/:fileName', exam.checkAccessForExamAndProx
 router.delete('/held-exam/:heldExamUuid', exam.checkAccessForHeldExamAndProxy)
 router.post('/:examUuid/attachments/add', exam.checkAccessForExamAndProxy)
 router.post('/:examUuid/attachments/copyFrom/:examUuid/{*fileName}', exam.checkAccessForExamAndProxy)
-router.get('/ee-version', proxyToArpa)
+router.get('/ee-version', proxyToSameArpaPath)
 
 export default router

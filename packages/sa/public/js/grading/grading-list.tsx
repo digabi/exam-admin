@@ -23,13 +23,13 @@ function GradingList() {
         <TabManager />
         <Pregrading
           scopeId={''}
-          roleType="GRADING_TEACHER"
+          principal={false}
           allowedExams={['']}
           pregradingExamUrls={gradingExamUrls}
           lang={lang}
           examReviewRequired={true}
           examsDeletable={true}
-          findingsEnabled={true}
+          canViewMinutes={true}
         />
         <div id="footer" className="footer">
           <Footer />

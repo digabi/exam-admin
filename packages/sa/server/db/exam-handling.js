@@ -2,10 +2,10 @@
 
 import { config } from '../config'
 import { postJsonAsync, getJsonAsync } from '@digabi/fetch'
-import { proxyWithOpts } from '@digabi/express-utils'
+import { proxyToArpa } from '../proxying'
+import { isUuid } from '../validation'
 import pgrm from './arpajs-database'
 import { sep as pathSeparator } from 'path'
-import { logger } from '../logger'
 import SQL from 'sql-template-strings'
 
 export function createExamInArpa(userId, title, examLanguage, xml) {
@@ -44,42 +44,51 @@ function getExamByIdAndUser(userId, examUuid) {
 
 export function checkAccessForExamAndProxy(req, res, next) {
   const examUuid = req.params.examUuid
+  if (!isUuid(examUuid)) {
+    return res.sendStatus(400)
+  }
   return userCanAccessExam(req.user.userId, examUuid)
     .then(canAccess => {
       if (!canAccess) {
         return res.status(404).end()
       }
-      return proxyToArpa(req, res, next)
+      return proxyToSameArpaPath(req, res, next)
     })
     .catch(next)
 }
 
 export function checkAccessForHeldExamAndProxy(req, res, next) {
+  if (!isUuid(req.params.heldExamUuid)) {
+    return res.sendStatus(400)
+  }
   return userCanAccessHeldExam(req.user.userId, req.params.heldExamUuid)
     .then(canAccess => {
       if (!canAccess) {
         return res.status(404).end()
       }
-      return proxyToArpa(req, res, next)
+      return proxyToSameArpaPath(req, res, next)
     })
     .catch(next)
 }
 
 export function checkAccessForDeletedHeldExamAndProxy(req, res, next) {
+  if (!isUuid(req.params.heldExamUuid)) {
+    return res.sendStatus(400)
+  }
   return userCanAccessHeldExamIncludingDeleted(req.user.userId, req.params.heldExamUuid)
     .then(canAccess => {
       if (!canAccess) {
         return res.status(404).end()
       }
-      return proxyToArpa(req, res, next)
+      return proxyToSameArpaPath(req, res, next)
     })
     .catch(next)
 }
 
-export function proxyToArpa(req, res, next) {
+export function proxyToSameArpaPath(req, res, next) {
   // redirection address: /api-something/grading/blah ==> /grading
   const redirectionAddress = `/${req.originalUrl.split(pathSeparator)[2]}`
-  return proxyWithOpts(config().examUri + redirectionAddress, { timeout: 2.5 * 60 * 1000 }, logger)(req, res, next)
+  return proxyToArpa(redirectionAddress, { timeout: 2.5 * 60 * 1000 })(req, res, next)
 }
 
 export async function userCanAccessExam(userId, examUuid) {
@@ -100,6 +109,9 @@ function userCanAccessHeldExamIncludingDeleted(userId, heldExamUuid) {
 }
 
 export async function userCanAccessHeldExam(userId, heldExamUuid) {
+  if (!isUuid(heldExamUuid)) {
+    return false
+  }
   try {
     const { examUuid } = await getJsonAsync(`${config().examUri}/exams/held-exam/${heldExamUuid}`)
     const query = getExamByIdAndUser(userId, examUuid)

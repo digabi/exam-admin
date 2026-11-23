@@ -2,7 +2,7 @@
   "name": "@digabi/grading-ui",
   "repository": "https://github.com/digabi/grading-ui",
   "author": "Matriculation Examination Board, Finland",
-  "version": "0.42.0",
+  "version": "0.48.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
@@ -25,38 +25,42 @@
     "react-router": "^7.7.1"
   },
   "dependencies": {
-    "@digabi/typescript-config": "^2.0.0",
-    "@fortawesome/fontawesome-free": "^7.2.0",
-    "@types/lodash": "^4.17.24",
-    "@types/node": "^24.12.0",
-    "axios": "^1.14.0",
+    "@digabi/typescript-config": "^3.0.0",
+    "@fortawesome/fontawesome-free": "^7.3.1",
+    "@types/lodash": "^4.17.27",
+    "@types/node": "^24.19.2",
+    "axios": "^1.21.1",
     "classnames": "^2.3.2",
-    "date-fns": "^4.1.0",
+    "date-fns": "^4.4.0",
     "lodash": "^4.18.1",
     "normalize.css": "^8.0.1",
-    "react-spinners": "^0.17.0",
+    "react-spinners": "^0.17.1",
     "react-split": "^2.0.14",
-    "source-sans": "^3.52.0",
-    "typescript": "^5.9.3"
+    "@digabi/noto-sans": "^3.2.0",
+    "typescript": "^6.0.3"
   },
   "devDependencies": {
-    "@digabi/eslint-config": "^3.0.0",
+    "@digabi/eslint-config": "^4.0.1",
     "@types/react": "^18",
     "@types/react-dom": "^18.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.58.0",
-    "@typescript-eslint/parser": "^8.55.0",
-    "eslint": "^8.22.0",
+    "@typescript-eslint/eslint-plugin": "^8.72.2",
+    "@typescript-eslint/parser": "^8.72.2",
+    "eslint": "^9.39.5",
+    "@eslint/compat": "^2.1.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-prettier": "^5.5.5",
-    "eslint-plugin-promise": "^7.0.0",
+    "eslint-plugin-prettier": "^5.5.7",
+    "eslint-plugin-promise": "^7.3.0",
     "eslint-plugin-react": "^7.33.0",
-    "i18n-unused": "^0.19.0",
-    "prettier": "^3.8.1"
+    "i18n-unused": "^0.21.0",
+    "prettier": "^3.10.1"
   },
   "browserslist": [
     "IE >= 11",
     "Firefox ESR",
     "Chrome >= 33"
-  ]
+  ],
+  "overrides": {
+    "@eslint/js": "^9.39.4"
+  }
 }

@@ -4,6 +4,7 @@ let audioPlayer: HTMLAudioElement
 export function noopExamServerAPI(resolveAttachment: (s: string) => string): ExamServerAPI {
   const examServerAPI: ExamServerAPI = {
     getAnswers: () => Promise.resolve([]),
+    getAnswerHistory: () => Promise.resolve([]),
     setCasStatus: casStatus => Promise.resolve(casStatus),
     saveAnswer: () => Promise.resolve(),
     saveScreenshot(_, file) {
@@ -15,7 +16,11 @@ export function noopExamServerAPI(resolveAttachment: (s: string) => string): Exa
         }
         reader.onerror = () => {
           reader.abort()
-          reject(reader.error as DOMException)
+          if (reader.error) {
+            reject(reader.error)
+          } else {
+            reject(new Error('Unknown FileReader error'))
+          }
         }
         reader.readAsDataURL(file)
       })
@@ -53,9 +58,6 @@ export function noopExamServerAPI(resolveAttachment: (s: string) => string): Exa
     },
     async playRestrictedAudio(src) {
       return examServerAPI.playAudio(src)
-    },
-    getRestrictedAudio() {
-      throw new Error('other-error')
     }
   }
 

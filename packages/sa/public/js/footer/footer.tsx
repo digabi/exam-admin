@@ -1,9 +1,12 @@
 import React from 'react'
 import './footer.less'
 import config from '../config'
+import { useTranslation } from 'react-i18next'
 
 export function Footer() {
+  const { i18n } = useTranslation()
   const contactInformation = config.contactInformation
+
   return contactInformation ? (
     <div className="content">
       <div className="footer-column">
@@ -21,8 +24,8 @@ export function Footer() {
       </div>
       <div className="footer-column wide-column">
         {contactInformation.footerLinks.map(link => (
-          <p key={link.url}>
-            <a className="with-logo" href={link.url}>
+          <p key={link.titleKey}>
+            <a className="with-logo" href={link.url(i18n.language)}>
               <span data-i18n={link.titleKey} />
             </a>
           </p>

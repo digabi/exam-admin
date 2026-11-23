@@ -1,30 +1,14 @@
-export type RoleType = 'GRADING_TEACHER' | 'PRINCIPAL' | 'ASSISTANT' | 'STUDENTCOUNSELLOR' | 'CENSOR'
-
-export type Role = SchoolPersonnelRole | CensorRole
-
-export type SchoolPersonnelRole = {
-  roleType: 'GRADING_TEACHER' | 'PRINCIPAL' | 'ASSISTANT' | 'STUDENTCOUNSELLOR'
+// A school the user has access to. School access is permission-based; consumers may carry richer
+// per-school data (e.g. permission grants), but grading-ui only needs the principal flag.
+export type UserDataSchool = {
   schoolId: string
-  schoolName: string
-  startdate: string
-  enddate?: string
-  allowedExams?: string[]
-}
-
-type CensorRole = {
-  roleType: 'CENSOR'
-  divisionId: string
-  divisionName: string
-  startdate: string
-  enddate?: string
-  shortCode: string
-  censorId: string
-  divisionExamType: string
+  schoolName?: string
+  principal: boolean
 }
 
 export type UserData = {
-  roles?: Role[]
   user: UserAPI
+  schools?: UserDataSchool[]
 }
 
 export type UserAPI = {
@@ -32,7 +16,6 @@ export type UserAPI = {
   details: UserDetailsAPI
   firstName: string
   lastName: string
-  censorId?: string
   shortCode?: string
   mock?: boolean
   userName: string
@@ -51,4 +34,4 @@ export type Language = 'fi' | 'sv'
 
 export type CensorDistributionState = 'preview' | 'distribution'
 
-export type FindingsStatus = 'not_generated' | 'no_findings' | 'has_findings'
+export type MinutesImportStatus = 'ok' | 'empty' | 'failed'

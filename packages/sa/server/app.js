@@ -13,7 +13,7 @@ import * as proxying from './proxying'
 import { mathSvgResponse as mathSvgHandler } from 'rich-text-editor/server/mathSvg'
 import URI from 'urijs'
 const app = express()
-import { ensureAuthenticated, ensureSuperuser, isSuperuser } from './auth/auth-session'
+import { ensureAuthenticated, ensureSuperuser, isSuperuser, ensureAuthenticatedOrYtlApiKey } from './auth/auth-session'
 import passport from 'passport'
 import passportSetup from './passport-setup'
 import connectPgSimple from 'connect-pg-simple'
@@ -22,7 +22,7 @@ import compress from 'compression'
 import pgrm from './db/arpajs-database'
 import { markup } from './indexHtml'
 import webpackAssets from './webpack-middleware'
-import answersMebRouter from './routes/api/grading-answers-upload'
+import answersUploadRouter from './routes/api/grading-answers-upload'
 import gradingRouter from './routes/api/grading-proxy'
 import composingProxyRouter from './routes/api/composing-proxy'
 import examProxyRouter from './routes/api/exam-proxy'
@@ -41,6 +41,7 @@ import userDevRouter from './routes/dev/users'
 import registrationDevRouter from './routes/dev/registration'
 import examDevRouter from './routes/dev/exam'
 import helmet from 'helmet'
+import { checkExamStatisticsApiKey, getStatisticsProxy } from './routes/exam-statistics'
 
 app.use((req, _res, next) => {
   req.on('aborted', () => {
@@ -85,7 +86,7 @@ app.use(
 // is not re-sent if it hasn't changed. With this, all requests always hit the server, but content is not necessarily sent if etags match.
 app.use((req, res, next) => {
   res.setHeader('Expires', '-1')
-  req.connection.encrypted = req.headers['x-forwarded-proto'] === 'https' // eslint-disable-line no-extra-parens
+  req.connection.encrypted = req.headers['x-forwarded-proto'] === 'https'
   next()
 })
 
@@ -98,8 +99,6 @@ app.use('/dist', webpackAssets())
 app.use('/locales', express.static(path.join(__dirname, '../public/locales')))
 app.use('/mathjax', express.static(externalModule('mathjax')))
 app.use('/js/lib/MathJax', express.static(externalModule('mathjax')))
-app.use('/js/lib/jquery', express.static(externalModule('jquery')))
-app.use('/js/lib/lodash', express.static(externalModule('lodash')))
 
 app.use(requestLogger(logger, { getRemoteUser: req => req.user?.userName }))
 
@@ -142,19 +141,30 @@ app.get('/', (req, res) => {
   res.send(markup(isSuperuser(req)))
 })
 app.get('/admin', ensureSuperuser, sendFile('admin.html'))
-app.use('/exam-api/grading/student/answers', proxying.proxy(`${config().examUri}/grading/student/answers`))
-app.use('/exam-api/grading/student/exam', proxying.proxy(`${config().examUri}/grading/student/exam`))
-app.use('/screenshot', proxying.proxy(`${config().examUri}/grading/screenshot`)) // Screenshots in rich text answers
-app.use('/audio', proxying.proxy(`${config().examUri}/grading/audio`)) // Audio files in audio answers
+app.use('/exam-api/grading/student/answers', proxying.proxyToArpa('/grading/student/answers'))
+app.use('/exam-api/grading/student/exam', proxying.proxyToArpa('/grading/student/exam'))
+app.use('/screenshot', proxying.proxyToArpa('/grading/screenshot')) // Screenshots in rich text answers
+app.use('/audio', proxying.proxyToArpa('/grading/audio')) // Audio files in audio answers
+
+// Legacy route for KTP servers up to SERVER-v1.37.0, which understand only the bare array as response.
+// TODO: Delete this route, and arpajs's /grading/answers-meb with it, once 1.37.0 servers are not supported.
 app.use(
   '/exam-api/grading/answers-meb',
   extendTimeoutForUploadRouteWithLargeFiles,
-  ensureAuthenticated,
-  answersMebRouter
+  verifyYtlApiKey,
+  answersUploadRouter('/grading/answers-meb')
+)
+app.use(
+  '/exam-api/grading/held-exam-packages',
+  extendTimeoutForUploadRouteWithLargeFiles,
+  ensureAuthenticatedOrYtlApiKey,
+  answersUploadRouter('/grading/held-exam-packages')
 )
 app.use('/exam-api/grading', ensureAuthenticated, gradingRouter)
 app.use('/exam-api/composing', ensureAuthenticated, composingProxyRouter)
 app.use('/exam-api/exams', examProxyRouter)
+
+app.use('/exam-statistics/get-statistics', checkExamStatisticsApiKey, getStatisticsProxy)
 
 app.use(bodyParser.json({ limit: 1024 * 1024 }))
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -184,10 +194,10 @@ app.use(
   '/admin-api/impersonate',
   ensureAuthenticated,
   ensureSuperuser,
-  proxying.proxy(`${config().examUri}/admin/impersonate/${config().superUserUsername}`)
+  proxying.proxyToArpa(`/admin/impersonate/${config().superUserUsername}`)
 )
-app.use('/admin-api', ensureAuthenticated, ensureSuperuser, proxying.proxy(`${config().examUri}/admin`))
-app.use('/digabi2', proxying.proxy(`${config().examUri}/digabi2`))
+app.use('/admin-api', ensureAuthenticated, ensureSuperuser, proxying.proxyToArpa('/admin'))
+app.use('/digabi2', proxying.proxyToArpa('/digabi2'))
 
 if (!config().runningInCloud) {
   logger.warn('Enabling dev routes')
@@ -204,6 +214,15 @@ function allowCrossDomain(req, res, next) {
   res.header('Access-Control-Allow-Headers', 'Content-Type')
   next()
 }
+
+app.use((error, req, res, next) => {
+  if (error?.code === 'ECONNRESET' || error?.cause?.code === 'ECONNRESET') {
+    logger.warn('TCP connection closed', { error })
+    if (!res.headersSent) res.sendStatus(500)
+    return
+  }
+  next(error)
+})
 
 setupDefaultErrorHandlers(app, config().stackTracesOnErrorResponses, logger)
 

@@ -23,6 +23,7 @@ export type GradingExam = {
   canBePregraded?: boolean
   censorDistributionDone?: boolean
   canBeCommented: boolean
+  canWriteScores?: boolean
   schoolAnonCode: string
   isCensoringEnabled: boolean
   isFirstLevelCensor: boolean
@@ -112,6 +113,7 @@ export type GradingAnswerType = {
   scoreValue: number | null
   censoringScoreValue: number
   userCanScore: boolean
+  userCanComment?: boolean
   scoreDifference?: string
   versionNumber: number
   comment?: string
@@ -256,11 +258,7 @@ export type UnfinishedGradedAnswer = {
 }
 
 export type InspectionState =
-  | 'no_inspection'
-  | 'requested'
-  | 'handled_with_rejection'
-  | 'handled_with_score'
-  | 'needs_score'
+  'no_inspection' | 'requested' | 'handled_with_rejection' | 'handled_with_score' | 'needs_score'
 
 export const isEmptyAnswer = (a: GradingAnswerType | Record<string, never>): a is Record<string, never> => isEmpty(a)
 
@@ -321,7 +319,7 @@ type GradingUrls = {
     eventDate: string,
     language: string,
     examType: ExamType
-  ) => string
+  ) => string | null
   logout: () => string
 }
 

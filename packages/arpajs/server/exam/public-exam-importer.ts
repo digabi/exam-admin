@@ -66,13 +66,15 @@ export async function importYoExams() {
 async function importExam(file: string) {
   const examPackage = await getTransferZip(file)
   const examZip = await buffer(examPackage.Body as Readable)
-  const examContent = (await extractZipFileExamContent(examZip)) as { type: string; content: string }
+  const examContent = await extractZipFileExamContent(examZip)
+
   if (examContent.type === 'xml') {
     const { examUuid } = (await importXmlTransferZip(null, examContent.content, examZip)) as { examUuid: string }
     await setExamImported(examUuid, file)
   } else {
     await setExamAsSkipped(file)
   }
+
   logger.info('Exam package imported', { file })
 }
 

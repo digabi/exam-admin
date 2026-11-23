@@ -22,7 +22,7 @@ export const PregradingControls = ({
   isPregradedByUser,
   cellSavingOngoing
 }: Props) => {
-  if (answer?.scoreValue == null) {
+  if (answer?.scoreValue == null || !answer.userCanComment) {
     return null
   }
   const { waitingForCensorHours } = useContext(GradingContext)

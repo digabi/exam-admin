@@ -142,7 +142,8 @@ function CommonGradingView(props: {
         gradingUrls.getExamAndScores(gradingRole, schoolExamAnonCode!)
       )
       setLoading(false)
-      const examAndScoresJson = examAndScoresRes.json
+      // An error response may also have a JSON body; only accept it as exam data on success
+      const examAndScoresJson = examAndScoresRes.status < 400 ? examAndScoresRes.json : null
       if (examAndScoresJson) {
         if (gradingRole === 'censoring' && examAndScoresJson.exam.censorDistributionDone) {
           examAndScoresJson.exam.isCensoringEnabled =
@@ -328,7 +329,8 @@ function CommonGradingView(props: {
   }
 
   const pregradingDone = answer?.pregrading && answer.pregrading.pregradingFinishedAt
-  const pregradingAnnotationsEnabled = (exam?.canBePregraded && !student?.skipPregrading && !pregradingDone) ?? false
+  const pregradingAnnotationsEnabled =
+    (exam?.canBePregraded && !student?.skipPregrading && !pregradingDone && answer?.userCanScore) ?? false
   const gradingAnnotationsEnabled = (exam?.isCensoringEnabled && !!exam.censorDistributionDone) ?? false
 
   const questionIds =
@@ -388,7 +390,9 @@ function CommonGradingView(props: {
       setExamAndScores={setExamAndScores}
       setLocalizedError={setLocalizedError}
       canBeCommented={
-        gradingRole === 'censoring' ? exam.canBeCommented && answer.batchGroupNumber === null : !!exam.canBePregraded
+        gradingRole === 'censoring'
+          ? exam.canBeCommented && answer.batchGroupNumber === null
+          : !!exam.canBePregraded && !!answer.userCanComment
       }
       postCommentUrl={gradingUrls.postComment(gradingRole, answer.answerId)}
     />
@@ -454,7 +458,7 @@ function CommonGradingView(props: {
               returnToEventsUrl={gradingUrls.returnToEvents(gradingRole)}
             />
 
-            {gradingRole === 'pregrading' && !answer && (
+            {gradingRole === 'pregrading' && !answer && exam.canWriteScores && (
               <div id="toggle-show-grading-ui">
                 <button onClick={() => setShowMarkGradingFinishedUI(true)} className="button">
                   {t('sa.pregrading.mark_gradings_finished')}...

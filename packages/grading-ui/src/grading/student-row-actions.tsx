@@ -33,7 +33,7 @@ export function StudentRowActions({
   const { user } = useContext(GradingContext)
   const gradingUrls = useContext(GradingUrlsContext)
   const { t } = useTranslation()
-  const censorId = user?.user?.censorId ?? ''
+  const censorId = user?.user?.userAccountId ?? ''
   const skipPregradingKey = student.skipPregrading ? 'arpa.skip_pregrading_revert' : 'arpa.skip_pregrading'
   const totalScoreDifference = totalScoreDifferenceFor(student)
 

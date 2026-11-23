@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 // eslint-disable-next-line no-console
 process.on('exit', code => console.info(`Exiting with code ${code}`))
-require('source-map-support').install()
+const { setSourceMapsSupport } = require('node:module')
+setSourceMapsSupport(true, { nodeModules: true })
+const util = require('node:util')
 const { logger } = require('../dist/logger')
 const { loadConfig } = require('../dist/config')
 const { promisify } = require('util')
@@ -41,6 +43,11 @@ loadConfig()
 
       terminateGracefully('SIGINT')
       terminateGracefully('SIGTERM')
+
+      process.on('uncaughtException', (error, origin) => {
+        logger.error(`Unhandled exception ${origin}: ${util.inspect(error, { depth: 10 })}`, { error, origin, cause: error?.cause })
+        process.exit(1)
+      })
     }
 
     startServer()

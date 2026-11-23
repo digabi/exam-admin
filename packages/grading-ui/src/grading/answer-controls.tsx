@@ -217,7 +217,7 @@ function canBeAskedForApproval(censoring: Censoring, user: UserData) {
   const state = censoring.censoringState
   const stateIsCorrect = state === 'second_in_progress' || state === 'third_in_progress'
   const scoresAreNotTheSame = censoring.scores.some(score => score.scoreValue !== censoring.scores[0].scoreValue)
-  const lastScoreIsMine = censoring.scores[0].censorId === user?.user.censorId
+  const lastScoreIsMine = censoring.scores[0].censorId === user?.user.userAccountId
   return stateIsCorrect && scoresAreNotTheSame && lastScoreIsMine
 }
 
@@ -227,8 +227,8 @@ function canCancelApproveCensoring({ censoringState: state, scores }: Censoring,
   const thirdRoundScore = scores.find(score => score.censoringRound === 3)
   return (
     thirdRoundScore &&
-    ((state === 'needs_second_approval' && firstRoundScore?.censorId === user?.user.censorId) ||
-      (state === 'needs_first_approval' && secondRoundScore?.censorId === user?.user.censorId))
+    ((state === 'needs_second_approval' && firstRoundScore?.censorId === user?.user.userAccountId) ||
+      (state === 'needs_first_approval' && secondRoundScore?.censorId === user?.user.userAccountId))
   )
 }
 
@@ -238,17 +238,20 @@ export function canApproveOrReject({ censoringState: state, scores }: Censoring,
 
   switch (state) {
     case 'needs_both_approvals':
-      return firstRoundScore?.censorId === user?.user.censorId || secondRoundScore?.censorId === user?.user.censorId
+      return (
+        firstRoundScore?.censorId === user?.user.userAccountId ||
+        secondRoundScore?.censorId === user?.user.userAccountId
+      )
     case 'needs_first_approval':
-      return firstRoundScore?.censorId === user?.user.censorId
+      return firstRoundScore?.censorId === user?.user.userAccountId
     case 'needs_second_approval':
-      return secondRoundScore?.censorId === user?.user.censorId
+      return secondRoundScore?.censorId === user?.user.userAccountId
   }
 }
 
 function canCancelNextCensorRequest(censoring: Censoring, user: UserData) {
   const correctState = ['waiting_for_second', 'waiting_for_third'].includes(censoring.censoringState)
-  return correctState && censoring.scores[0].censorId === user?.user.censorId
+  return correctState && censoring.scores[0].censorId === user?.user.userAccountId
 }
 
 type CensoringWithNarrowedState = Censoring & {
@@ -259,7 +262,7 @@ function canCancelAskForApproval(censoring: Censoring, user: UserData): censorin
   const correctState = ['needs_second_approval', 'needs_first_approval', 'needs_both_approvals'].includes(
     censoring.censoringState
   )
-  return correctState && censoring.scores[0].censorId === user?.user.censorId
+  return correctState && censoring.scores[0].censorId === user?.user.userAccountId
 }
 
 function canCancelHandled(censoring: Censoring) {

@@ -47,7 +47,7 @@ export function importAnswers(examsWithAnswerPapers, screenshots, audios, server
       await uploadAudiosInTx(tx, audios, [].concat(...audioMapping))
     }
 
-    return attachmentMappings.map(x => x.heldExamUuid)
+    return attachmentMappings.map(x => x.heldExam)
   })
 }
 
@@ -62,15 +62,11 @@ function importAnswerPapersForSingleExam(tx, serverEnvironmentId) {
       return
     }
 
-    await upsertCalculatedScoresForMultiChoiceAnswersInTx(tx, result.heldExamUuid)
+    await upsertCalculatedScoresForMultiChoiceAnswersInTx(tx, result.heldExam.heldExamUuid)
     if (serverEnvironmentId) {
-      await mapServerEnvironmentToHeldExam(tx, serverEnvironmentId, result.heldExamUuid)
+      await mapServerEnvironmentToHeldExam(tx, serverEnvironmentId, result.heldExam.heldExamUuid)
     }
-    return {
-      heldExamUuid: result.heldExamUuid,
-      screenshotMapping: result.screenshotMapping,
-      audioMapping: result.audioMapping
-    }
+    return result
   }
 }
 
@@ -83,24 +79,33 @@ function mapServerEnvironmentToHeldExam(tx, serverEnvironmentId, heldExamUuid) {
 
 export async function uploadAnswersInTx(tx, examUuid, examType, ktpVersion, answerPapers) {
   const isAbitti2 = isAbitti2KtpVersion(ktpVersion)
-  const findingsInitialStatus = isAbitti2 ? 'not_generated' : 'no_findings'
   const result = await tx.queryAsync(
-    'insert into held_exam (exam_uuid, held_exam_type, held_exam_ktp_version, held_exam_nsa_findings_status) select exam_uuid, $2 as held_exam_type, $3 as held_exam_ktp_version, $4 as held_exam_nsa_findings_status from exam where exam_uuid = $1 returning held_exam_uuid',
-    [examUuid, examType, ktpVersion, findingsInitialStatus]
+    `with inserted_held_exam as (
+      insert into held_exam (exam_uuid, held_exam_type, held_exam_ktp_version)
+      select exam_uuid, $2 as held_exam_type, $3 as held_exam_ktp_version
+      from exam where exam_uuid = $1
+      returning held_exam_uuid, exam_uuid
+    )
+    select held_exam_uuid, exam.title, user_account.user_account_username
+    from inserted_held_exam
+    natural join exam
+    natural join user_account`,
+    [examUuid, examType, ktpVersion]
   )
 
   if (result.rows.length === 1) {
-    const { heldExamUuid } = _.first(result.rows.map(objectPropertiesToCamel))
-    const attachmentMappings = await BPromise.mapSeries(answerPapers, ap =>
+    const { heldExamUuid, title, userAccountUsername } = _.first(result.rows.map(objectPropertiesToCamel))
+    const studentsWithAttachmentMappings = await BPromise.mapSeries(answerPapers, ap =>
       addASinglePaperAndConnectedStudent(ap, heldExamUuid, isAbitti2)
     )
-    const screenshotMapping = attachmentMappings.map(x => x.screenshotMapping)
-    const audioMapping = attachmentMappings.map(x => x.audioMapping)
+    const students = studentsWithAttachmentMappings.map(x => x.student)
+    const screenshotMapping = studentsWithAttachmentMappings.flatMap(x => x.screenshotMapping)
+    const audioMapping = studentsWithAttachmentMappings.flatMap(x => x.audioMapping)
 
     return {
-      heldExamUuid,
-      screenshotMapping: [].concat(...screenshotMapping),
-      audioMapping: [].concat(...audioMapping)
+      heldExam: { heldExamUuid, title, userAccountUsername, examUuid, ktpVersion, students },
+      screenshotMapping,
+      audioMapping
     }
   } else {
     return undefined
@@ -108,11 +113,12 @@ export async function uploadAnswersInTx(tx, examUuid, examType, ktpVersion, answ
 
   async function addASinglePaperAndConnectedStudent(ap, heldExamUuid, isAbitti2) {
     const studentUuid = await addStudent(tx, ap.student)
+    const externalComputerAllowed = isAbitti2 ? ap.isAllowedToUseBrowser : ap.allowExternalComputer
     const answerPaperId = await addAnswerPaperWithConnection(
       studentUuid,
       heldExamUuid,
       ap.examStarted,
-      isAbitti2 ? ap.isAllowedToUseBrowser : ap.allowExternalComputer,
+      externalComputerAllowed,
       tx
     )
 
@@ -124,7 +130,7 @@ export async function uploadAnswersInTx(tx, examUuid, examType, ktpVersion, answ
 
     const screenshotMapping = (ap.screenshots || []).map(x => ({ answerPaperId, uuid: x }))
     const audioMapping = (ap.audios || []).map(x => ({ answerPaperId, id: x }))
-    return { screenshotMapping, audioMapping }
+    return { student: { ...ap.student, studentUuid, externalComputerAllowed }, screenshotMapping, audioMapping }
   }
 
   function addStudent(tx, student) {
@@ -578,4 +584,11 @@ export async function clearPregradingFinishedAtForAnswer(answerId) {
     // user can revert the sending, she then can always edit the cell after doing it
     userCanScore: true
   }))
+}
+
+export async function setHeldExamLogsKey(heldExamUuids, logsKey) {
+  await pgrm.queryAsync(
+    SQL`UPDATE held_exam SET logs_key = ${logsKey}
+      WHERE held_exam_uuid = ANY(${heldExamUuids}::uuid[])`
+  )
 }

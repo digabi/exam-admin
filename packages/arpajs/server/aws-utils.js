@@ -14,10 +14,14 @@ import { logger } from './logger'
 export const s3Client = new S3(config().s3Config)
 const S3forLogs = new S3(config().s3ConfigForLogs)
 const S3ForAttachments = new S3(config().s3ConfigForAttachments)
-const S3ForFindings = new S3(config().s3ConfigForFindings)
 const s3LogEncryptionPublicKey = fs.readFileSync(path.resolve(__dirname, 's3_encrypt.pub'))
-if (!s3LogEncryptionPublicKey.length) {
+
+if (!s3LogEncryptionPublicKey.length && !config().runningUnitTests) {
   logger.error('No encryption key found, not encrypting logs')
+}
+
+function shouldEncryptLogs() {
+  return s3LogEncryptionPublicKey.length > 0 && !config().runningUnitTests
 }
 
 async function streamFileToS3Async(s3instance, bucket, key, fileSourceStream, metadata) {
@@ -47,11 +51,9 @@ export function copyAttachment(storageKey, newStorageKey) {
   })
 }
 
-export function uploadLogToS3(logIdentitier, logStream, metadata) {
-  const s3Key = createS3Logfilename(logIdentitier)
-
-  if (s3LogEncryptionPublicKey.length === 0) {
-    return streamFileToS3Async(S3forLogs, config().s3ExamLogsBucket, s3Key, logStream, metadata)
+export function uploadFileToLogsBucket(s3Key, fileStream, metadata) {
+  if (!shouldEncryptLogs()) {
+    return streamFileToS3Async(S3forLogs, config().s3ExamLogsBucket, s3Key, fileStream, metadata)
   }
 
   const keyIv = cryptoUtils.generateKeyAndIv()
@@ -62,21 +64,21 @@ export function uploadLogToS3(logIdentitier, logStream, metadata) {
   })
 
   const encryptedSymmetricKey = cryptoUtils.encryptWithPublicKey(s3LogEncryptionPublicKey, keyIvJson)
-  return pipeline(logStream, cryptoUtils.createAES256EncryptStreamWithIv(keyIv.key, keyIv.iv), encryptedStream =>
-    streamFileToS3Async(S3forLogs, config().s3ExamLogsBucket, createS3Logfilename(logIdentitier), encryptedStream, {
+  return pipeline(fileStream, cryptoUtils.createAES256EncryptStreamWithIv(keyIv.key, keyIv.iv), encryptedStream =>
+    streamFileToS3Async(S3forLogs, config().s3ExamLogsBucket, s3Key, encryptedStream, {
       ...metadata,
       encryptedSymmetricKey // S3 metadata keys are always lowercase
     })
   )
 }
 
-function createS3Logfilename(logIdentifier) {
+export function createS3Logfilename(logIdentifier, suffix) {
   // S3 keys have a max length of 1024 bytes
   const truncatedKey = Buffer.from(logIdentifier, 'utf-8')
     .subarray(0, 1024 - 32)
     .toString('utf-8')
     .replace(/�$/, '')
-  return `${truncatedKey}_${new Date().getTime()}.log.zip${s3LogEncryptionPublicKey.length ? '.bin' : ''}`
+  return `${truncatedKey}_${new Date().getTime()}${suffix}${shouldEncryptLogs() ? '.bin' : ''}`
 }
 
 export function uploadAttachmentsZipBufferToS3(examUuid, fileContentBuffer) {
@@ -153,22 +155,5 @@ export async function downloadNsaScripts(filename) {
   } catch (error) {
     logger.error('Error downloading nsa scripts from S3', { error })
     return null
-  }
-}
-
-export async function downloadNsaFindings(heldExamUuid) {
-  const prefix = config().runningInCloud ? 'reports/' : ''
-  const getFindings = async ext => {
-    const key = `${prefix}${heldExamUuid}-findings.${ext}`
-    logger.info(`Downloading NSA findings from S3`, { key })
-    const response = await S3ForFindings.send(new GetObjectCommand({ Bucket: config().s3NsaFindingsBucket, Key: key }))
-    return { body: response.Body, format: ext }
-  }
-
-  try {
-    return await getFindings('html')
-  } catch (htmlErr) {
-    logger.info(htmlErr)
-    return await getFindings('pdf')
   }
 }

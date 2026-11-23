@@ -22,7 +22,8 @@ export function formatPregradingStatus(pregradingStatuses: ArpaExamPregradingSta
       teacherGradingProgress,
       teacherGradingCompleted: teacherGradingProgress === 100,
       eventDateStr,
-      teacherGradingFinishedProgress
+      teacherGradingFinishedProgress,
+      hasMinutes: pregradingStatus.hasMinutes
     }
   }
 

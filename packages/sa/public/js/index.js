@@ -64,21 +64,14 @@ function initWithAuthenticatedUser(userData) {
   availableExams.init(ajaxReq, $('#exam-export'), showLoadError)
   settings.init(ajaxReq, $examSettingsTab)
 
-  const ytlConnectionEnabled = localStorage.getItem('enableYtlConnection') === 'true'
+  const $ytlConnectionTab = $('#ytl-connection-tab')
+  ytlConnection.init($ytlConnectionTab)
 
   const tabConfig = [
-    /* eslint-disable no-multi-spaces */
     { name: 'exams', $root: $('#exam-export'), update: availableExams.update },
-    { name: 'settings', $root: $('#exam-settings-tab'), update: settings.update }
-    /* eslint-enable no-multi-spaces */
+    { name: 'settings', $root: $('#exam-settings-tab'), update: settings.update },
+    { name: 'ytl-connection', $root: $ytlConnectionTab, update: ytlConnection.update }
   ]
-
-  if (ytlConnectionEnabled) {
-    $('#ytl-connection-link').show()
-    const $ytlConnectionTab = $('#ytl-connection-tab')
-    ytlConnection.init($ytlConnectionTab)
-    tabConfig.push({ name: 'ytl-connection', $root: $ytlConnectionTab, update: ytlConnection.update })
-  }
 
   tabManager.init(Bacon.never(), tabConfig)
 }

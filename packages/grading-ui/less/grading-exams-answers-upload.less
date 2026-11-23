@@ -1,0 +1,80 @@
+  #answers-upload {
+    .error-notice {
+      margin-top: 10px;
+      color: @dark-red;
+      font-size: @text-size;
+    }
+
+    td .error-notice {
+      display: inline;
+      font-size: inherit;
+    }
+
+    .import-answers-instructions {
+      margin-top: 0;
+    }
+
+    .answers-upload-button-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .answers-uploaded-notification {
+      .notification();
+      margin-bottom: 30px;
+      padding: 12px 20px 20px;
+      line-height: 20px;
+
+      #answers-uploaded-close {
+        .sa-button-table();
+        float: right;
+        padding: 1px 20px;
+        min-width: 100px;
+      }
+
+      .clear-both {
+        clear: both;
+      }
+
+      .upload-notification-title {
+        .header3();
+        padding-bottom: 3px;
+      }
+
+      td.answer-count {
+        text-align: right;
+        vertical-align: top;
+      }
+
+      td.exam-title {
+        padding-right: 35px;
+      }
+    }
+
+    .upload-spinner {
+      position: absolute;
+      top: 20px;
+      left: 240px;
+    }
+
+    .upload-input {
+      visibility: hidden;
+      position: absolute;
+    }
+
+    .upload-takes-long-container {
+      display: inline-block;
+      position: relative;
+      .notification();
+
+      .notification-text {
+        margin-left: 5px;
+      }
+
+      .upload-spinner {
+        position: absolute;
+        top: 18px;
+        left: 18px;
+      }
+    }
+  }

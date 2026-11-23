@@ -3,6 +3,7 @@
 import { config } from '../../config'
 import { getJsonAsync } from '@digabi/fetch'
 import * as examHandling from '../../db/exam-handling'
+import { isNumericId } from '../../validation'
 
 export function getHeldExams(userId) {
   return getJsonAsync(`${config().examUri}/grading/status/${userId}`)
@@ -24,11 +25,17 @@ function getSchoolFromArpaAndCheckAccessRights(url, userAccountId) {
 }
 
 export function checkUserHasAccessToAnswer(userAccountId, answerId) {
+  if (!isNumericId(answerId)) {
+    return Promise.resolve(false)
+  }
   const url = `${config().examUri}/grading/answerId/${answerId}/examUuid`
   return getSchoolFromArpaAndCheckAccessRights(url, userAccountId)
 }
 
 export function checkUserHasAccessToAnswerPaper(userAccountId, answerPaperId) {
+  if (!isNumericId(answerPaperId)) {
+    return Promise.resolve(false)
+  }
   const url = `${config().examUri}/grading/answerPaperId/${answerPaperId}/examUuid`
   return getSchoolFromArpaAndCheckAccessRights(url, userAccountId)
 }

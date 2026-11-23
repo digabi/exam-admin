@@ -1,5 +1,5 @@
 import React from 'react'
-import '@digabi/exam-engine-core/dist/main.css'
+import '@digabi/exam-engine-core/main.css'
 import { createRoot } from 'react-dom/client'
 import * as i18n from '../i18n'
 import * as sautils from '../sa-utils'

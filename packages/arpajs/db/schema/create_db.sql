@@ -11,6 +11,9 @@ drop table if exists audio;
 drop table if exists attachment;
 drop table if exists server_environment_held_exam_map;
 drop table if exists server_environment cascade;
+drop table if exists minutes_student_event;
+drop table if exists minutes_exam_room_event;
+drop table if exists minutes_exam_room;
 drop table if exists held_exam;
 drop table if exists user_account cascade;
 drop table if exists user_role cascade;
@@ -76,7 +79,8 @@ create table held_exam
     answer_emails_sent      timestamp with time zone,
     held_exam_deletion_date timestamp with time zone,
     held_exam_type          text                             not null default 'json',
-    held_exam_ktp_version   text
+    held_exam_ktp_version   text,
+    minutes_session_id      uuid
 );
 
 create table answer_paper
@@ -145,6 +149,40 @@ create unique index answer_unique on answer (answer_paper_id, question_id);
 create unique index answer_paper_unique on answer_paper (student_uuid, held_exam_uuid);
 
 create index answer_paper_held_exam_uuid ON answer_paper (held_exam_uuid);
+
+create table minutes_exam_room (
+  minutes_exam_room_id serial primary key,
+  minutes_session_id uuid not null,
+  exam_room_name text not null,
+  unique (minutes_session_id, exam_room_name)
+);
+
+create table minutes_exam_room_event (
+  minutes_exam_room_event_id serial primary key,
+  minutes_session_id uuid not null,
+  exam_room_name text not null,
+  note text not null,
+  event_timestamp timestamptz not null,
+  event_uuid uuid not null,
+  unique (minutes_session_id, event_uuid)
+);
+
+create table minutes_student_event (
+  minutes_student_event_id serial primary key,
+  minutes_session_id uuid not null,
+  student_uuid uuid not null,
+  exam_uuid uuid not null,
+  exam_room_name text,
+  note text not null,
+  event_timestamp timestamptz not null,
+  extra_time int,
+  event_uuid uuid not null,
+  unique (minutes_session_id, event_uuid)
+);
+
+create index minutes_exam_room_session_idx on minutes_exam_room (minutes_session_id);
+create index minutes_exam_room_event_session_idx on minutes_exam_room_event (minutes_session_id);
+create index minutes_student_event_session_idx on minutes_student_event (minutes_session_id);
 
 -- needed for connect-pg-simple
 create table session

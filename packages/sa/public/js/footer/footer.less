@@ -67,7 +67,6 @@
   font-weight: 400;
   padding: 60px 0;
   margin: 0 auto;
-  width: @footer-width;
 
   img {
     margin-right: 12px;
@@ -92,29 +91,35 @@
   }
 
   a.with-logo {
-    .footer-img-sprite(@ytl, 'https://ylioppilastutkinto.fi/');
+    .footer-img-sprite(@ytl, 'https://ylioppilastutkinto.fi/fi/');
+    .footer-img-sprite(@ytl, 'https://ylioppilastutkinto.fi/sv/');
     .footer-img-sprite(@digabi, 'https://digabi.fi/');
     .footer-img-sprite(@uutiskirje, 'https://digabi.fi/digabi/uutiskirje/');
     .footer-img-sprite(@vimeo, 'http://vimeo.com/user19863470');
     .footer-img-sprite(@github, 'https://github.com/digabi');
     .footer-img-sprite(@facebook, 'https://www.facebook.com/ylioppilastutkinto');
     .footer-img-sprite(@twitter, 'https://twitter.com/YTLSEN');
-    .footer-img-sprite(@updates, 'https://www.abitti.fi/fi/paivitykset/');
+    .footer-img-sprite(@updates, 'https://www.abitti.fi/paivittaminen/palvelimen-paivittaminen/');
+    .footer-img-sprite(@updates, 'https://www.abitti.fi/uppdatering/uppdatering-av-servern/');
     .footer-img-sprite(@terms, '/kayttoehdot/');
+    .footer-img-sprite(@terms, '/licensavtal/');
     & + a {
       margin-left: 6px;
     }
   }
   a.with-logo:hover {
-    .footer-img-sprite(@ytl-hover, 'https://ylioppilastutkinto.fi/');
+    .footer-img-sprite(@ytl-hover, 'https://ylioppilastutkinto.fi/fi/');
+    .footer-img-sprite(@ytl-hover, 'https://ylioppilastutkinto.fi/sv/');
     .footer-img-sprite(@digabi-hover, 'https://digabi.fi/');
     .footer-img-sprite(@uutiskirje-hover, 'https://digabi.fi/digabi/uutiskirje/');
     .footer-img-sprite(@vimeo-hover, 'http://vimeo.com/user19863470');
     .footer-img-sprite(@github-hover, 'https://github.com/digabi');
     .footer-img-sprite(@facebook-hover, 'https://www.facebook.com/ylioppilastutkinto');
     .footer-img-sprite(@twitter-hover, 'https://twitter.com/YTLSEN');
-    .footer-img-sprite(@updates-hover, 'https://www.abitti.fi/fi/paivitykset/');
+    .footer-img-sprite(@updates-hover, 'https://www.abitti.fi/paivittaminen/palvelimen-paivittaminen/');
+    .footer-img-sprite(@updates-hover, 'https://www.abitti.fi/uppdatering/uppdatering-av-servern/');
     .footer-img-sprite(@terms-hover, '/kayttoehdot/');
+    .footer-img-sprite(@terms-hover, '/licensavtal/');
   }
 
   .footer-column {

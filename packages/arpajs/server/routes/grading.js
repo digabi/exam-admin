@@ -3,6 +3,8 @@
 import express from 'express'
 const moduleRouter = express.Router()
 import _ from 'lodash'
+import fsP from 'node:fs/promises'
+import os from 'node:os'
 import * as examDb from '../db/exam-data'
 import * as studentDb from '../db/student-data'
 import * as gradingDb from '../db/grading-data'
@@ -22,44 +24,40 @@ import {
   extendTimeoutForUploadRouteWithLargeFiles,
   fileUploadMiddleware
 } from '@digabi/express-utils'
+import { zipEntrySizeLimit } from '../exam/answers-extractor'
 const defaultJsonParser = bodyParser.json() // Has 100kB default limit
 
-moduleRouter.post(
-  '/answers-meb',
+const answerPackageUpload = [
   extendTimeoutForUploadRouteWithLargeFiles,
-  fileUploadMiddleware(
-    'examUpload',
-    // It is unclear how big the zip files can get, but use 2 GB for now.
-    // Memory usage is dependent on the actual zip file, but it is something
-    // around 1.5 times the size of the file. When changing value, also make
-    // sure containers have enough memory. You will also need to adjust the
-    // file 'server/exam/answers-extractor.js'
-    2 *
-      1024 * // Kilobyte
-      1024 * // Megabyte
-      1024, // Gigabyte
-    413,
-    'Sent answer file was too large',
-    { inMemory: true }
-  ),
-  async (req, res) => {
-    logger.info('Incoming answers meb', { size: req.file.buffer.length })
-    const result = await answersExtractor.extract(req.file.buffer)
-    const deletedExams = result.deletedExams.map(exam => ({ ...exam, isDeleted: true }))
-    res.json([
-      {
-        gradingSchoolId: '',
-        answerCountsByExam: result.exams.concat(deletedExams).map(exam => ({
-          examUuid: exam.examUuid,
-          examTitle: exam.title,
-          answerCount: exam.answerCount,
-          isDuplicate: exam.isDuplicate,
-          isDeleted: exam.isDeleted
-        }))
-      }
-    ])
+  fileUploadMiddleware('examUpload', zipEntrySizeLimit, 413, 'Sent answer file was too large', { dest: os.tmpdir() })
+]
+
+async function importAnswerPackage(req) {
+  try {
+    logger.info('Incoming answers meb', { size: req.file.size })
+    return await answersExtractor.extract(req.file.path)
+  } finally {
+    try {
+      await fsP.rm(req.file.path, { force: true })
+    } catch (error) {
+      logger.error('Failed to clean up uploaded answers meb', { error })
+    }
   }
-)
+}
+
+const schoolWithAnswers = answerCountsByExam => [{ gradingSchoolId: '', gradingSchoolName: null, answerCountsByExam }]
+
+// This route is used by the old KTP servers up to version 1.37.0.
+// TODO: This route can be removed when the old KTP servers are no longer supported.
+moduleRouter.post('/answers-meb', ...answerPackageUpload, async (req, res) => {
+  const { answerCountsByExam } = await importAnswerPackage(req)
+  res.json(schoolWithAnswers(answerCountsByExam))
+})
+
+moduleRouter.post('/held-exam-packages', ...answerPackageUpload, async (req, res) => {
+  const { answerCountsByExam, minutesImportStatus } = await importAnswerPackage(req)
+  res.json({ schoolWithAnswers: schoolWithAnswers(answerCountsByExam), minutesImportStatus })
+})
 
 moduleRouter.post('/scores/:answerId', defaultJsonParser, validateScore, answerCanBeModified, (req, res, next) => {
   logger.info(`/grading/scores/${req.params.answerId}`, JSON.stringify(req.body))
@@ -181,6 +179,7 @@ function prepareAnswers(answers, questions) {
       },
       answerId: answer.id,
       userCanScore: !!answer.id && !answer.pregradingFinishedAt,
+      userCanComment: !!answer.id,
       maxScore: question.maxScore,
       displayNumber: question.displayNumber,
       isAutoGradeable: question.isAutoGradeable,
@@ -258,11 +257,11 @@ moduleRouter.get('/:heldExamUuid/student-answers', async (req, res) => {
   res.json({
     exam: {
       ...exam,
-      examCode: 'A_E', // does not really need this, but A_E does not have grading instructions => hides the button from ui
       content: {
         title: exam.title
       },
       canBePregraded: true,
+      canWriteScores: true,
       schoolExamAnonCode: req.params.heldExamUuid // fake anon code
     },
     autogradingAnswers: autogradingQuestions.length > 0,

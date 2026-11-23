@@ -1,3 +1,4 @@
 export function isAbitti2KtpVersion(ktpVersion: string | undefined) {
-  return /^SERVER-v\d+\.\d+\.\d+$/.test(ktpVersion ?? '')
+  // A1 used ^SERVER\d{4}\w$ or the string "->" instead
+  return /^SERVER-.*$/.test(ktpVersion ?? '')
 }

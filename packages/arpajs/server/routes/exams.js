@@ -6,6 +6,7 @@ import express from 'express'
 const moduleRouter = express.Router()
 import _ from 'lodash'
 import * as examDb from '../db/exam-data'
+import * as minutesDb from '../db/minutes-data'
 import { logger } from '../logger'
 import * as examPacker from '../exam/exam-packer'
 import BPromise from 'bluebird'
@@ -16,7 +17,6 @@ import { importXmlTransferZip } from '../exam/xml-import'
 import { importLegacyTransferZip } from '../exam/legacy-import'
 import * as attachmentsStorage from '../exam/attachments/attachments-storage'
 import * as attachmentStream from '../exam/attachments/attachment-stream'
-import * as findingsStream from '../exam/findings/findings-stream'
 import { uuidValidator } from './uuid-validator'
 import bodyParser from 'body-parser'
 import { upsertAttachmentForExam } from '../db/exam-data'
@@ -35,6 +35,9 @@ import {
   respondWithZip
 } from '@digabi/express-utils'
 import { createZipName, extractZip } from '@digabi/zip-utils'
+import z from 'zod'
+import { ExamCodeSchema, ExamLanguageSchema, ExamPeriodSchema, ExamTypeSchema } from '../schemas'
+
 const jsonMaxSizeInBytes = 500 * 1024
 
 moduleRouter.get('/status/:userId', (req, res, next) => {
@@ -51,9 +54,21 @@ moduleRouter.get('/questions/:userId', (req, res, next) => {
     .catch(next)
 })
 
+const QueryParamSchema = schema => z.union([z.literal(''), schema])
+const PublicQuestionsParamsSchema = z.object({
+  examCode: QueryParamSchema(ExamCodeSchema),
+  examType: QueryParamSchema(ExamTypeSchema),
+  examLanguage: QueryParamSchema(ExamLanguageSchema),
+  examinationCode: QueryParamSchema(ExamPeriodSchema)
+})
+
 moduleRouter.get('/public-questions', (req, res, next) => {
+  const parse = PublicQuestionsParamsSchema.safeParse(req.query)
+  if (!parse.success) {
+    return res.status(400).json(`Invalid query params: ${parse.error.issues}`)
+  }
   examDb
-    .getPublicExamQuestions({ ...req.query })
+    .getPublicExamQuestions(parse.data)
     .then(data => res.json(data))
     .catch(next)
 })
@@ -105,33 +120,16 @@ moduleRouter.get('/held-exam/:heldExamUuid/exam', uuidValidator('heldExamUuid'),
   examDb.getHeldExam(req.params.heldExamUuid).then(respondWithJsonOr404(res)).catch(next)
 })
 
-moduleRouter.get('/held-exam/:heldExamUuid/findings', uuidValidator('heldExamUuid'), async (req, res, next) => {
+moduleRouter.get('/held-exam/:heldExamUuid/minutes', uuidValidator('heldExamUuid'), async (req, res, next) => {
   try {
-    const { contents, filename, contentType } = await findingsStream.retrieveNsaFindingsAsStream(
-      req.params.heldExamUuid
-    )
-
-    res.setHeader('Content-Type', contentType)
-    if (contentType === 'application/pdf') {
-      const asciiFallback = String(filename)
-        .replace(/[\r\n"]/g, '_')
-        .replace(/[^\x20-\x7E]/g, '_')
-      const encodedUtf8 = encodeURIComponent(String(filename))
-      res.setHeader('Content-Disposition', `attachment; filename="${asciiFallback}"; filename*=UTF-8''${encodedUtf8}`)
+    const response = await minutesDb.getMinutesByHeldExamUuid(req.params.heldExamUuid)
+    if (!response) {
+      res.sendStatus(404)
+      return
     }
-    await pipeline(contents, res).catch(err => {
-      if (err?.code !== 'ERR_STREAM_PREMATURE_CLOSE' && err?.code !== 'ECONNRESET') throw err
-    })
+    res.json(response)
   } catch (err) {
-    if (err instanceof DataError) {
-      return next(err)
-    }
-
-    if (err.code === 'TimeoutError') {
-      return res.headersSent ? res.end() : res.sendStatus(504)
-    }
-
-    return next(err)
+    next(err)
   }
 })
 
@@ -337,25 +335,27 @@ export async function extractZipFileExamContent(zipFileBuffer) {
 }
 
 moduleRouter.post(
-  '/import-exam',
+  '/import-exam/:userId',
   extendTimeoutForUploadRouteWithLargeFiles,
+  uuidValidator('userId'),
   fileUploadMiddleware('examZip', abittiImportExamMaxFileSize),
   async (req, res, next) => {
     try {
+      const userId = req.params.userId
       const examContent = await extractZipFileExamContent(req.file.buffer)
       switch (examContent.type) {
         case 'xml':
-          return res.json(await importXmlTransferZip(req.body.userId, examContent.content, req.file.buffer))
+          return res.json(await importXmlTransferZip(userId, examContent.content, req.file.buffer))
         case 'json':
           if (Buffer.byteLength(examContent.content, 'utf8') > jsonMaxSizeInBytes) {
             return res.status(413).end()
           }
-          return res.json(await importLegacyTransferZip(req.body.userId, examContent.content, req.file.buffer))
+          return res.json(await importLegacyTransferZip(userId, examContent.content, req.file.buffer))
         default:
           throw new DataError(`Unknown exam content type ${examContent.type}`)
       }
     } catch (error) {
-      logger.warn('Error in /import-exam', error)
+      logger.warn('Error in /import-exam/:userId', error)
       next(error)
     }
   }

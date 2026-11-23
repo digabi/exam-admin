@@ -41,7 +41,7 @@ export function PregradingStudentRow({
   const selected = Number(studentCode) === student.studentAnonIdentifier
   const someAnswersCannotBeScored = answers.some(answer => answer.answerId && !answer.userCanScore)
   const someAnswerIsScored = answers.some(answer => answer.answerId && answer.pregrading?.scoreValue != undefined)
-  const isPrincipal = user?.roles?.some(role => role.roleType == 'PRINCIPAL') ?? false
+  const isPrincipal = user?.schools?.some(school => school.principal) ?? false
   const actionsDisabled =
     !examAndScores.exam.canBePregraded || (someAnswersCannotBeScored && !student.skipPregrading) || someAnswerIsScored
   const rowSelected = rowsToMarkFinished.includes(studentUuid)

@@ -4,7 +4,7 @@ const sv: typeof fi = {
   sa: {
     logout: 'Logga ut',
     import_answers_instructions:
-      'Efter avslutat prov spara provprestationerna från provlokalens server på ett vanligt USB-minne. Fäst USB-minnet vid din dator och klicka "För in provprestationer".',
+      'Du kan ladda upp provprestationerna a) direkt från provlokalens server via SEN-förbindelsen eller b) genom att först ladda ned provprestationerna från provlokalens server på ett vanligt USB-minne. Koppla sedan USB-minnet till din egen dator och klicka på "För in provprestationer".',
     import_answers: 'För in provprestationer',
     answer_upload_takes_time: 'Införandet av svaren kan pågå i tiotals sekunder',
     answers_uploaded: {
@@ -21,14 +21,14 @@ const sv: typeof fi = {
     held_exams: 'Genomförda prov',
     info_text:
       'Gymnasiet ska markera den preliminära bedömningen klar för minst 30 % av svaren senast på den första utsatta dagen.',
-    students: 'Examinander',
+    students: 'Examinander, svar',
     held_exam_name: 'Prov',
     held_answers: 'Svar att bedöma',
     pre_grading: 'Preliminärt bedömda svar',
     pre_grading_answers_graded: 'Svar bedömda',
     pre_grading_answers_finished: 'Bedömningar markerade klara',
     recommended_deadline: 'Följande utsatta dag',
-    findings_status: 'Provens avvikande observationer',
+    findings_status: 'Protokoll',
     still_to_be_finished: 'Ännu att markeras som klar',
     gradings: 'bedömningar',
     today: 'Idag',
@@ -37,6 +37,25 @@ const sv: typeof fi = {
     nothing_to_grade: 'Inget at bedömma',
     held_exam_grade: 'Bedöm',
     held_exam_submitted: 'Granska svaren',
+    minutes: {
+      title: 'Protokoll',
+      back_to_held_exams: 'Tillbaka till genomförda prov',
+      exam_date: 'Provdagen',
+      exam_name: 'Prov',
+      student_count: 'Antal examinander',
+      exams_on_minutes: 'Prov i detta protokoll',
+      no_minutes: 'Inga protokollanteckningar',
+      exam_student_count_one: '{{count}} examinand',
+      exam_student_count_other: '{{count}} examinander',
+      time: 'Kl.',
+      student_name: 'Examinand',
+      exam: 'Prov',
+      exam_room_name: 'Provlokal',
+      note: 'Anteckning',
+      filter_all_exams: 'Alla prov',
+      filter_all_rooms: 'Alla provlokaler',
+      fetch_error: 'Hämtningen av protokollet misslyckades.'
+    },
     errors: {
       grading_started: 'Prestationerna har redan införts.',
       exam_meb: 'Den valda filen innehåller provfrågor. Välj filen som innehåller provsvaren.',
@@ -45,9 +64,12 @@ const sv: typeof fi = {
       exam_structure_not_imported: 'Provprestationer till detta prov kan inte ännu införas, försök på nytt senare.',
       incorrect_answer_package:
         'Du försökte ladda upp provprestationer som inte hör till ett prov vid detta examenstillfälle. Kontrollera att du har valt rätt fil.',
-      invalid_file: 'Det finns inte provprestationer i den uppladdade filen, införandet misslyckades.',
+      invalid_file:
+        'Filen med provprestationer är felaktig. Spara den på nytt från provlokalens server. Om detta inte hjälper, kontakta Abitti-stödet.',
       no_answer_papers: 'Det finns inte provprestationer i den uppladdade filen.',
       answer_upload_failed: 'Införandet av provprestationerna misslyckades. Försök på nytt om en stund.',
+      minutes_import_failed: 'Införandet av protokollen misslyckades. Kontakta Abitti-stödet.',
+      minutes_import_empty: 'Inga anteckningar har gjorts i provprotokollet.',
       load_error:
         '<p>Uppgifterna kunde inte laddas.</p><p>Prova ladda om sidan.</p><p>Om felet återuppstår, logga ut ur tjänsten.</p>',
       answers_fetch_error: 'Prestationen kunde inte hämtas, kontrollera adressen.',
@@ -94,8 +116,10 @@ const sv: typeof fi = {
       any_question_nr: 'Alla',
       free_text_search: 'Sök i svaren',
       comment_search: 'Sök i anteckningar',
-      score_search: 'Sök med poäng',
       search_term_placeholder: 'Sökord...',
+      score_search: 'Sök med poäng',
+      student_search_term_placeholder: 'Namn...',
+      note_search_term_placeholder: 'Sök...',
       add_search_term_or_score: 'Begränsa sökningen med sökord eller poäng.',
       search_among_graded_by_you: 'Sök bland de svar du bedömt',
       search_among_graded_by_many: 'Sök bland alla svar som bedömts klart av andra eller tredje censor',
@@ -133,14 +157,12 @@ const sv: typeof fi = {
         'Om provprestationen inte ska bedömas (t.ex. övervakare), behöver ni inte göra något. I annat fall gör en ansökan om ändring av anmälningsuppgifter genom SEN:s <a target="_blank" href="http://hakemukset.ylioppilastutkinto.fi/">e-tjänst</a>'
     },
     held_remove_exam_title: 'Vill du radera provprestationerna?',
-    held_return: 'Återlämna',
+    held_return: 'Återlämna prov',
     held_remove_exam: 'Radera',
     show_deleted: 'Visa raderade',
     undelete: 'Ångra radering',
-    has_findings: 'Ladda ner rapport',
-    not_generated: 'Färdigställs inom 24 timmar',
-    not_generated_failed: 'Skapandet av rapporten misslyckades',
-    no_findings: 'Inga avvikande observationer'
+    show_minutes: 'Visa protokoll',
+    no_minutes: 'Inga protokoll'
   },
   arpa: {
     return_to_exams: 'Till provhantering',

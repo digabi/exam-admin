@@ -55,7 +55,7 @@ module.exports = function (env, argv) {
         'sanitize-html': 'sanitize-html/index.js',
 
         // Make sure only one instance of react is bundled
-        react: require.resolve('react')
+        react: path.dirname(require.resolve('react'))
       },
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json']
     },

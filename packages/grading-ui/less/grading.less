@@ -1,5 +1,5 @@
-@import './base';
-@import './variables-grading';
+@import './base.less';
+@import './variables-grading.less';
 
 @score-scroller-height: 200px;
 @score-scroller-height-full-screen: 50px;
@@ -19,6 +19,7 @@
 @search-term-border: #ffdc84;
 @comment-search-term-bg: #ffe2f4;
 @comment-search-term-border: #ffc9ed;
+@green-cell-border: #5acd46;
 
 *,
 ::before,
@@ -33,13 +34,14 @@
 .hide {
   display: none;
 }
+
 body {
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-smooth: auto;
   background: @light-gray;
-  font-family: 'Source Sans 3', sans-serif;
+  font-family: @text-font;
   font-size: 18px;
   line-height: 25px;
   color: #000;
@@ -146,11 +148,14 @@ main {
 a {
   color: @link-color;
   cursor: pointer;
-  text-decoration: underline;
-}
-// from normalize.css
-a {
   background-color: transparent;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    background-color: transparent;
+  }
 }
 
 [type='checkbox'],
@@ -221,11 +226,10 @@ body.is_inspection {
   white-space: nowrap;
 
   a {
-    font-family: 'Source Sans 3', sans-serif;
     font-size: 16px;
     font-weight: 400;
     text-decoration: underline;
-    color: #004dd0;
+    color: @base-brand-blue;
     position: relative;
     left: 0;
     padding-right: 0.5rem;
@@ -327,7 +331,6 @@ body.is_inspection {
   }
 
   .icon-button {
-    font-family: 'Source Sans 3', sans-serif;
     font-weight: 400;
     line-height: 27px;
     color: @link-color;
@@ -824,7 +827,7 @@ aside#answer-search {
           height: 26px;
           width: 100%;
           gap: 0.25rem;
-          color: #004dd0;
+          color: @base-brand-blue;
 
           > i {
             justify-self: center;
@@ -982,7 +985,7 @@ aside#answer-search {
       }
 
       span.toggle-arrow {
-        color: #004dd0;
+        color: @base-brand-blue;
         font-size: 20px;
       }
     }
@@ -1051,7 +1054,6 @@ aside#answer-search {
       a {
         display: block;
         font-size: 14px;
-        color: #666;
         margin-top: 0.5rem;
       }
     }
@@ -1250,7 +1252,7 @@ aside#answer-search {
 
       .maxScore {
         font-size: 14px;
-        color: #999;
+        color: @mid-gray;
         white-space: nowrap;
       }
     }
@@ -1314,6 +1316,11 @@ input.scorePoints {
   border-radius: 2px;
   transition: all 0.1s;
 
+  // questions worth 100 points or more need room for a third digit
+  &.wideScore {
+    width: 40px;
+  }
+
   &:disabled {
     background-color: transparent;
     color: #aaa;
@@ -1321,7 +1328,7 @@ input.scorePoints {
   }
 
   &.highlight {
-    border: 2px solid #359bb7;
+    border: 2px solid #359bb7 !important;
     background: #e1f0ff;
   }
 
@@ -1424,7 +1431,7 @@ tr.students-latest-scores {
 
 td.totalScoreDifference {
   padding-left: 6px;
-  color: #999;
+  color: @mid-gray;
   white-space: nowrap;
 
   .bigDifference & {
@@ -1440,7 +1447,7 @@ td.totalScoreDifference {
   padding-left: 10px;
   padding-right: 5px;
   position: relative;
-  color: #999;
+  color: @mid-gray;
 }
 td.inspectors,
 td.studentCode {
@@ -1478,7 +1485,7 @@ td.studentCode {
   font-weight: 400;
   font-size: 14px;
   line-height: 24px;
-  color: #999;
+  color: @mid-gray;
   padding: 1px;
   text-align: center;
   min-width: 33px;
@@ -1625,7 +1632,7 @@ td.studentCode {
     text-align: center;
 
     &[data-censoring-state='no_score'] input.scorePoints:not([readonly]) {
-      border: 2px solid #5acd46;
+      border: 2px solid @green-cell-border;
       box-shadow: none;
     }
 
@@ -1672,14 +1679,14 @@ td.studentCode {
     }
 
     input.pregradedByUser {
-      border: 2px solid #5acd46;
+      border: 2px solid @green-cell-border;
     }
 
     input:read-only {
       opacity: 0.5;
 
       input.pregradedByUser {
-        border-color: #5acd46cc;
+        border-color: @green-cell-border;
       }
     }
   }
@@ -1687,6 +1694,7 @@ td.studentCode {
   input.scorePoints,
   input.latestCensorScore {
     cursor: pointer;
+
     &:disabled {
       background: @light-gray;
       border: none;
@@ -1745,7 +1753,7 @@ td.studentCode {
     }
   }
   .dimmed {
-    color: #999;
+    color: @mid-gray;
   }
   .pregradingScore {
     position: relative;
@@ -1759,7 +1767,7 @@ td.studentCode {
   margin-bottom: 20px;
 
   .totalScoreDifference {
-    color: #999;
+    color: @mid-gray;
     font-weight: normal;
   }
 }
@@ -1775,7 +1783,6 @@ td.studentCode {
   color: #333;
 }
 .removeComment {
-  font-family: 'Source Sans 3', sans-serif;
   font-weight: 400;
   line-height: 32px;
   text-decoration: underline;

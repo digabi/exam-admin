@@ -12,6 +12,7 @@ type AppConfigBase = {
     sv: string
   }
   sessionSecret: () => Promise<string>
+  abittiExamStatisticsApiKey: () => Promise<string>
   emailTemplates: {
     registrationMail: (
       to: string,

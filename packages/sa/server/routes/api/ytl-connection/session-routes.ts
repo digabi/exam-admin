@@ -5,6 +5,7 @@ import { config } from '../../../config'
 import { ensureAuthenticated } from '../../../auth/auth-session'
 import { authCache } from './auth-cache'
 import { PinSchema } from './utils'
+import { isNumericId } from '../../../validation'
 
 const PinRevokeBodySchema = z.object({ pin: PinSchema })
 
@@ -81,6 +82,9 @@ router.delete(
   ensureAuthenticated,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      if (!isNumericId(req.params.id)) {
+        return res.sendStatus(400)
+      }
       const { userId } = getUser(req)
       const result = await deleteJsonAsync<{ deletedApiKey?: string }>(
         `${config().examUri}/ytl-connection/active-connections/${req.params.id}`,

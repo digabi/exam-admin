@@ -1,14 +1,21 @@
 'use strict'
 
 import express from 'express'
-const router = express.Router()
-import { config } from '../../config'
-import { proxyWithOpts } from '@digabi/express-utils'
+import { proxyToArpa } from '../../proxying'
 import { logger } from '../../logger'
 
-router.post('/', (req, res, next) => {
-  logger.info('Incoming answers meb', { size: Number(req.headers['content-length']) })
-  proxyWithOpts(`${config().examUri}/grading/answers-meb`, { timeout: 4 * 60 * 1000 }, logger)(req, res, next)
-})
+/**
+ * Streams an answer package to arpa. The two upload routes differ only in the arpa path
+ * they target, and through it in the response shape arpa answers with.
+ * TODO: Route parametre can be removed when the old KTP servers are no longer supported.
+ */
+export default function answersUploadRouter(arpaPath) {
+  const router = express.Router()
 
-export default router
+  router.post('/', (req, res, next) => {
+    logger.info('Incoming answers meb', { size: Number(req.headers['content-length']), arpaPath })
+    proxyToArpa(arpaPath, { timeout: 4 * 60 * 1000 })(req, res, next)
+  })
+
+  return router
+}

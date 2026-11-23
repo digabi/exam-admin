@@ -1,4 +1,4 @@
-import { CensorDistributionState, FindingsStatus } from '../common/types'
+import { CensorDistributionState } from '../common/types'
 
 type EventExam = {
   eventUuid: string
@@ -45,7 +45,6 @@ type ArpaPregradingStatus = {
   uuid: string
   title: string
   schoolAnonCode: string
-  findingsStatus?: FindingsStatus
   uploaded?: string
   answerPapers: number
   answers: number
@@ -53,7 +52,10 @@ type ArpaPregradingStatus = {
   pregradingScores: number
   pregradingFinishedCount: number
   pregradingDeadlines: ExamPregradingDeadlines
+  hasMinutes?: boolean
 }
+
+export type MinutesAccess = 'none' | 'minutes-only' | 'grading-and-minutes'
 
 export type ExamPregradingStatus = ArpaExamPregradingStatus & {
   teacherGradingProgress: number
@@ -73,11 +75,38 @@ type DateAndTarget = {
   target: number
 }
 
+export type MinutesNote = {
+  eventUuid: string
+  timestamp: number
+  note: string
+  examUuid?: string
+  extraTime?: number
+  studentUuid?: string
+  studentSsn?: string
+  schoolName?: string
+  firstNames?: string
+  lastName?: string
+  examTitle?: string
+  examRoomName?: string
+}
+
+export type MinutesApiResponse = {
+  examRooms: string[]
+  notes: MinutesNote[]
+  exams: {
+    examUuid: string
+    examTitle: string
+    isDefaultExam?: boolean
+  }[]
+}
+
 export type PregradingExamUrls = {
   uploadAnswers: (schoolId: string) => string
   heldExams: (schooldId: string) => string
+  heldExamsView?: () => string
+  minutesView?: (examUuid: string) => string
+  minutesData?: (examUuid: string) => string
   grading: (schoolAnonCode: string) => string
-  findings: (schoolAnonCode: string) => string
   reviewAnswers: (schoolAnonCode: string) => string
   deleteAnswers: (schoolAnonCode: string) => string
   undeleteAnswers: (schoolAnonCode: string) => string

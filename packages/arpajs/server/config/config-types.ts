@@ -1,4 +1,4 @@
-import type { NodeHttpHandler } from '@aws-sdk/node-http-handler'
+import type { NodeHttpHandler } from '@smithy/node-http-handler'
 
 type S3Config = {
   region: string
@@ -25,7 +25,6 @@ type CommonConfiguration = {
   s3ExamLogsBucket: string
   s3AttachmentsBucket: string
   s3NsaScriptsBucket: string
-  s3NsaFindingsBucket: string
   prePackagedNsaScriptZipPath: string
   useKtpUpdate: boolean
   prePackagedKtpUpdatePath: string
@@ -40,7 +39,6 @@ type CommonConfiguration = {
   s3Config: S3Config
   s3ConfigForAttachments: S3Config
   s3ConfigForLogs: S3Config
-  s3ConfigForFindings: S3Config
   multiChoiceShuffleSecret: () => Promise<string>
   answersPrivateKey: () => Promise<string>
   answersPublicKey: () => Promise<string>

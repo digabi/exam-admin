@@ -1,7 +1,7 @@
 import React, { MouseEventHandler, ReactElement, useEffect, useState } from 'react'
 import '@fortawesome/fontawesome-free/css/all.css'
 import './BerttaEditor.less'
-import '@digabi/exam-engine-core/dist/main.css'
+import '@digabi/exam-engine-core/main.css'
 import classNames from 'classnames'
 import { parseExam } from '@digabi/exam-engine-core'
 import { Preview } from './Preview'

@@ -55,6 +55,24 @@ export const streamXmlMeb = async (examUuid: string, noShuffle: boolean, res: Re
   const filename = createZipName('exam_', exam.title, 'mex')
   res.set('Content-disposition', `attachment; filename=${filename}`)
 
+  const destroyInputs = () => {
+    attachments.forEach(({ contents }) => contents.destroy())
+    nsaScripts.destroy()
+    ktpUpdate?.destroy()
+    koeUpdate?.destroy()
+  }
+
+  // Clean up all input streams when response has been aborted
+  if (res.destroyed) {
+    destroyInputs()
+  } else {
+    res.once('close', () => {
+      if (!res.writableFinished) {
+        destroyInputs()
+      }
+    })
+  }
+
   return createMex(
     xml.toString(),
     attachments,

@@ -23,7 +23,8 @@ export const gradingUrls = {
   postComment: (gradingRole: GradingRole, answerId: number) => `/exam-api/grading/comments/${answerId}`,
   examContent: (examUuid: string) => `/school/preview/${examUuid}`,
   attachmentsContent: (examUuid: string) => `/school/preview/${examUuid}/attachments`,
-  gradingInstructions: (examUuid: string) => '#',
+  // Course exams have no grading instructions
+  gradingInstructions: () => null,
 
   // pregrading specific urls
   markPregradingFinished: (schoolAnonCode: string) =>

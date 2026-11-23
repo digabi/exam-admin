@@ -1,0 +1,196 @@
+#held-exams {
+  width: auto;
+  box-shadow:
+    0 2px 5px -1px rgba(0, 0, 0, 0.1),
+    0 12px 25px -11px rgba(0, 0, 0, 0.05),
+    0 0 3px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  overflow-y: auto;
+  font-size: @text-size;
+  background-color: white;
+
+  tr.disabled {
+    * {
+      color: black;
+    }
+
+    & > * {
+      opacity: 0.25;
+    }
+
+    td {
+      &.work-left {
+        &.late {
+          animation: none;
+        }
+
+        div.late {
+          display: none;
+        }
+      }
+    }
+  }
+
+  :is(td, th):last-child {
+    border-left: 1px solid #0002;
+  }
+
+  th {
+    border-bottom: 1px solid @table-border-color;
+    text-align: left;
+    line-height: 16px;
+    position: sticky;
+    z-index: 1;
+    top: 0;
+    height: 35px;
+    background: hsl(206 28% 96% / 1);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px @examTableCellHorizontalPadding;
+
+    &.students {
+      text-align: center;
+    }
+
+    .pregrading {
+      .before {
+        display: inline-block;
+        content: '';
+        width: 10px;
+        height: 10px;
+        margin-right: 5px;
+        border-radius: 10px;
+        position: absolute;
+        left: -1rem;
+        top: 3px;
+      }
+
+      &_graded:before {
+        .before();
+        background: @bar-graded;
+      }
+
+      &_finished:before {
+        .before();
+        background: @bar-finished;
+      }
+    }
+
+    .pregrading_graded,
+    .pregrading_finished {
+      position: relative;
+      margin-left: 1rem;
+    }
+  }
+
+  td {
+    padding: 6px @examTableCellHorizontalPadding;
+    font-size: 14px;
+    border-bottom: 1px solid @table-border-color;
+    position: relative;
+    line-height: 18px;
+    vertical-align: middle;
+
+    &.students {
+      .students-container {
+        display: grid;
+        grid-template-columns: auto auto;
+        grid-auto-flow: column;
+        grid-template-rows: 1fr 1fr;
+        justify-items: center;
+      }
+    }
+
+    .answers-count {
+      border: 2px solid #e6e6e6;
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-content: center;
+    }
+
+    &.progress {
+      padding: 1rem 0;
+      text-align: center;
+    }
+
+    &.work-left {
+      font-size: 14px;
+
+      b {
+        font-size: 16px;
+      }
+
+      .target-date {
+        display: flex;
+        gap: 0.5rem;
+        white-space: nowrap;
+        font-weight: 700;
+      }
+
+      .date {
+        width: 60px;
+        font-size: 16px;
+      }
+
+      .late {
+        animation: none;
+        padding: 0 5pxain;
+        background: #ea0b0b;
+        color: white;
+        font-weight: 700;
+        display: inline-block;
+        border-radius: 4px;
+        margin-top: 1px;
+      }
+
+      .grading-done {
+        color: @green;
+        font-weight: 600;
+        position: relative;
+      }
+    }
+
+    &.grading-links {
+      .grading-links-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.25rem;
+        white-space: nowrap;
+      }
+    }
+
+    &.findings-and-minutes {
+      color: @mid-gray;
+
+      .findings-and-minutes-container {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        gap: 0.25rem;
+      }
+
+      .has-minutes {
+        color: @base-brand-blue;
+      }
+
+      .red {
+        color: @dark-red;
+      }
+
+      .black {
+        color: @text-color;
+      }
+
+      .fa-eye {
+        color: @base-brand-blue;
+      }
+    }
+
+    a.delete {
+      color: @dark-red;
+    }
+  }
+}

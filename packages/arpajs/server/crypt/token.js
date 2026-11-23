@@ -1,19 +1,16 @@
 'use strict'
 
-import CryptoJS from 'crypto-js'
 import { logger } from '../logger'
-import URLSafeBase64 from 'urlsafe-base64'
 import { config } from '../config'
 import crypto from 'crypto'
 
-const key = CryptoJS.enc.Hex.parse(config().urlTokenKey)
-const iv = CryptoJS.enc.Hex.parse(config().urlTokenIv)
+const key = Buffer.from(config().urlTokenKey, 'hex')
+const iv = Buffer.from(config().urlTokenIv, 'hex')
 
 function encrypt(str) {
-  const encrypted = CryptoJS.AES.encrypt(str, key, { iv: iv })
-  const base64Cipher = encrypted.ciphertext.toString(CryptoJS.enc.Base64)
-  const urlSafeCipher = URLSafeBase64.encode(Buffer.from(base64Cipher, 'base64'))
-  return urlSafeCipher
+  const cipher = crypto.createCipheriv('aes-256-cbc', key, iv)
+  const encrypted = Buffer.concat([cipher.update(str, 'utf8'), cipher.final()])
+  return encrypted.toString('base64url')
 }
 
 function decrypt(ciphertext) {
